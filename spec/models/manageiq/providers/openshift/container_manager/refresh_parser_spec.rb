@@ -16,7 +16,10 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     let(:image_from_openshift) do
       RecursiveOpenStruct.new(
         :metadata             => {
-          :name => image_digest
+          :name        => image_digest,
+          :annotations => {
+            :i_am_an_annotation => "true",
+          }
         },
         :dockerImageReference => "#{image_registry}:#{image_registry_port}/#{image_name}@#{image_digest}",
         :dockerImageManifest  => '{"name": "%s", "tag": "%s"}' % [image_name, image_tag],
@@ -91,6 +94,10 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                                          {:section => "docker_labels",
                                                           :name    => "key2",
                                                           :value   => "value2",
+                                                          :source  => "openshift"}],
+                           :annotations              => [{:section => "annotations",
+                                                          :name    => "i_am_an_annotation",
+                                                          :value   => "true",
                                                           :source  => "openshift"}]
                          )
     end
