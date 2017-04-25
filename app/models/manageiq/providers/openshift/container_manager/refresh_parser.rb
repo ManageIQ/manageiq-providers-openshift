@@ -18,43 +18,47 @@ module ManageIQ::Providers
       end
 
       def get_builds(inventory)
-        process_collection(inventory["build_config"], :container_builds) { |n| parse_build(n) }
+        key = path_for_entity("build_config")
+        process_collection(inventory["build_config"], key) { |n| parse_build(n) }
 
-        @data[:container_builds].each do |ns|
-          @data_index.store_path(:container_builds, :by_name, ns[:name], ns)
+        @data[key].each do |ns|
+          @data_index.store_path(key, :by_name, ns[:name], ns)
         end
       end
 
       def get_build_pods(inventory)
-        process_collection(inventory["build"], :container_build_pods) { |n| parse_build_pod(n) }
+        key = path_for_entity("build")
+        process_collection(inventory["build"], key) { |n| parse_build_pod(n) }
 
-        @data[:container_build_pods].each do |ns|
-          @data_index.store_path(:container_build_pods, :by_name, ns[:name], ns)
+        @data[key].each do |ns|
+          @data_index.store_path(key, :by_name, ns[:name], ns)
         end
       end
 
       def get_routes(inventory)
-        process_collection(inventory["route"], :container_routes) { |n| parse_route(n) }
+        process_collection(inventory["route"], path_for_entity("route")) { |n| parse_route(n) }
       end
 
       def get_projects(inventory)
+        key = path_for_entity("project")
         inventory["project"].each { |item| parse_project(item) }
 
-        @data[:container_projects].each do |ns|
-          @data_index.store_path(:container_projects, :by_name, ns[:name], ns)
+        @data[key].each do |ns|
+          @data_index.store_path(key, :by_name, ns[:name], ns)
         end
       end
 
       def get_templates(inventory)
-        process_collection(inventory["template"], :container_templates) { |n| parse_template(n) }
+        key = path_for_entity("template")
+        process_collection(inventory["template"], key) { |n| parse_template(n) }
 
-        @data[:container_templates].each do |ct|
-          @data_index.store_path(:container_templates, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
+        @data[key].each do |ct|
+          @data_index.store_path(key, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
         end
       end
 
       def parse_project(project_item)
-        project = @data_index.fetch_path(:container_projects, :by_name, project_item.metadata.name)
+        project = @data_index.fetch_path(path_for_entity("project"), :by_name, project_item.metadata.name)
         return if project.nil? # ignore openshift projects without an underlying kubernetes namespace
         project[:display_name] = project_item.metadata.annotations['openshift.io/display-name'] unless
             project_item.metadata.annotations.nil?
@@ -76,9 +80,9 @@ module ManageIQ::Providers
           :path      => route.path
         )
 
-        new_result[:project] = @data_index.fetch_path(:container_projects, :by_name,
+        new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
                                                       route.metadata["table"][:namespace])
-        new_result[:container_service] = @data_index.fetch_path(:container_services, :by_namespace_and_name,
+        new_result[:container_service] = @data_index.fetch_path(path_for_entity("service"), :by_namespace_and_name,
                                                                 new_result[:namespace], get_service_name(route))
         new_result
       end
@@ -106,7 +110,7 @@ module ManageIQ::Providers
           :output_name                 => build.spec.try(:output).try(:to).try(:name)
         )
 
-        new_result[:project] = @data_index.fetch_path(:container_projects, :by_name,
+        new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
                                                       build.metadata["table"][:namespace])
         new_result
       end
@@ -124,7 +128,7 @@ module ManageIQ::Providers
           :start_timestamp               => status[:startTimestamp],
           :output_docker_image_reference => status[:outputDockerImageReference],
         )
-        new_result[:build_config] = @data_index.fetch_path(:container_builds, :by_name,
+        new_result[:build_config] = @data_index.fetch_path(path_for_entity("build_config"), :by_name,
                                                            build_pod.status.config.try(:name))
         new_result
       end
@@ -148,7 +152,7 @@ module ManageIQ::Providers
         new_result[:container_template_parameters] = parse_template_parameters(template.parameters)
         new_result[:labels] = parse_labels(template)
         new_result[:objects] = template.objects.collect(&:to_h)
-        new_result[:container_project] = @data_index.fetch_path(:container_projects, :by_name, new_result[:namespace])
+        new_result[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, new_result[:namespace])
         new_result
       end
 
