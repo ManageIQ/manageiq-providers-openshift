@@ -9,3 +9,17 @@
     :password:
     :port:
     :user:
+:ems_refresh:
+  :openshift:
+    :refresh_interval: 15.minutes
+    :get_container_images: true
+:workers:
+  :worker_base:
+    :event_catcher:
+      :event_catcher_openshift:
+        :poll: 1.seconds
+    :queue_worker_base:
+        :ems_metrics_collector_worker:
+          :ems_metrics_collector_worker_openshift: {}
+        :ems_refresh_worker:
+          :ems_refresh_worker_openshift: {}
