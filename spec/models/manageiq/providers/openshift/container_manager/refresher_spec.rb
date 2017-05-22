@@ -328,6 +328,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     # TODO: for next recording, oc label some running, openshift-built image
     expect(@container_image.labels.count).to eq(0)
     expect(@container_image.docker_labels.count).to eq(metadata ? 19 : 0)
+    expect(@container_image.annotations.count).to eq(metadata ? 1 : 0)
   end
 
   def assert_container_node_with_no_hawk_attributes

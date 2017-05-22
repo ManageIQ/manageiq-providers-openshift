@@ -205,6 +205,10 @@ module ManageIQ::Providers
             )
           end
         end
+        if openshift_image[:metadata].try(:annotations)
+          new_result[:annotations] = parse_identifying_attributes(
+            openshift_image[:metadata].try(:annotations), "annotations", "openshift")
+        end
         new_result
       end
     end
