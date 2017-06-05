@@ -162,6 +162,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(@container.container_group).to have_attributes(
       :name => "metrics-deployer-frcf1"
     )
+
+    # TODO: move to kubernetes refresher test (needs cassette containing seLinuxOptions)
+    expect(@container.container_definition.security_context).to have_attributes(
+      :se_linux_user  => nil,
+      :se_linux_role  => nil,
+      :se_linux_type  => nil,
+      :se_linux_level => "s0:c6,c0"
+    )
   end
 
   def assert_specific_container_group
