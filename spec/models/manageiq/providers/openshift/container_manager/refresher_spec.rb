@@ -320,14 +320,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(@container_template.container_project).to eq(ContainerProject.find_by(:name => "openshift-infra"))
     expect(@container_template.container_template_parameters.count).to eq(4)
     expect(@container_template.container_template_parameters.find_by(:name => "NODE")).to have_attributes(
-      :description  => "The node number for the Cassandra cluster.",
-      :display_name => nil,
+      :description    => "The node number for the Cassandra cluster.",
+      :display_name   => nil,
       :ems_created_on => nil,
-      :value        => nil,
-      :generate     => nil,
-      :from         => nil,
-      :required     => true,
-     )
+      :value          => nil,
+      :generate       => nil,
+      :from           => nil,
+      :required       => true,
+    )
   end
 
   def assert_specific_unused_container_image(metadata:, connected:)
