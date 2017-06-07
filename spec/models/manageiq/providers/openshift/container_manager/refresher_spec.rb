@@ -162,6 +162,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(@container.container_group).to have_attributes(
       :name => "metrics-deployer-frcf1"
     )
+
+    # TODO: move to kubernetes refresher test (needs cassette containing seLinuxOptions)
+    expect(@container.container_definition.security_context).to have_attributes(
+      :se_linux_user  => nil,
+      :se_linux_role  => nil,
+      :se_linux_type  => nil,
+      :se_linux_level => "s0:c6,c0"
+    )
   end
 
   def assert_specific_container_group
@@ -281,8 +289,10 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
   end
 
   def assert_specific_container_build_pod
+    # TODO: record 2 builds of same name in different projects
     @container_build_pod = ContainerBuildPod.find_by(:name => "python-project-1")
     expect(@container_build_pod).to have_attributes(
+      :namespace                     => "python-project",
       :name                          => "python-project-1",
       :phase                         => "Complete",
       :reason                        => nil,
@@ -292,6 +302,11 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(@container_build_pod.container_build).to eq(
       ContainerBuild.find_by(:name => "python-project")
     )
+
+    expect(@container_build_pod.container_group).to eq(
+      ContainerGroup.find_by(:name => "python-project-1-build")
+    )
+    expect(@container_build_pod.container_group.container_build_pod).to eq(@container_build_pod)
   end
 
   def assert_specific_container_template
@@ -304,8 +319,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(@container_template.ext_management_system).to eq(@ems)
     expect(@container_template.container_project).to eq(ContainerProject.find_by(:name => "openshift-infra"))
     expect(@container_template.container_template_parameters.count).to eq(4)
-    expect(@container_template.container_template_parameters.last).to have_attributes(
-      :name => "NODE"
+    expect(@container_template.container_template_parameters.find_by(:name => "NODE")).to have_attributes(
+      :description    => "The node number for the Cassandra cluster.",
+      :display_name   => nil,
+      :ems_created_on => nil,
+      :value          => nil,
+      :generate       => nil,
+      :from           => nil,
+      :required       => true,
     )
   end
 
