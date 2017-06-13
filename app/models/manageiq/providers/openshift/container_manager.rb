@@ -9,6 +9,13 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   require_nested :Refresher
   require_nested :OrchestrationStack
 
+  # Override HasMonitoringManagerMixin
+  has_one :monitoring_manager,
+          :foreign_key => :parent_ems_id,
+          :class_name  => "ManageIQ::Providers::Openshift::MonitoringManager",
+          :autosave    => true,
+          :dependent   => :destroy
+
   def self.ems_type
     @ems_type ||= "openshift".freeze
   end
