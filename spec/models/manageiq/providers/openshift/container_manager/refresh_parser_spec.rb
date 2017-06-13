@@ -17,7 +17,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       RecursiveOpenStruct.new(
         :metadata             => {
           :name              => image_digest,
-          :creationTimestamp => '2015-08-17T09:16:46Z'
+          :creationTimestamp => '2015-08-17T09:16:46Z',
+          :uid               => '123'
         },
         :dockerImageReference => "#{image_registry}:#{image_registry_port}/#{image_name}@#{image_digest}",
         :dockerImageManifest  => '{"name": "%s", "tag": "%s"}' % [image_name, image_tag],
@@ -72,6 +73,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                          image_from_openshift)).to eq(
                            :name                     => image_name,
                            :registered_on            => Time.parse('2015-08-17T09:16:46Z').utc,
+                           :type                     => 'ManageIQ::Providers::Openshift::ContainerManager::ContainerImage',
                            :digest                   => image_digest,
                            :image_ref                => image_ref,
                            :tag                      => image_tag,
@@ -105,7 +107,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                            :digest                   => nil,
                            :image_ref                => "docker-pullable://sha256:abcdefg",
                            :name                     => "sha256",
-                           :tag                      => "abcdefg"
+                           :tag                      => "abcdefg",
+                           :type                     => "ManageIQ::Providers::Openshift::ContainerManager::ContainerImage",
                          )
     end
 
@@ -123,6 +126,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                            :docker_version           => nil,
                            :size                     => nil,
                            :labels                   => [],
+                           :type                     => "ManageIQ::Providers::Openshift::ContainerManager::ContainerImage",
                          )
     end
 
@@ -145,7 +149,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                            :environment_variables    => {},
                            :size                     => nil,
                            :labels                   => [],
-                           :docker_labels            => []
+                           :docker_labels            => [],
+                           :type                     => "ManageIQ::Providers::Openshift::ContainerManager::ContainerImage",
                          )
     end
 

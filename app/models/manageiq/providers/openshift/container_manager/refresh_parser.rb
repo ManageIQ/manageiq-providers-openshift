@@ -175,6 +175,8 @@ module ManageIQ::Providers
         ref = "#{ContainerImage::DOCKER_PULLABLE_PREFIX}#{id}"
         new_result = parse_container_image(id, ref)
 
+        new_result[:type] = 'ManageIQ::Providers::Openshift::ContainerManager::ContainerImage'
+
         if openshift_image[:dockerImageManifest].present?
           begin
             json = JSON.parse(openshift_image[:dockerImageManifest])
