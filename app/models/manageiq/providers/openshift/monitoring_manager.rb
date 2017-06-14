@@ -1,5 +1,6 @@
 module ManageIQ::Providers
   class Openshift::MonitoringManager < ManageIQ::Providers::MonitoringManager
+    require_nested :EventCatcher
     include ManageIQ::Providers::Kubernetes::MonitoringManagerMixin
 
     belongs_to :parent_manager,
@@ -13,6 +14,10 @@ module ManageIQ::Providers
 
     def self.description
       @description ||= "Openshift Monitor".freeze
+    end
+
+    def self.event_monitor_class
+      ManageIQ::Providers::Openshift::MonitoringManager::EventCatcher
     end
   end
 end
