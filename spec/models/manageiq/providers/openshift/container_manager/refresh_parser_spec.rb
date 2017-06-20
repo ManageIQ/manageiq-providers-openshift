@@ -455,6 +455,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                              :uid               => '22309c35-8f70-11e5-a806-001a4a231290',
                              :resourceVersion   => '172339',
                              :creationTimestamp => '2015-11-17T09:18:42Z',
+                             :labels            => {
+                               :name => 'example'
+                             }
                            },
                            :parameters => [
                              {'name'        => 'IMAGE_VERSION',
@@ -464,15 +467,28 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                               'required'    => true
                              }
                            ],
-                           :objects    => []
+                           :objects    => [],
+                           :labels     => {
+                             :template => 'example-template',
+                             :type     => 'created-from-template'
+                           }
                          ))).to eq(:name                          => 'example-template',
                                    :ems_ref                       => '22309c35-8f70-11e5-a806-001a4a231290',
                                    :namespace                     => 'test-namespace',
                                    :ems_created_on                => '2015-11-17T09:18:42Z',
                                    :resource_version              => '172339',
-                                   :labels                        => [],
+                                   :labels                        => [
+                                     {:section => 'labels',
+                                      :name    => 'name',
+                                      :value   => 'example',
+                                      :source  => 'kubernetes'}
+                                   ],
                                    :objects                       => [],
                                    :type                          => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
+                                   :object_labels                 => {
+                                     :template => 'example-template',
+                                     :type     => 'created-from-template'
+                                   },
                                    :container_template_parameters => [
                                      {:name         => 'IMAGE_VERSION',
                                       :display_name => 'Image Version',
@@ -505,6 +521,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                    :labels                        => [],
                                    :objects                       => [],
                                    :type                          => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
+                                   :object_labels                 => {},
                                    :container_template_parameters => [])
     end
   end
