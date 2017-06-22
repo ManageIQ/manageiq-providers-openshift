@@ -1,6 +1,9 @@
 module ManageIQ::Providers
   module Openshift
     class ContainerManager::RefreshParser < ManageIQ::Providers::Kubernetes::ContainerManager::RefreshParser
+
+      include ContainerManager::InventoryCollections
+
       def ems_inv_to_hashes(inventory, options = Config::Options.new)
         super(inventory, options)
         get_projects(inventory)
@@ -11,6 +14,10 @@ module ManageIQ::Providers
         get_openshift_images(inventory) if options.get_container_images
         EmsRefresh.log_inv_debug_trace(@data, "data:")
         @data
+      end
+
+      def ems_inv_to_inv_collections(ems, inventory, options = Config::Options.new)
+        super
       end
 
       def get_openshift_images(inventory)

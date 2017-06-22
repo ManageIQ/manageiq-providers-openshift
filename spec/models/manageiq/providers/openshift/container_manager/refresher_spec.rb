@@ -36,7 +36,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     end
   end
 
-  it "will perform a full refresh on openshift" do
+  def full_refresh_test
     2.times do
       @ems.reload
       normal_refresh
@@ -58,6 +58,24 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
       assert_specific_unused_container_image(:metadata => true, :connected => true)
       assert_specific_container_node_custom_attributes
     end
+  end
+
+  it "will perform a full refresh on openshift" do
+    full_refresh_test
+  end
+
+  it "will perform a full refresh with inventory_objects on openshift" do
+    pending("not all collections are covered yet")
+
+    stub_settings_merge(
+      :ems_refresh => {
+        :openshift => {
+          :inventory_object_refresh => true
+        }
+      }
+    )
+
+    full_refresh_test
   end
 
   it "will skip additional attributes when hawk connection fails" do

@@ -36,7 +36,12 @@ module ManageIQ::Providers
         entities = openshift_entities.merge(kube_entities)
         entities["additional_attributes"] = fetch_hawk_inv(ems) || {}
         EmsRefresh.log_inv_debug_trace(entities, "inv_hash:")
-        ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_hashes(entities, refresher_options)
+
+        if refresher_options.inventory_object_refresh
+          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_inv_collections(ems, entities, refresher_options)
+        else
+          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_hashes(entities, refresher_options)
+        end
       end
     end
   end
