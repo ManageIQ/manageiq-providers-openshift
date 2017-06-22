@@ -81,7 +81,7 @@ module ManageIQ::Providers
         )
 
         new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
-                                                      route.metadata["table"][:namespace])
+                                                      route.metadata.namespace)
         new_result[:container_service] = @data_index.fetch_path(path_for_entity("service"), :by_namespace_and_name,
                                                                 new_result[:namespace], get_service_name(route))
         new_result
@@ -111,7 +111,7 @@ module ManageIQ::Providers
         )
 
         new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
-                                                      build.metadata["table"][:namespace])
+                                                      build.metadata.namespace)
         new_result
       end
 
