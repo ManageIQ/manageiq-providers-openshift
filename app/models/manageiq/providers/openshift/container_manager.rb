@@ -7,6 +7,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   require_nested :RefreshParser
   require_nested :RefreshWorker
   require_nested :Refresher
+  require_nested :OrchestrationStack
 
   def self.ems_type
     @ems_type ||= "openshift".freeze
