@@ -36,7 +36,17 @@ module ManageIQ::Providers
       end
 
       def get_routes(inventory)
+        key = path_for_entity("route")
         process_collection(inventory["route"], path_for_entity("route")) { |n| parse_route(n) }
+
+        @data[key].each do |r|
+          r[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, r[:namespace])
+          service_ref = r.delete(:container_service_ref)
+          r[:container_service] = service_ref && @data_index.fetch_path(
+            path_for_entity("service"),
+            :by_namespace_and_name, service_ref[:namespace], service_ref[:name]
+          )
+        end
       end
 
       # Merge into results of parse_namespace
@@ -84,11 +94,11 @@ module ManageIQ::Providers
           :tags      => map_labels('ContainerRoute', labels),
           :path      => route.path
         )
+        service_name = get_service_name(route)
+        unless service_name.nil?
+          new_result[:container_service_ref] = {:namespace => new_result[:namespace], :name => service_name}
+        end
 
-        new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
-                                                      route.metadata.namespace)
-        new_result[:container_service] = @data_index.fetch_path(path_for_entity("service"), :by_namespace_and_name,
-                                                                new_result[:namespace], get_service_name(route))
         new_result
       end
 
