@@ -441,16 +441,37 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
   end
 
-  describe "parse_project" do
+  describe "get_projects" do
+    let(:inventory) do
+      {
+        'project' => [
+          RecursiveOpenStruct.new(
+            :metadata   => {
+              :name        => 'myproj',
+              :annotations => {
+                'openshift.io/display-name' => 'example'
+              },
+            },
+          )
+        ]
+      }
+    end
+
     it "handles no underlying namespace" do
-      expect(parser.send(:parse_project,
-                         RecursiveOpenStruct.new(
-                           :metadata   => {
-                             :annotations => {
-                               'openshift.io/display-name' => 'example'
-                             },
-                           },
-                         ))).to eq(nil)
+      parser.send(:get_projects, inventory)
+      expect(parser.instance_variable_get(:@data)[:container_projects]).to be_blank
+      expect(parser.instance_variable_get(:@data_index).fetch_path(:container_projects, :by_name)).to be_blank
+    end
+
+    it "adds display_name to underlying namespace" do
+      data_index = parser.instance_variable_get(:@data_index)
+      data_index.store_path(:container_projects, :by_name, 'myproj', {:ems_ref => 'some-uuid'})
+
+      parser.send(:get_projects, inventory)
+      expect(data_index.fetch_path(:container_projects, :by_name, 'myproj')).to eq(
+        :ems_ref      => 'some-uuid',
+        :display_name => 'example',
+      )
     end
   end
 end

@@ -39,12 +39,16 @@ module ManageIQ::Providers
         process_collection(inventory["route"], path_for_entity("route")) { |n| parse_route(n) }
       end
 
+      # Merge into results of parse_namespace
       def get_projects(inventory)
-        key = path_for_entity("project")
-        inventory["project"].each { |item| parse_project(item) }
+        key = path_for_entity("namespace")
+        inventory["project"].each do |item|
+          project = parse_project(item)
+          name = project.delete(:name)
 
-        @data[key].each do |ns|
-          @data_index.store_path(key, :by_name, ns[:name], ns)
+          namespace = @data_index.fetch_path(key, :by_name, name)
+          next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
+          namespace.merge!(project)
         end
       end
 
@@ -58,10 +62,11 @@ module ManageIQ::Providers
       end
 
       def parse_project(project_item)
-        project = @data_index.fetch_path(path_for_entity("project"), :by_name, project_item.metadata.name)
-        return if project.nil? # ignore openshift projects without an underlying kubernetes namespace
-        project[:display_name] = project_item.metadata.annotations['openshift.io/display-name'] unless
-            project_item.metadata.annotations.nil?
+        new_result = {:name => project_item.metadata.name}
+        unless project_item.metadata.annotations.nil?
+          new_result[:display_name] = project_item.metadata.annotations['openshift.io/display-name']
+        end
+        new_result
       end
 
       def get_service_name(route)
