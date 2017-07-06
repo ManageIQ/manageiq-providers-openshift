@@ -21,8 +21,9 @@ module ManageIQ::Providers
         key = path_for_entity("build_config")
         process_collection(inventory["build_config"], key) { |n| parse_build(n) }
 
-        @data[key].each do |ns|
-          @data_index.store_path(key, :by_namespace_and_name, ns[:namespace], ns[:name], ns)
+        @data[key].each do |b|
+          b[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, b[:namespace])
+          @data_index.store_path(key, :by_namespace_and_name, b[:namespace], b[:name], b)
         end
       end
 
@@ -96,6 +97,7 @@ module ManageIQ::Providers
         )
         service_name = get_service_name(route)
         unless service_name.nil?
+          # In same namespace:  https://docs.openshift.org/latest/rest_api/openshift_v1.html#v1-routetargetreference
           new_result[:container_service_ref] = {:namespace => new_result[:namespace], :name => service_name}
         end
 
@@ -124,9 +126,6 @@ module ManageIQ::Providers
           :completion_deadline_seconds => build.spec.try(:completionDeadlineSeconds),
           :output_name                 => build.spec.try(:output).try(:to).try(:name)
         )
-
-        new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
-                                                      build.metadata.namespace)
         new_result
       end
 

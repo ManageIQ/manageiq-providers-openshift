@@ -262,8 +262,6 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                  :ems_created_on              => '2015-08-17T09:16:46Z',
                                  :resource_version            => '165339',
                                  :service_account             => 'service_account_name',
-                                 :project                     => nil,
-
                                  :build_source_type           => 'Git',
                                  :source_binary               => nil,
                                  :source_dockerfile           => nil,
