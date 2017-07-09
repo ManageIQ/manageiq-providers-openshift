@@ -73,6 +73,7 @@ module ManageIQ::Providers
         process_collection(inventory["template"], key) { |n| parse_template(n) }
 
         @data[key].each do |ct|
+          ct[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, ct[:namespace])
           @data_index.store_path(key, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
         end
       end
@@ -170,7 +171,6 @@ module ManageIQ::Providers
         new_result[:container_template_parameters] = parse_template_parameters(template.parameters)
         new_result[:labels] = parse_labels(template)
         new_result[:objects] = template.objects.to_a.collect(&:to_h)
-        new_result[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, new_result[:namespace])
         new_result
       end
 
