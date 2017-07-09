@@ -334,7 +334,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     # An image not mentioned in /pods, only in /images, built by openshift so it has metadata.
     @container_image = ContainerImage.find_by(:name => "openshift/nodejs-010-centos7")
 
-    expect(@container_image.ext_management_system).to eq(connected ? @ems : nil)
+    expect(@container_image.active?).to eq(connected)
     expect(@container_image.environment_variables.count).to eq(metadata ? 10 : 0)
     expect(@container_image.labels.count).to eq(1)
     expect(@container_image.docker_labels.count).to eq(metadata ? 15 : 0)
