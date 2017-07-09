@@ -55,7 +55,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
       assert_specific_container_build_pod
       assert_specific_container_template
       assert_specific_used_container_image(:metadata => true)
-      assert_specific_unused_container_image(:metadata => true, :connected => true)
+      assert_specific_unused_container_image(:metadata => true, :archived => false)
       assert_specific_container_node_custom_attributes
     end
   end
@@ -121,10 +121,10 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
 
     @ems.reload
 
-    # Unused images are disconnected, metadata is retained either way.
+    # Unused images are archived, metadata is retained either way.
     expect(@ems.container_images.count).to eq(pod_images_count)
     assert_specific_used_container_image(:metadata => true)
-    assert_specific_unused_container_image(:metadata => true, :connected => false)
+    assert_specific_unused_container_image(:metadata => true, :archived => true)
   end
 
   def assert_table_counts
@@ -330,11 +330,11 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     )
   end
 
-  def assert_specific_unused_container_image(metadata:, connected:)
+  def assert_specific_unused_container_image(metadata:, archived:)
     # An image not mentioned in /pods, only in /images, built by openshift so it has metadata.
     @container_image = ContainerImage.find_by(:name => "openshift/nodejs-010-centos7")
 
-    expect(@container_image.ext_management_system).to eq(connected ? @ems : nil)
+    expect(@container_image.archived?).to eq(archived)
     expect(@container_image.environment_variables.count).to eq(metadata ? 10 : 0)
     expect(@container_image.labels.count).to eq(1)
     expect(@container_image.docker_labels.count).to eq(metadata ? 15 : 0)
