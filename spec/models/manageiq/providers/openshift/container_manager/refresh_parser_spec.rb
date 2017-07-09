@@ -68,7 +68,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "collects data from openshift images correctly" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_openshift_image,
                          image_from_openshift)).to eq(
                            :name                     => image_name,
                            :registered_on            => Time.parse('2015-08-17T09:16:46Z').utc,
@@ -99,7 +99,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "handles openshift images without dockerImageManifest and dockerImageMetadata" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_openshift_image,
                          image_without_dockerImage_fields).except(:registered_on)).to eq(
                            :container_image_registry => nil,
                            :digest                   => nil,
@@ -110,7 +110,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "handles openshift image without dockerConfig" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_openshift_image,
                          image_without_dockerConfig)).to eq(
                            :container_image_registry => nil,
                            :digest                   => nil,
@@ -128,7 +128,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
 
     # check https://bugzilla.redhat.com/show_bug.cgi?id=1414508
     it "handles openshift image without environment variables" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_openshift_image,
                          image_without_environment_variables)).to eq(
                            :container_image_registry => nil,
                            :digest                   => nil,
