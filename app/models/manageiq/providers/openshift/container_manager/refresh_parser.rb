@@ -31,8 +31,13 @@ module ManageIQ::Providers
         key = path_for_entity("build")
         process_collection(inventory["build"], key) { |n| parse_build_pod(n) }
 
-        @data[key].each do |ns|
-          @data_index.store_path(key, :by_name, ns[:name], ns)
+        @data[key].each do |bp|
+          config_ref = bp.delete(:build_config_ref)
+          bp[:build_config] = config_ref && @data_index.fetch_path(
+            path_for_entity("build_config"),
+            :by_namespace_and_name, config_ref[:namespace], config_ref[:name]
+          )
+          @data_index.store_path(key, :by_name, bp[:name], bp)
         end
       end
 
@@ -141,12 +146,8 @@ module ManageIQ::Providers
           :completion_timestamp          => status[:completionTimestamp],
           :start_timestamp               => status[:startTimestamp],
           :output_docker_image_reference => status[:outputDockerImageReference],
+          :build_config_ref              => status[:config].to_h,
         )
-        bc_name = build_pod.status.config.try(:name)
-        bc_namespace = build_pod.status.config.try(:namespace)
-        new_result[:build_config] = @data_index.fetch_path(path_for_entity("build_config"),
-                                                           :by_namespace_and_name,
-                                                           bc_namespace, bc_name)
         new_result
       end
 

@@ -279,7 +279,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
   end
 
   describe "parse_build_pod" do
-    let (:basic_build_pod) do
+    let(:basic_build_pod) do
       {
         :metadata => {
           :name              => 'ruby-sample-build-1',
@@ -296,13 +296,15 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
           :startTimestamp             => '17',
           :outputDockerImageReference => 'host:port/path/to/image',
           :config                     => {
-            :name => 'ruby-sample-build',
+            :kind      => 'BuildConfig',
+            :name      => 'ruby-sample-build',
+            :namespace => 'test-namespace',
           },
         }
       }
     end
 
-    let (:basic_build_config) do
+    let(:basic_build_config) do
       {
         :metadata => {
           :name              => 'ruby-sample-build',
@@ -331,23 +333,37 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     it "handles simple data" do
       build_pod = basic_build_pod.deep_dup
       build_pod[:metadata][:namespace] = 'test-namespace'
-      expect(parser.send(:parse_build_pod,
-                         RecursiveOpenStruct.new(build_pod)
-                         )).to eq(:name                          => 'ruby-sample-build-1',
-                                  :ems_ref                       => 'af3d1a10-44c0-11e5-b186-0aaeec44370e',
-                                  :namespace                     => 'test-namespace',
-                                  :ems_created_on                => '2015-08-17T09:16:46Z',
-                                  :resource_version              => '165339',
-                                  :message                       => 'we come in peace',
-                                  :phase                         => 'set to stun',
-                                  :reason                        => 'this is a reason',
-                                  :duration                      => '33',
-                                  :completion_timestamp          => '50',
-                                  :start_timestamp               => '17',
-                                  :labels                        => [],
-                                  :build_config                  => nil,
-                                  :output_docker_image_reference => 'host:port/path/to/image'
-                                 )
+      expect(
+        parser.send(:parse_build_pod, RecursiveOpenStruct.new(build_pod))
+      ).to match(
+        :name                          => 'ruby-sample-build-1',
+        :ems_ref                       => 'af3d1a10-44c0-11e5-b186-0aaeec44370e',
+        :namespace                     => 'test-namespace',
+        :ems_created_on                => '2015-08-17T09:16:46Z',
+        :resource_version              => '165339',
+        :message                       => 'we come in peace',
+        :phase                         => 'set to stun',
+        :reason                        => 'this is a reason',
+        :duration                      => '33',
+        :completion_timestamp          => '50',
+        :start_timestamp               => '17',
+        :labels                        => [],
+        :build_config_ref              => a_hash_including(
+          :name      => 'ruby-sample-build',
+          :namespace => 'test-namespace',
+        ),
+        :output_docker_image_reference => 'host:port/path/to/image'
+      )
+    end
+
+    it "handles missing config reference" do
+      build_pod = basic_build_pod.deep_dup
+      build_pod[:metadata][:namespace] = 'test-namespace'
+      build_pod[:status][:config] = nil
+      inventory = {
+        "build" => [RecursiveOpenStruct.new(build_pod)],
+      }
+      parser.get_build_pods(inventory)
     end
 
     context "build config and pods linking" do
@@ -357,8 +373,13 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
         build_pod[:status][:config][:namespace] = namespace_pod
         build_config = basic_build_config.deep_dup
         build_config[:metadata][:namespace] = namespace_config
-        parser.get_builds(RecursiveOpenStruct.new({"build_config" => [RecursiveOpenStruct.new(build_config),]}))
-        parser.get_build_pods(RecursiveOpenStruct.new({"build" => [RecursiveOpenStruct.new(build_pod),]}))
+        inventory = {
+          "build_config" => [RecursiveOpenStruct.new(build_config)],
+          "build"        => [RecursiveOpenStruct.new(build_pod)],
+        }
+        # TODO: similar test using get_builds_graph, get_build_pods_graph
+        parser.get_builds(inventory)
+        parser.get_build_pods(inventory)
       end
 
       it "links correct build pods to build configurations in same namespace" do
@@ -444,7 +465,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       {
         'project' => [
           RecursiveOpenStruct.new(
-            :metadata   => {
+            :metadata => {
               :name        => 'myproj',
               :annotations => {
                 'openshift.io/display-name' => 'example'
