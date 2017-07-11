@@ -22,7 +22,7 @@ module ManageIQ::Providers
         process_collection(inventory["build_config"], key) { |n| parse_build(n) }
 
         @data[key].each do |ns|
-          @data_index.store_path(key, :by_name, ns[:name], ns)
+          @data_index.store_path(key, :by_namespace_and_name, ns[:namespace], ns[:name], ns)
         end
       end
 
@@ -128,8 +128,11 @@ module ManageIQ::Providers
           :start_timestamp               => status[:startTimestamp],
           :output_docker_image_reference => status[:outputDockerImageReference],
         )
-        new_result[:build_config] = @data_index.fetch_path(path_for_entity("build_config"), :by_name,
-                                                           build_pod.status.config.try(:name))
+        bc_name = build_pod.status.config.try(:name)
+        bc_namespace = build_pod.status.config.try(:namespace)
+        new_result[:build_config] = @data_index.fetch_path(path_for_entity("build_config"),
+                                                           :by_namespace_and_name,
+                                                           bc_namespace, bc_name)
         new_result
       end
 
