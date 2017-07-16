@@ -14,7 +14,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
         "#{image_registry}:#{image_registry_port}/#{image_name}@#{image_digest}"
     end
     let(:image_from_openshift) do
-      RecursiveOpenStruct.new(
+      array_recursive_ostruct(
         :metadata             => {
           :name              => image_digest,
           :creationTimestamp => '2015-08-17T09:16:46Z',
@@ -38,7 +38,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       )
     end
     let(:image_without_dockerImage_fields) do
-      RecursiveOpenStruct.new(
+      array_recursive_ostruct(
         :metadata => {
           :name => image_digest
         }
@@ -46,7 +46,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     let(:image_without_dockerConfig) do
-      RecursiveOpenStruct.new(
+      array_recursive_ostruct(
         :metadata            => {
           :name              => image_digest,
           :creationTimestamp => '2015-08-17T09:17:46Z'
@@ -57,7 +57,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     let(:image_without_environment_variables) do
-      RecursiveOpenStruct.new(
+      array_recursive_ostruct(
         :metadata            => {
           :name              => image_digest,
           :creationTimestamp => '2015-08-17T09:18:46Z'
@@ -237,7 +237,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
   describe "parse_build" do
     it "handles simple data" do
       expect(parser.send(:parse_build,
-                         RecursiveOpenStruct.new(
+                         array_recursive_ostruct(
                            :metadata => {
                              :name              => 'ruby-sample-build',
                              :namespace         => 'test-namespace',
@@ -339,7 +339,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       build_pod = basic_build_pod.deep_dup
       build_pod[:metadata][:namespace] = 'test-namespace'
       expect(
-        parser.send(:parse_build_pod, RecursiveOpenStruct.new(build_pod))
+        parser.send(:parse_build_pod, array_recursive_ostruct(build_pod))
       ).to match(
         :name                          => 'ruby-sample-build-1',
         :ems_ref                       => 'af3d1a10-44c0-11e5-b186-0aaeec44370e',
@@ -379,8 +379,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
         build_config = basic_build_config.deep_dup
         build_config[:metadata][:namespace] = namespace_config
         inventory = {
-          "build_config" => [RecursiveOpenStruct.new(build_config)],
-          "build"        => [RecursiveOpenStruct.new(build_pod)],
+          "build_config" => [array_recursive_ostruct(build_config)],
+          "build"        => [array_recursive_ostruct(build_pod)],
         }
         # TODO: similar test using get_builds_graph, get_build_pods_graph
         parser.get_builds(inventory)
@@ -404,7 +404,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
   describe "parse_template" do
     it "handles simple data" do
       expect(parser.send(:parse_template,
-                         RecursiveOpenStruct.new(
+                         array_recursive_ostruct(
                            :metadata   => {
                              :name              => 'example-template',
                              :namespace         => 'test-namespace',
@@ -445,7 +445,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     # check https://bugzilla.redhat.com/show_bug.cgi?id=1461785
     it "handles template without objects" do
       expect(parser.send(:parse_template,
-                         RecursiveOpenStruct.new(
+                         array_recursive_ostruct(
                            :metadata => {
                              :name              => 'template-without-objects',
                              :namespace         => 'namespace',
@@ -469,7 +469,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     let(:inventory) do
       {
         'project' => [
-          RecursiveOpenStruct.new(
+          array_recursive_ostruct(
             :metadata => {
               :name        => 'myproj',
               :annotations => {
