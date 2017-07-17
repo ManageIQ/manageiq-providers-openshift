@@ -3,7 +3,7 @@ require 'recursive-open-struct'
 describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
   let(:parser) { described_class.new }
 
-  describe "get_openshift_images" do
+  describe "get_or_merge_openshift_images" do
     let(:image_name) { "image_name" }
     let(:image_tag) { "my_tag" }
     let(:image_digest) { "sha256:abcdefg" }
@@ -68,7 +68,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "collects data from openshift images correctly" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_or_merge_openshift_image,
                          image_from_openshift)).to eq(
                            :name                     => image_name,
                            :registered_on            => Time.parse('2015-08-17T09:16:46Z').utc,
@@ -99,7 +99,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "handles openshift images without dockerImageManifest and dockerImageMetadata" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_or_merge_openshift_image,
                          image_without_dockerImage_fields).except(:registered_on)).to eq(
                            :container_image_registry => nil,
                            :digest                   => nil,
@@ -110,7 +110,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "handles openshift image without dockerConfig" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_or_merge_openshift_image,
                          image_without_dockerConfig)).to eq(
                            :container_image_registry => nil,
                            :digest                   => nil,
@@ -128,7 +128,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
 
     # check https://bugzilla.redhat.com/show_bug.cgi?id=1414508
     it "handles openshift image without environment variables" do
-      expect(parser.send(:parse_openshift_image,
+      expect(parser.send(:get_or_merge_openshift_image,
                          image_without_environment_variables)).to eq(
                            :container_image_registry => nil,
                            :digest                   => nil,
@@ -164,7 +164,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
 
       inventory = {"image" => [image_from_openshift,]}
 
-      parser.get_openshift_images(inventory)
+      parser.get_or_merge_openshift_images(inventory)
       expect(parser.instance_variable_get('@data')[:container_images].size).to eq(1)
       expect(parser.instance_variable_get('@data')[:container_images][0]).to eq(
         parser.instance_variable_get('@data_index')[:container_image][:by_digest].values[0])
@@ -190,7 +190,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
 
       inventory = {"image" => [image_from_openshift,]}
 
-      parser.get_openshift_images(inventory)
+      parser.get_or_merge_openshift_images(inventory)
       expect(parser.instance_variable_get('@data')[:container_images].size).to eq(1)
       expect(parser.instance_variable_get('@data')[:container_images][0]).to eq(
         parser.instance_variable_get('@data_index')[:container_image][:by_digest].values[0]
@@ -203,7 +203,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       def parse_single_openshift_image_with_registry
         inventory = {"image" => [image_from_openshift]}
 
-        parser.get_openshift_images(inventory)
+        parser.get_or_merge_openshift_images(inventory)
         expect(parser.instance_variable_get('@data_index')[:container_image_registry][:by_host_and_port].size).to eq(1)
         expect(parser.instance_variable_get('@data')[:container_image_registries].size).to eq(1)
       end
@@ -262,8 +262,6 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                  :ems_created_on              => '2015-08-17T09:16:46Z',
                                  :resource_version            => '165339',
                                  :service_account             => 'service_account_name',
-                                 :project                     => nil,
-
                                  :build_source_type           => 'Git',
                                  :source_binary               => nil,
                                  :source_dockerfile           => nil,
@@ -281,7 +279,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
   end
 
   describe "parse_build_pod" do
-    let (:basic_build_pod) do
+    let(:basic_build_pod) do
       {
         :metadata => {
           :name              => 'ruby-sample-build-1',
@@ -298,13 +296,15 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
           :startTimestamp             => '17',
           :outputDockerImageReference => 'host:port/path/to/image',
           :config                     => {
-            :name => 'ruby-sample-build',
+            :kind      => 'BuildConfig',
+            :name      => 'ruby-sample-build',
+            :namespace => 'test-namespace',
           },
         }
       }
     end
 
-    let (:basic_build_config) do
+    let(:basic_build_config) do
       {
         :metadata => {
           :name              => 'ruby-sample-build',
@@ -333,23 +333,37 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     it "handles simple data" do
       build_pod = basic_build_pod.deep_dup
       build_pod[:metadata][:namespace] = 'test-namespace'
-      expect(parser.send(:parse_build_pod,
-                         RecursiveOpenStruct.new(build_pod)
-                         )).to eq(:name                          => 'ruby-sample-build-1',
-                                  :ems_ref                       => 'af3d1a10-44c0-11e5-b186-0aaeec44370e',
-                                  :namespace                     => 'test-namespace',
-                                  :ems_created_on                => '2015-08-17T09:16:46Z',
-                                  :resource_version              => '165339',
-                                  :message                       => 'we come in peace',
-                                  :phase                         => 'set to stun',
-                                  :reason                        => 'this is a reason',
-                                  :duration                      => '33',
-                                  :completion_timestamp          => '50',
-                                  :start_timestamp               => '17',
-                                  :labels                        => [],
-                                  :build_config                  => nil,
-                                  :output_docker_image_reference => 'host:port/path/to/image'
-                                 )
+      expect(
+        parser.send(:parse_build_pod, RecursiveOpenStruct.new(build_pod))
+      ).to match(
+        :name                          => 'ruby-sample-build-1',
+        :ems_ref                       => 'af3d1a10-44c0-11e5-b186-0aaeec44370e',
+        :namespace                     => 'test-namespace',
+        :ems_created_on                => '2015-08-17T09:16:46Z',
+        :resource_version              => '165339',
+        :message                       => 'we come in peace',
+        :phase                         => 'set to stun',
+        :reason                        => 'this is a reason',
+        :duration                      => '33',
+        :completion_timestamp          => '50',
+        :start_timestamp               => '17',
+        :labels                        => [],
+        :build_config_ref              => a_hash_including(
+          :name      => 'ruby-sample-build',
+          :namespace => 'test-namespace',
+        ),
+        :output_docker_image_reference => 'host:port/path/to/image'
+      )
+    end
+
+    it "handles missing config reference" do
+      build_pod = basic_build_pod.deep_dup
+      build_pod[:metadata][:namespace] = 'test-namespace'
+      build_pod[:status][:config] = nil
+      inventory = {
+        "build" => [RecursiveOpenStruct.new(build_pod)],
+      }
+      parser.get_build_pods(inventory)
     end
 
     context "build config and pods linking" do
@@ -359,8 +373,13 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
         build_pod[:status][:config][:namespace] = namespace_pod
         build_config = basic_build_config.deep_dup
         build_config[:metadata][:namespace] = namespace_config
-        parser.get_builds(RecursiveOpenStruct.new({"build_config" => [RecursiveOpenStruct.new(build_config),]}))
-        parser.get_build_pods(RecursiveOpenStruct.new({"build" => [RecursiveOpenStruct.new(build_pod),]}))
+        inventory = {
+          "build_config" => [RecursiveOpenStruct.new(build_config)],
+          "build"        => [RecursiveOpenStruct.new(build_pod)],
+        }
+        # TODO: similar test using get_builds_graph, get_build_pods_graph
+        parser.get_builds(inventory)
+        parser.get_build_pods(inventory)
       end
 
       it "links correct build pods to build configurations in same namespace" do
@@ -404,7 +423,6 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                    :resource_version              => '172339',
                                    :labels                        => [],
                                    :objects                       => [],
-                                   :container_project             => nil,
                                    :container_template_parameters => [
                                      {:name         => 'IMAGE_VERSION',
                                       :display_name => 'Image Version',
@@ -436,21 +454,41 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                    :resource_version              => '242359',
                                    :labels                        => [],
                                    :objects                       => [],
-                                   :container_project             => nil,
                                    :container_template_parameters => [])
     end
   end
 
-  describe "parse_project" do
+  describe "merge_projects_into_namespaces" do
+    let(:inventory) do
+      {
+        'project' => [
+          RecursiveOpenStruct.new(
+            :metadata => {
+              :name        => 'myproj',
+              :annotations => {
+                'openshift.io/display-name' => 'example'
+              },
+            },
+          )
+        ]
+      }
+    end
+
     it "handles no underlying namespace" do
-      expect(parser.send(:parse_project,
-                         RecursiveOpenStruct.new(
-                           :metadata   => {
-                             :annotations => {
-                               'openshift.io/display-name' => 'example'
-                             },
-                           },
-                         ))).to eq(nil)
+      parser.send(:merge_projects_into_namespaces, inventory)
+      expect(parser.instance_variable_get(:@data)[:container_projects]).to be_blank
+      expect(parser.instance_variable_get(:@data_index).fetch_path(:container_projects, :by_name)).to be_blank
+    end
+
+    it "adds display_name to underlying namespace" do
+      data_index = parser.instance_variable_get(:@data_index)
+      data_index.store_path(:container_projects, :by_name, 'myproj', {:ems_ref => 'some-uuid'})
+
+      parser.send(:merge_projects_into_namespaces, inventory)
+      expect(data_index.fetch_path(:container_projects, :by_name, 'myproj')).to eq(
+        :ems_ref      => 'some-uuid',
+        :display_name => 'example',
+      )
     end
   end
 end

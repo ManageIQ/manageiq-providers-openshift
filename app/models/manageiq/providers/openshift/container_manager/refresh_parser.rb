@@ -3,26 +3,36 @@ module ManageIQ::Providers
     class ContainerManager::RefreshParser < ManageIQ::Providers::Kubernetes::ContainerManager::RefreshParser
       def ems_inv_to_hashes(inventory, options = Config::Options.new)
         super(inventory, options)
-        get_projects(inventory)
+        merge_projects_into_namespaces(inventory)
         get_routes(inventory)
         get_builds(inventory)
         get_build_pods(inventory)
         get_templates(inventory)
-        get_openshift_images(inventory) if options.get_container_images
+        get_or_merge_openshift_images(inventory) if options.get_container_images
         EmsRefresh.log_inv_debug_trace(@data, "data:")
         @data
       end
 
-      def get_openshift_images(inventory)
-        inventory["image"].each { |img| parse_openshift_image(img) }
+      def get_or_merge_openshift_images(inventory)
+        inventory["image"].each { |img| get_or_merge_openshift_image(img) }
+      end
+
+      def get_or_merge_openshift_image(openshift_image)
+        openshift_result = parse_openshift_image(openshift_image)
+        # This hides @data_index reading and writing.
+        container_result = parse_container_image(openshift_result.delete(:id),
+                                                 openshift_result.delete(:ref))
+        container_result.merge!(openshift_result)
+        container_result
       end
 
       def get_builds(inventory)
         key = path_for_entity("build_config")
         process_collection(inventory["build_config"], key) { |n| parse_build(n) }
 
-        @data[key].each do |ns|
-          @data_index.store_path(key, :by_namespace_and_name, ns[:namespace], ns[:name], ns)
+        @data[key].each do |b|
+          b[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, b[:namespace])
+          @data_index.store_path(key, :by_namespace_and_name, b[:namespace], b[:name], b)
         end
       end
 
@@ -30,21 +40,40 @@ module ManageIQ::Providers
         key = path_for_entity("build")
         process_collection(inventory["build"], key) { |n| parse_build_pod(n) }
 
-        @data[key].each do |ns|
-          @data_index.store_path(key, :by_name, ns[:name], ns)
+        @data[key].each do |bp|
+          config_ref = bp.delete(:build_config_ref)
+          bp[:build_config] = config_ref && @data_index.fetch_path(
+            path_for_entity("build_config"),
+            :by_namespace_and_name, config_ref[:namespace], config_ref[:name]
+          )
+          @data_index.store_path(key, :by_name, bp[:name], bp)
         end
       end
 
       def get_routes(inventory)
+        key = path_for_entity("route")
         process_collection(inventory["route"], path_for_entity("route")) { |n| parse_route(n) }
+
+        @data[key].each do |r|
+          r[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, r[:namespace])
+          service_ref = r.delete(:container_service_ref)
+          r[:container_service] = service_ref && @data_index.fetch_path(
+            path_for_entity("service"),
+            :by_namespace_and_name, service_ref[:namespace], service_ref[:name]
+          )
+        end
       end
 
-      def get_projects(inventory)
-        key = path_for_entity("project")
-        inventory["project"].each { |item| parse_project(item) }
+      # Merge into results of parse_namespace
+      def merge_projects_into_namespaces(inventory)
+        key = path_for_entity("namespace")
+        inventory["project"].each do |item|
+          project = parse_project(item)
+          name = project.delete(:name)
 
-        @data[key].each do |ns|
-          @data_index.store_path(key, :by_name, ns[:name], ns)
+          namespace = @data_index.fetch_path(key, :by_name, name)
+          next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
+          namespace.merge!(project)
         end
       end
 
@@ -53,15 +82,17 @@ module ManageIQ::Providers
         process_collection(inventory["template"], key) { |n| parse_template(n) }
 
         @data[key].each do |ct|
+          ct[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, ct[:namespace])
           @data_index.store_path(key, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
         end
       end
 
       def parse_project(project_item)
-        project = @data_index.fetch_path(path_for_entity("project"), :by_name, project_item.metadata.name)
-        return if project.nil? # ignore openshift projects without an underlying kubernetes namespace
-        project[:display_name] = project_item.metadata.annotations['openshift.io/display-name'] unless
-            project_item.metadata.annotations.nil?
+        new_result = {:name => project_item.metadata.name}
+        unless project_item.metadata.annotations.nil?
+          new_result[:display_name] = project_item.metadata.annotations['openshift.io/display-name']
+        end
+        new_result
       end
 
       def get_service_name(route)
@@ -79,11 +110,12 @@ module ManageIQ::Providers
           :tags      => map_labels('ContainerRoute', labels),
           :path      => route.path
         )
+        service_name = get_service_name(route)
+        unless service_name.nil?
+          # In same namespace:  https://docs.openshift.org/latest/rest_api/openshift_v1.html#v1-routetargetreference
+          new_result[:container_service_ref] = {:namespace => new_result[:namespace], :name => service_name}
+        end
 
-        new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
-                                                      route.metadata.namespace)
-        new_result[:container_service] = @data_index.fetch_path(path_for_entity("service"), :by_namespace_and_name,
-                                                                new_result[:namespace], get_service_name(route))
         new_result
       end
 
@@ -109,9 +141,6 @@ module ManageIQ::Providers
           :completion_deadline_seconds => build.spec.try(:completionDeadlineSeconds),
           :output_name                 => build.spec.try(:output).try(:to).try(:name)
         )
-
-        new_result[:project] = @data_index.fetch_path(path_for_entity("project"), :by_name,
-                                                      build.metadata.namespace)
         new_result
       end
 
@@ -127,12 +156,8 @@ module ManageIQ::Providers
           :completion_timestamp          => status[:completionTimestamp],
           :start_timestamp               => status[:startTimestamp],
           :output_docker_image_reference => status[:outputDockerImageReference],
+          :build_config_ref              => status[:config].to_h,
         )
-        bc_name = build_pod.status.config.try(:name)
-        bc_namespace = build_pod.status.config.try(:namespace)
-        new_result[:build_config] = @data_index.fetch_path(path_for_entity("build_config"),
-                                                           :by_namespace_and_name,
-                                                           bc_namespace, bc_name)
         new_result
       end
 
@@ -155,7 +180,6 @@ module ManageIQ::Providers
         new_result[:container_template_parameters] = parse_template_parameters(template.parameters)
         new_result[:labels] = parse_labels(template)
         new_result[:objects] = template.objects.to_a.collect(&:to_h)
-        new_result[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, new_result[:namespace])
         new_result
       end
 
@@ -175,8 +199,10 @@ module ManageIQ::Providers
 
       def parse_openshift_image(openshift_image)
         id = openshift_image[:dockerImageReference] || openshift_image[:metadata][:name]
-        ref = "#{ContainerImage::DOCKER_PULLABLE_PREFIX}#{id}"
-        new_result = parse_container_image(id, ref)
+        new_result = {
+          :id  => id,
+          :ref => "#{ContainerImage::DOCKER_PULLABLE_PREFIX}#{id}",
+        }
 
         if openshift_image[:dockerImageManifest].present?
           begin

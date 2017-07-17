@@ -353,16 +353,19 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
   end
 
   def assert_specific_container_project
-    @container_pr = ContainerProject.find_by(:name => "default")
+    @container_pr = ContainerProject.find_by(:name => "python-project")
     expect(@container_pr).to have_attributes(
-      :name         => "default",
-      :display_name => nil
+      :name         => "python-project",
+      :display_name => "Python project",
     )
 
-    expect(@container_pr.container_groups.count).to eq(3)
-    expect(@container_pr.container_routes.count).to eq(2)
-    expect(@container_pr.container_replicators.count).to eq(4)
-    expect(@container_pr.container_services.count).to eq(4)
+    expect(@container_pr.container_groups.count).to eq(5)
+    expect(@container_pr.containers.count).to eq(5)
+    expect(@container_pr.container_replicators.count).to eq(1)
+    expect(@container_pr.container_routes.count).to eq(1)
+    expect(@container_pr.container_services.count).to eq(1)
+    expect(@container_pr.container_builds.count).to eq(1)
+    expect(ContainerBuildPod.where(:namespace => @container_pr.name).count).to eq(1)
     expect(@container_pr.ext_management_system).to eq(@ems)
   end
 
