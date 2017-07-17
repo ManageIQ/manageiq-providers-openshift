@@ -132,9 +132,12 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     # CREATING FIRST VCR
     # To recreate the tested objects in OpenShift use the template file:
     # spec/vcr_cassettes/manageiq/providers/openshift/container_manager/test_objects_template.yml
-    # and the following commands for 3 projects my-project-X (X=0/1/2):
-    # oc new-project my-project-X
-    # oc process -f template.yml -v INDEX=X | oc create -f -
+    # And these commands to their equivalents:
+    # for ind in 0 1 2; do
+    #   oc new-project my-project-$ind;
+    #   oc process -f ./test_objects_template.yml -v INDEX=$ind | oc create -f -
+    #   oc start-build my-build-config-$ind
+    # done
 
     before(:each) do
       VCR.use_cassette("#{described_class.name.underscore}_before_openshift_deletions",
@@ -145,16 +148,19 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
 
     it "saves the objects in the DB" do
       expect(ContainerProject.count).to eq(8)
-      expect(ContainerImage.count).to eq(44)
-      expect(ContainerRoute.count).to eq(6)
-      expect(ContainerTemplate.count).to eq(30)
-      expect(ContainerReplicator.count).to eq(10)
+      expect(ContainerImage.count).to eq(39)
+      expect(ContainerRoute.count).to eq(5)
+      expect(ContainerTemplate.count).to eq(33)
+      expect(ContainerReplicator.count).to eq(6)
       expect(ContainerBuild.count).to eq(3)
       expect(ContainerBuildPod.count).to eq(3)
-      expect(CustomAttribute.count).to eq(532)
-      expect(ContainerTemplateParameter.count).to eq(264)
+      expect(CustomAttribute.count).to eq(564)
+      expect(ContainerTemplateParameter.count).to eq(367)
       expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(1)
       expect(ContainerTemplate.find_by(:name => "my-template-2").container_template_parameters.count).to eq(1)
+      ContainerBuildPod.all.each do |cbp|
+        expect(cbp.container_group.container_project.name).to eq(cbp.namespace)
+      end
     end
 
     context "when refreshing non empty DB" do
@@ -169,8 +175,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
       # oc delete limitRange my-limit-range-1
       # oc delete persistentVolumeClaim my-persistentvolumeclaim-1
       # oc delete template my-template-1
-      # oc delete build my-build-1
-      # oc delete buildconfig my-build-config-1
+      # oc delete build my-build-config-1
+      # oc delete buildconfig my-build-config
+      # oc delete rc/my-replicationcontroller-1
       # oc project my-project-2
       # oc label route my-route-2 key-route-label-
       # oc edit template my-template-2 # remove the template parameters from the file and save it
@@ -186,18 +193,18 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
       it "archives objects" do
         expect(ContainerProject.count).to eq(8)
         expect(ContainerProject.where(:deleted_on => nil).count).to eq(7)
-        expect(ContainerImage.count).to eq(43) # should be 44
-        expect(ContainerImage.where(:deleted_on => nil).count).to eq(43) # should be 44
+        expect(ContainerImage.count).to eq(38) # should be 39
+        expect(ContainerImage.where(:deleted_on => nil).count).to eq(38) # should be 39
       end
 
       it "removes the deleted objects from the DB" do
-        expect(ContainerRoute.count).to eq(4)
-        expect(ContainerTemplate.count).to eq(28)
-        expect(ContainerReplicator.count).to eq(8)
+        expect(ContainerRoute.count).to eq(3)
+        expect(ContainerTemplate.count).to eq(31)
+        expect(ContainerReplicator.count).to eq(4)
         expect(ContainerBuild.count).to eq(1)
         expect(ContainerBuildPod.count).to eq(1)
-        expect(CustomAttribute.count).to eq(523)
-        expect(ContainerTemplateParameter.count).to eq(261)
+        expect(CustomAttribute.count).to eq(549)
+        expect(ContainerTemplateParameter.count).to eq(364)
 
         expect(ContainerTemplate.find_by(:name => "my-template-0")).to be_nil
         expect(ContainerTemplate.find_by(:name => "my-template-1")).to be_nil
@@ -211,8 +218,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
         expect(ContainerBuildPod.find_by(:name => "my-build-0")).to be_nil
         expect(ContainerBuildPod.find_by(:name => "my-build-1")).to be_nil
 
-        expect(ContainerBuild.find_by(:name => "my-build-config-0")).to be_nil
-        expect(ContainerBuild.find_by(:name => "my-build-config-1")).to be_nil
+        expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-0")).to be_nil
+        expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-1")).to be_nil
 
         expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(0)
         expect(ContainerTemplate.find_by(:name => "my-template-2").container_template_parameters.count).to eq(0)
