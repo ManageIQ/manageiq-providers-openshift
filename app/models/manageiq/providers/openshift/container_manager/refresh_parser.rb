@@ -3,7 +3,7 @@ module ManageIQ::Providers
     class ContainerManager::RefreshParser < ManageIQ::Providers::Kubernetes::ContainerManager::RefreshParser
       def ems_inv_to_hashes(inventory, options = Config::Options.new)
         super(inventory, options)
-        get_projects(inventory)
+        merge_projects_into_namespaces(inventory)
         get_routes(inventory)
         get_builds(inventory)
         get_build_pods(inventory)
@@ -65,7 +65,7 @@ module ManageIQ::Providers
       end
 
       # Merge into results of parse_namespace
-      def get_projects(inventory)
+      def merge_projects_into_namespaces(inventory)
         key = path_for_entity("namespace")
         inventory["project"].each do |item|
           project = parse_project(item)

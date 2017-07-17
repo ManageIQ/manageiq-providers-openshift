@@ -458,7 +458,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
   end
 
-  describe "get_projects" do
+  describe "merge_projects_into_namespaces" do
     let(:inventory) do
       {
         'project' => [
@@ -475,7 +475,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "handles no underlying namespace" do
-      parser.send(:get_projects, inventory)
+      parser.send(:merge_projects_into_namespaces, inventory)
       expect(parser.instance_variable_get(:@data)[:container_projects]).to be_blank
       expect(parser.instance_variable_get(:@data_index).fetch_path(:container_projects, :by_name)).to be_blank
     end
@@ -484,7 +484,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       data_index = parser.instance_variable_get(:@data_index)
       data_index.store_path(:container_projects, :by_name, 'myproj', {:ems_ref => 'some-uuid'})
 
-      parser.send(:get_projects, inventory)
+      parser.send(:merge_projects_into_namespaces, inventory)
       expect(data_index.fetch_path(:container_projects, :by_name, 'myproj')).to eq(
         :ems_ref      => 'some-uuid',
         :display_name => 'example',
