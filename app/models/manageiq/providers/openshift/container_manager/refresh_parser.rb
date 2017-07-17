@@ -8,16 +8,16 @@ module ManageIQ::Providers
         get_builds(inventory)
         get_build_pods(inventory)
         get_templates(inventory)
-        get_openshift_images(inventory) if options.get_container_images
+        get_or_merge_openshift_images(inventory) if options.get_container_images
         EmsRefresh.log_inv_debug_trace(@data, "data:")
         @data
       end
 
-      def get_openshift_images(inventory)
-        inventory["image"].each { |img| get_openshift_image(img) }
+      def get_or_merge_openshift_images(inventory)
+        inventory["image"].each { |img| get_or_merge_openshift_image(img) }
       end
 
-      def get_openshift_image(openshift_image)
+      def get_or_merge_openshift_image(openshift_image)
         openshift_result = parse_openshift_image(openshift_image)
         # This hides @data_index reading and writing.
         container_result = parse_container_image(openshift_result.delete(:id),
