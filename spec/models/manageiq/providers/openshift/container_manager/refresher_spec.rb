@@ -1,6 +1,7 @@
 describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
   let(:all_images_count) { 40 } # including /oapi/v1/images data
   let(:pod_images_count) { 12 } # only images mentioned by pods
+  let(:images_managed_by_openshift_count) { 32 } # only images from /oapi/v1/images
 
   before(:each) do
     allow(MiqServer).to receive(:my_zone).and_return("default")
@@ -249,6 +250,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(ContainerTemplate.count).to eq(26)
     expect(ContainerImage.count).to eq(all_images_count)
     expect(ContainerImage.joins(:containers).distinct.count).to eq(pod_images_count)
+    expect(ManageIQ::Providers::Openshift::ContainerManager::ContainerImage.count).to eq(images_managed_by_openshift_count)
   end
 
   def assert_ems
