@@ -513,6 +513,26 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
       expect(ManageIQ::Providers::Openshift::ContainerManager::RefreshParser).not_to receive(:ems_inv_to_hashes)
     end
 
-    include_examples "openshift refresher VCR tests"
+    context "with :default saver" do
+      before(:each) do
+        stub_settings_merge(
+          :ems_refresh => {:openshift => {:inventory_collections => {:saver_strategy => :default}}}
+        )
+      end
+
+      # TODO: pending graph tag mapping implementation
+      include_examples "openshift refresher VCR tests"
+    end
+
+    context "with :batch saver" do
+      before(:each) do
+        stub_settings_merge(
+          :ems_refresh => {:openshift => {:inventory_collections => {:saver_strategy => :batch}}}
+        )
+      end
+
+      # TODO: pending graph tag mapping implementation
+      include_examples "openshift refresher VCR tests"
+    end
   end
 end
