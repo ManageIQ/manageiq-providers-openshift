@@ -3,7 +3,9 @@ class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < M
 
   def initialize_inventory_collections
     super
-    # get_container_images=false mode is a stopgap to speed up refresh by reducing functionality.  When it's flipped from true to false, we should at least retain existing metadata.
+    # get_container_images=false mode is a stopgap to speed up refresh by reducing functionality.
+    # Skipping these InventoryCollections (instead of returning empty ones)
+    # to at least retain existing metadata if it was true and is now false.
     if options.get_container_images
       initialize_custom_attributes_collections(manager.container_images, %w(labels docker_labels))
     end
