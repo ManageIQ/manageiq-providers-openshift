@@ -227,11 +227,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
         expect(project0.archived?).to be true
         expect(project0.container_groups.count).to eq(0)
         expect(project0.containers.count).to eq(0)
-        expect(project0.container_definitions.count).to eq(0)
 
         expect(project1.container_groups.count).to eq(0)
         expect(project1.containers.count).to eq(0)
-        expect(project1.container_definitions.count).to eq(0)
       end
     end
   end
@@ -242,7 +240,6 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     expect(Container.count).to eq(20)
     expect(ContainerService.count).to eq(12)
     expect(ContainerPortConfig.count).to eq(23)
-    expect(ContainerDefinition.count).to eq(20)
     expect(ContainerRoute.count).to eq(6)
     expect(ContainerProject.count).to eq(9)
     expect(ContainerBuild.count).to eq(3)
@@ -274,7 +271,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     )
 
     # TODO: move to kubernetes refresher test (needs cassette containing seLinuxOptions)
-    expect(@container.container_definition.security_context).to have_attributes(
+    expect(@container.security_context).to have_attributes(
       :se_linux_user  => nil,
       :se_linux_role  => nil,
       :se_linux_type  => nil,
