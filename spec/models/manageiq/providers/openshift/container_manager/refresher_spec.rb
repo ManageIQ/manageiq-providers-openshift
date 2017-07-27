@@ -1,4 +1,5 @@
-describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
+# instantiated at the end, for both classical and graph refresh
+shared_examples "openshift refresher VCR tests" do
   let(:all_images_count) { 40 } # including /oapi/v1/images data
   let(:pod_images_count) { 12 } # only images mentioned by pods
   let(:images_managed_by_openshift_count) { 32 } # only images from /oapi/v1/images
@@ -37,7 +38,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     end
   end
 
-  it "will perform a full refresh on openshift" do
+  def full_refresh_test
     2.times do
       @ems.reload
       normal_refresh
@@ -59,6 +60,10 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
       assert_specific_unused_container_image(:metadata => true, :archived => false)
       assert_specific_container_node_custom_attributes
     end
+  end
+
+  it "will perform a full refresh on openshift" do
+    full_refresh_test
   end
 
   it "will skip additional attributes when hawk connection fails" do
@@ -459,11 +464,55 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     # TODO: for next recording, oc label some running, openshift-built image
     expect(@container_image.labels.count).to eq(0)
     expect(@container_image.docker_labels.count).to eq(metadata ? 19 : 0)
+    if metadata
+      expect(@container_image).to have_attributes(
+        :architecture   => "amd64",
+        :author         => nil,
+        :command        => ["/usr/libexec/s2i/run"],
+        :digest         => "sha256:9422207673100308c18bccead913007b76ca3ef48f3c6bb70ce5f19d497c1392",
+        :docker_version => "1.10.3",
+        :entrypoint     => ["container-entrypoint"],
+        :exposed_ports  => {"tcp"=>"8080"},
+        :image_ref      => "docker://172.30.190.81:5000/python-project/python-project@sha256:9422207673100308c18bccead913007b76ca3ef48f3c6bb70ce5f19d497c1392",
+        :registered_on  => "Thu, 08 Dec 2016 06:14:59 UTC +00:00",
+        :size           => 206_435_839,
+
+        # TODO: tag is set by both kubernetes and openshift parsers, so it
+        # regresses to kubernetes value with get_container_images=false.
+        #:tag            => "latest",
+      )
+    end
   end
 
   def assert_container_node_with_no_hawk_attributes
     containernode = ContainerNode.first
     expect(containernode.custom_attributes.count).to eq(5)
     expect(CustomAttribute.find_by(:name => "test_attr")).to be nil
+  end
+end
+
+describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
+  context "classical refresh" do
+    before(:each) do
+      stub_settings_merge(
+        :ems_refresh => {:openshift => {:inventory_object_refresh => false}}
+      )
+
+      expect(ManageIQ::Providers::Openshift::ContainerManager::RefreshParser).not_to receive(:ems_inv_to_inv_collections)
+    end
+
+    include_examples "openshift refresher VCR tests"
+  end
+
+  context "graph refresh" do
+    before(:each) do
+      stub_settings_merge(
+        :ems_refresh => {:openshift => {:inventory_object_refresh => true}}
+      )
+
+      expect(ManageIQ::Providers::Openshift::ContainerManager::RefreshParser).not_to receive(:ems_inv_to_hashes)
+    end
+
+    include_examples "openshift refresher VCR tests"
   end
 end

@@ -10,8 +10,33 @@ module ManageIQ::Providers
         get_templates(inventory)
         get_or_merge_openshift_images(inventory) if options.get_container_images
         EmsRefresh.log_inv_debug_trace(@data, "data:")
+
+        # Returning a hash triggers save_inventory_container code path.
         @data
       end
+
+      def initialize_inventory_collections(ems, options)
+        super
+        # get_container_images=false mode is a stopgap to speed up refresh by reducing functionality.
+        # Skipping these InventoryCollections (instead of returning empty ones)
+        # to at least retain existing metadata if it was true and is now false.
+        if options.get_container_images
+          initialize_custom_attributes_collections(ems.container_images, %w(labels docker_labels))
+        end
+      end
+
+      def ems_inv_populate_collections(inventory, options = Config::Options.new)
+        super
+        merge_projects_into_namespaces_graph(inventory)
+        get_routes_graph(inventory)
+        get_builds_graph(inventory)
+        get_build_pods_graph(inventory)
+        get_templates_graph(inventory)
+        # For now, we're reusing @data_index-reading-and-writing code path for images.
+        get_or_merge_openshift_images(inventory) if options.get_container_images
+      end
+
+      ## hashes -> save_inventory_container methods
 
       def get_or_merge_openshift_images(inventory)
         inventory["image"].each { |img| get_or_merge_openshift_image(img) }
@@ -86,6 +111,98 @@ module ManageIQ::Providers
           @data_index.store_path(key, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
         end
       end
+
+      ## InventoryObject refresh methods
+
+      def merge_projects_into_namespaces_graph(inventory)
+        collection = @inv_collections[:container_projects]
+
+        inventory["project"].each do |data|
+          h = parse_project(data)
+          # Assumes full refresh, and running after get_namespaces_graph.
+          # Will be a problem with partial refresh.
+          namespace = collection.find(h.delete(:name), :ref => :by_name)
+          next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
+          namespace.data.merge!(h)
+        end
+      end
+
+      def get_routes_graph(inventory)
+        collection = @inv_collections[:container_routes]
+
+        inventory["route"].each do |data|
+          h = parse_route(data)
+          h[:container_project] = lazy_find_project(:name => h[:namespace])
+          h[:container_service] = lazy_find_service(h.delete(:container_service_ref))
+          custom_attrs = h.extract!(:labels)
+          container_route = collection.build(h)
+
+          get_custom_attributes_graph(container_route, custom_attrs)
+        end
+      end
+
+      def get_builds_graph(inventory)
+        collection = @inv_collections[:container_builds]
+
+        inventory["build_config"].each do |data|
+          h = parse_build(data)
+          h[:container_project] = lazy_find_project(:name => h[:namespace])
+          custom_attrs = h.extract!(:labels)
+          container_build = collection.build(h)
+
+          get_custom_attributes_graph(container_build, custom_attrs)
+        end
+      end
+
+      def get_build_pods_graph(inventory)
+        collection = @inv_collections[:container_build_pods]
+
+        inventory["build"].each do |data|
+          h = parse_build_pod(data)
+          h[:container_build] = lazy_find_build(h.delete(:build_config_ref))
+          custom_attrs = h.extract!(:labels)
+          container_build_pod = collection.build(h)
+
+          get_custom_attributes_graph(container_build_pod, custom_attrs)
+        end
+      end
+
+      def get_templates_graph(inventory)
+        collection = @inv_collections[:container_templates]
+
+        inventory["template"].each do |data|
+          h = parse_template(data)
+          h[:container_project] = lazy_find_project(:name => h[:namespace])
+          parameters = h.delete(:container_template_parameters)
+          custom_attrs = h.extract!(:labels)
+
+          container_template = collection.build(h)
+
+          get_template_parameters_graph(container_template, parameters)
+          get_custom_attributes_graph(container_template, custom_attrs)
+        end
+      end
+
+      def get_template_parameters_graph(parent, parameters)
+        collection = @inv_collections[:container_template_parameters]
+
+        parameters.each do |h|
+          h[:container_template] = parent
+          collection.build(h)
+        end
+      end
+
+      def lazy_find_service(hash)
+        return nil if hash.nil?
+        @inv_collections[:container_services].lazy_find_by(hash, :ref => :by_namespace_and_name)
+      end
+
+      def lazy_find_build(hash)
+        return nil if hash.nil?
+        @inv_collections[:container_builds].lazy_find_by(hash, :ref => :by_namespace_and_name)
+      end
+
+      ## Shared parsing methods
 
       def parse_project(project_item)
         new_result = {:name => project_item.metadata.name}

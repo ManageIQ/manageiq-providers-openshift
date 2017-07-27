@@ -13,6 +13,7 @@
 :ems_refresh:
   :openshift:
     :refresh_interval: 15.minutes
+    :inventory_object_refresh: false
     :get_container_images: true
 :workers:
   :worker_base:
