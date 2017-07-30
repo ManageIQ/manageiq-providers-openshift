@@ -1,10 +1,5 @@
 class ManageIQ::Providers::Openshift::ContainerManager::ContainerImage < ContainerImage
   def annotate_image(annotations)
-    # TODO: support sti and replace check with inplementing only for OpenShift providers
-    unless ext_management_system.kind_of?(ManageIQ::Providers::Openshift::ContainerManagerMixin)
-      _log.error("#{__method__} only applicable for OpenShift Providers")
-      return
-    end
     ext_management_system.annotate(
       "image",
       digest,
