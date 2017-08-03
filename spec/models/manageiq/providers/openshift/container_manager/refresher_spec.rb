@@ -435,6 +435,7 @@ shared_examples "openshift refresher VCR tests" do
     @container_template = ContainerTemplate.find_by(:name => "hawkular-cassandra-node-emptydir")
     expect(@container_template).to have_attributes(
       :name             => "hawkular-cassandra-node-emptydir",
+      :type             => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
       :resource_version => "871"
     )
 

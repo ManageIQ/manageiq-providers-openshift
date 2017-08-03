@@ -1,13 +1,15 @@
 class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::ContainerManager
   include ManageIQ::Providers::Openshift::ContainerManagerMixin
 
+  require_nested :ContainerImage
+  require_nested :ContainerTemplate
   require_nested :EventCatcher
   require_nested :EventParser
   require_nested :MetricsCollectorWorker
+  require_nested :OrchestrationStack
   require_nested :RefreshParser
   require_nested :RefreshWorker
   require_nested :Refresher
-  require_nested :OrchestrationStack
 
   # Override HasMonitoringManagerMixin
   has_one :monitoring_manager,

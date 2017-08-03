@@ -428,6 +428,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                    :resource_version              => '172339',
                                    :labels                        => [],
                                    :objects                       => [],
+                                   :type                          => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
                                    :container_template_parameters => [
                                      {:name         => 'IMAGE_VERSION',
                                       :display_name => 'Image Version',
@@ -459,6 +460,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                    :resource_version              => '242359',
                                    :labels                        => [],
                                    :objects                       => [],
+                                   :type                          => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
                                    :container_template_parameters => [])
     end
   end
