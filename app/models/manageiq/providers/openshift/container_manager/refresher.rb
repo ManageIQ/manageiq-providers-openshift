@@ -23,7 +23,8 @@ module ManageIQ::Providers
         return nil
       end
 
-      def parse_legacy_inventory(ems)
+      # Full refresh. Collecting immediately. Don't have separate Collector classes.
+      def collect_inventory_for_targets(ems, _targets)
         request_entities = OPENSHIFT_ENTITIES.dup
         request_entities << {:name => 'images'} if refresher_options.get_container_images
 
@@ -33,14 +34,18 @@ module ManageIQ::Providers
         openshift_entities = ems.with_provider_connection do |openshift_client|
           fetch_entities(openshift_client, request_entities)
         end
+
         entities = openshift_entities.merge(kube_entities)
         entities["additional_attributes"] = fetch_hawk_inv(ems) || {}
         EmsRefresh.log_inv_debug_trace(entities, "inv_hash:")
+        [[ems, entities]]
+      end
 
+      def parse_targeted_inventory(ems, _target_is_ems, inventory)
         if refresher_options.inventory_object_refresh
-          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_inv_collections(ems, entities, refresher_options)
+          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_inv_collections(ems, inventory, refresher_options)
         else
-          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_hashes(entities, refresher_options)
+          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_hashes(inventory, refresher_options)
         end
       end
     end
