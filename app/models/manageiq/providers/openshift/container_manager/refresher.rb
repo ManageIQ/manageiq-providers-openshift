@@ -28,17 +28,17 @@ module ManageIQ::Providers
         request_entities = OPENSHIFT_ENTITIES.dup
         request_entities << {:name => 'images'} if refresher_options.get_container_images
 
-        kube_entities = ems.with_provider_connection(:service => KUBERNETES_EMS_TYPE) do |kubeclient|
+        kube_inventory = ems.with_provider_connection(:service => KUBERNETES_EMS_TYPE) do |kubeclient|
           fetch_entities(kubeclient, KUBERNETES_ENTITIES)
         end
-        openshift_entities = ems.with_provider_connection do |openshift_client|
+        openshift_inventory = ems.with_provider_connection do |openshift_client|
           fetch_entities(openshift_client, request_entities)
         end
 
-        entities = openshift_entities.merge(kube_entities)
-        entities["additional_attributes"] = fetch_hawk_inv(ems) || {}
-        EmsRefresh.log_inv_debug_trace(entities, "inv_hash:")
-        [[ems, entities]]
+        inventory = openshift_inventory.merge(kube_inventory)
+        inventory["additional_attributes"] = fetch_hawk_inv(ems) || {}
+        EmsRefresh.log_inv_debug_trace(inventory, "inv_hash:")
+        [[ems, inventory]]
       end
 
       def parse_targeted_inventory(ems, _target_is_ems, inventory)
