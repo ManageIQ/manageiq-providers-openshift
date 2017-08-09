@@ -22,7 +22,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerImage < Contain
   end
 
   def security_quality_annotation(compliant)
-    {"quality.images.openshift.io/vulnerability.manageiq" => {
+    {"quality.images.openshift.io/vulnerability.openscap" => {
       :name        => "ManageIQ",
       :timestamp   => Time.now.utc.to_i,
       :description => "OpenSCAP Score",
@@ -32,17 +32,10 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerImage < Contain
     }.to_json}
   end
 
-  def annotate_allow_execution(causing_policy)
+  def annotate_scan_policy_results(causing_policy, compliant)
     annotate_image({
-      "security.manageiq.org/successful-policy" => causing_policy,
-      "images.openshift.io/allow-execution"     => "true"
-    }.merge!(security_quality_annotation(true)))
-  end
-
-  def annotate_deny_execution(causing_policy)
-    annotate_image({
-      "security.manageiq.org/failed-policy" => causing_policy,
-      "images.openshift.io/deny-execution"  => "true"
-    }.merge!(security_quality_annotation(false)))
+      "security.manageiq.org/#{compliant ? "successful" : "failed"}-policy" => causing_policy,
+      "images.openshift.io/deny-execution"  => (!compliant).to_s
+    }.merge!(security_quality_annotation(compliant)))
   end
 end

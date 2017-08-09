@@ -47,7 +47,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::ContainerImage do
         {:label => sev, :severityIndex => 3 - ind, :data => scores[sev] || 0 }
       end
       expect(container_image.security_quality_annotation(true)[
-        "quality.images.openshift.io/vulnerability.manageiq"])
+        "quality.images.openshift.io/vulnerability.openscap"])
         .to include({
           :summary => summary
         }.to_json[1..-1])
