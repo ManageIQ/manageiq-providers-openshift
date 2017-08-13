@@ -10,6 +10,9 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   require_nested :RefreshParser
   require_nested :RefreshWorker
   require_nested :Refresher
+  require_nested :Options
+
+  include ManageIQ::Providers::Openshift::ContainerManager::Options
 
   # Override HasMonitoringManagerMixin
   has_one :monitoring_manager,
