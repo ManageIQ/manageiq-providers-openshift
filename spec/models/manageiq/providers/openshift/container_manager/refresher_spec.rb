@@ -1,5 +1,5 @@
 # instantiated at the end, for both classical and graph refresh
-shared_examples "openshift refresher VCR tests" do
+shared_examples "openshift refresher VCR tests" do |check_metadata_not_deleted: true|
   let(:all_images_count) { 40 } # including /oapi/v1/images data
   let(:pod_images_count) { 12 } # only images mentioned by pods
   let(:images_managed_by_openshift_count) { 32 } # only images from /oapi/v1/images
@@ -118,7 +118,6 @@ shared_examples "openshift refresher VCR tests" do
     stub_settings_merge(
       :ems_refresh => {:openshift => {:get_container_images => false}},
     )
-
     VCR.use_cassette(described_class.name.underscore,
                      :match_requests_on              => [:path,],
                      :allow_unused_http_interactions => true) do # , :record => :new_episodes) do
@@ -244,6 +243,35 @@ shared_examples "openshift refresher VCR tests" do
         expect(project1.containers.count).to eq(0)
       end
     end
+  end
+
+  it 'will store only images used by pods if store_unused_images = false' do
+    stub_settings_merge(
+      :ems_refresh => {:openshift => {:store_unused_images => false}},
+    )
+    normal_refresh
+
+    @ems.reload
+
+    expect(ContainerImage.count).to eq(pod_images_count)
+    assert_specific_used_container_image(:metadata => true)
+  end
+
+  it 'will not delete previously collected metadata if store_unused_images = false' do
+    # TODO(cben): investigate, weird that it deletes labels but not docker_labels.
+    skip("graph refresh deletes labels on archived image") unless check_metadata_not_deleted
+    normal_refresh
+    stub_settings_merge(
+      :ems_refresh => {:openshift => {:store_unused_images => false}},
+    )
+    normal_refresh
+
+    @ems.reload
+
+    # Unused images are disconnected, metadata is retained either way.
+    expect(@ems.container_images.count).to eq(pod_images_count)
+    assert_specific_used_container_image(:metadata => true)
+    assert_specific_unused_container_image(:metadata => true, :archived => true)
   end
 
   def assert_table_counts
@@ -528,8 +556,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
         )
       end
 
-      # TODO: pending graph tag mapping implementation
-      include_examples "openshift refresher VCR tests"
+      # TODO: pending proper graph store_unused_images implemetation
+      include_examples "openshift refresher VCR tests", :check_metadata_not_deleted => false
     end
 
     context "with :batch saver" do
@@ -539,8 +567,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
         )
       end
 
-      # TODO: pending graph tag mapping implementation
-      include_examples "openshift refresher VCR tests"
+      # TODO: pending proper graph store_unused_images implemetation
+      include_examples "openshift refresher VCR tests", :check_metadata_not_deleted => false
     end
   end
 end

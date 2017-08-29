@@ -15,6 +15,7 @@
     :refresh_interval: 15.minutes
     :inventory_object_refresh: false
     :get_container_images: true
+    :store_unused_images: true
 :workers:
   :worker_base:
     :event_catcher:

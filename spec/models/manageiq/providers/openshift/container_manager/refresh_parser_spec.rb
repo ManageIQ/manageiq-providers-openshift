@@ -1,7 +1,34 @@
 require 'recursive-open-struct'
 
 describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
-  let(:parser) { described_class.new }
+  let(:store_unused_images) { true }
+  let(:options) do
+    # using Struct not OpenStruct ensures we specify all options the code actually accesses
+    Struct.new(:store_unused_images).new(store_unused_images)
+  end
+  let(:parser) { described_class.new(options) }
+  let(:parser_data) { parser.instance_variable_get('@data') }
+  let(:parser_data_index) { parser.instance_variable_get('@data_index') }
+
+  def given_image(image)
+    parser_data[:container_images] ||= []
+    parser_data[:container_images] << image
+    parser_data_index.store_path(:container_image, :by_digest, image[:digest], image)
+  end
+
+  def check_data_index_images
+    expect(parser_data[:container_images].size).to eq(parser_data_index[:container_image][:by_digest].size)
+    parser_data[:container_images].each do |image|
+      expect(parser_data_index[:container_image][:by_digest][image[:digest]]).to be(image)
+    end
+  end
+
+  def given_image_registry(registry)
+    parser_data[:container_image_registries] ||= []
+    parser_data[:container_image_registries] << registry
+    parser_data_index.store_path(:container_image_registry, :by_host_and_port,
+                                 "#{image_registry}:#{image_registry_port}", registry)
+  end
 
   describe "get_or_merge_openshift_images" do
     let(:image_name) { "image_name" }
@@ -155,53 +182,68 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
     end
 
     it "doesn't add duplicated images" do
-      parser.instance_variable_get('@data')[:container_images] = [{
+      given_image(
         :name      => image_name,
         :tag       => image_tag,
         :digest    => image_digest,
         :image_ref => image_ref
-      },]
-      parser.instance_variable_get('@data_index').store_path(
-        :container_image,
-        :by_digest,
-        image_digest,
-        parser.instance_variable_get('@data')[:container_images][0])
+      )
 
       inventory = {"image" => [image_from_openshift,]}
 
       parser.get_or_merge_openshift_images(inventory)
-      expect(parser.instance_variable_get('@data')[:container_images].size).to eq(1)
-      expect(parser.instance_variable_get('@data')[:container_images][0]).to eq(
-        parser.instance_variable_get('@data_index')[:container_image][:by_digest].values[0])
-      expect(parser.instance_variable_get('@data')[:container_images][0][:architecture]).to eq('amd64')
+      expect(parser_data[:container_images].size).to eq(1)
+      expect(parser_data[:container_images][0][:architecture]).to eq('amd64')
+      check_data_index_images
+    end
+
+    context "store_unused_images=false" do
+      let(:store_unused_images) { false }
+
+      it "adds metadata to existing image" do
+        given_image(
+          :name          => image_name,
+          :tag           => image_tag,
+          :digest        => image_digest,
+          :image_ref     => image_ref,
+          :registered_on => Time.now.utc - 2.minutes
+        )
+
+        inventory = {"image" => [image_from_openshift,]}
+
+        parser.get_or_merge_openshift_images(inventory)
+        expect(parser_data[:container_images].size).to eq(1)
+        expect(parser_data[:container_images][0][:architecture]).to eq('amd64')
+        check_data_index_images
+      end
+
+      it "doesn't add new images" do
+        inventory = {"image" => [image_from_openshift,]}
+
+        parser.get_or_merge_openshift_images(inventory)
+        expect(parser_data[:container_images].blank?).to be true
+      end
     end
 
     it "matches images by digest" do
       FIRST_NAME = "first_name".freeze
       FIRST_TAG = "first_tag".freeze
       FIRST_REF = "first_ref".freeze
-      parser.instance_variable_get('@data')[:container_images] = [{
-        :name      => FIRST_NAME,
-        :tag       => FIRST_TAG,
-        :digest    => image_digest,
-        :image_ref => FIRST_REF
-      },]
-      parser.instance_variable_get('@data_index').store_path(
-        :container_image,
-        :by_digest,
-        image_digest,
-        parser.instance_variable_get('@data')[:container_images][0]
+      given_image(
+        :name          => FIRST_NAME,
+        :tag           => FIRST_TAG,
+        :digest        => image_digest,
+        :image_ref     => FIRST_REF,
+        :registered_on => Time.now.utc - 2.minutes
       )
 
       inventory = {"image" => [image_from_openshift,]}
 
       parser.get_or_merge_openshift_images(inventory)
-      expect(parser.instance_variable_get('@data')[:container_images].size).to eq(1)
-      expect(parser.instance_variable_get('@data')[:container_images][0]).to eq(
-        parser.instance_variable_get('@data_index')[:container_image][:by_digest].values[0]
-      )
-      expect(parser.instance_variable_get('@data')[:container_images][0][:architecture]).to eq('amd64')
-      expect(parser.instance_variable_get('@data')[:container_images][0][:name]).to eq(FIRST_NAME)
+      expect(parser_data[:container_images].size).to eq(1)
+      expect(parser_data[:container_images][0][:architecture]).to eq('amd64')
+      expect(parser_data[:container_images][0][:name]).to eq(FIRST_NAME)
+      check_data_index_images
     end
 
     context "image registries from openshift images" do
@@ -209,8 +251,8 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
         inventory = {"image" => [image_from_openshift]}
 
         parser.get_or_merge_openshift_images(inventory)
-        expect(parser.instance_variable_get('@data_index')[:container_image_registry][:by_host_and_port].size).to eq(1)
-        expect(parser.instance_variable_get('@data')[:container_image_registries].size).to eq(1)
+        expect(parser_data_index[:container_image_registry][:by_host_and_port].size).to eq(1)
+        expect(parser_data[:container_image_registries].size).to eq(1)
       end
 
       it "collects image registries from openshift images that are not also running pods images" do
@@ -218,18 +260,20 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       end
 
       it "avoids duplicate image registries from both running pods and openshift images" do
-        parser.instance_variable_get('@data')[:container_image_registries] = [{
+        given_image_registry(
           :name => image_registry,
           :host => image_registry,
           :port => image_registry_port,
-        },]
-        parser.instance_variable_get('@data_index').store_path(
-          :container_image_registry,
-          :by_host_and_port,
-          "#{image_registry}:#{image_registry_port}",
-          parser.instance_variable_get('@data')[:container_image_registries][0]
         )
         parse_single_openshift_image_with_registry
+      end
+
+      context "store_unused_images=false" do
+        let(:store_unused_images) { false }
+
+        it "still adds the registries" do
+          parse_single_openshift_image_with_registry
+        end
       end
     end
   end
@@ -389,14 +433,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
 
       it "links correct build pods to build configurations in same namespace" do
         parse_entities('namespace_1', 'namespace_1')
-        expect(parser.instance_variable_get('@data')[:container_build_pods].first[:build_config]).to eq(
-          parser.instance_variable_get('@data')[:container_builds].first
+        expect(parser_data[:container_build_pods].first[:build_config]).to eq(
+          parser_data[:container_builds].first
         )
       end
 
       it "doesn't link build pods to build configurations in other namespace" do
         parse_entities('namespace_1', 'namespace_2')
-        expect(parser.instance_variable_get('@data')[:container_build_pods].first[:build_config]).to eq(nil)
+        expect(parser_data[:container_build_pods].first[:build_config]).to eq(nil)
       end
     end
   end
@@ -483,16 +527,16 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
 
     it "handles no underlying namespace" do
       parser.send(:merge_projects_into_namespaces, inventory)
-      expect(parser.instance_variable_get(:@data)[:container_projects]).to be_blank
-      expect(parser.instance_variable_get(:@data_index).fetch_path(:container_projects, :by_name)).to be_blank
+      expect(parser_data[:container_projects]).to be_blank
+      expect(parser_data_index.fetch_path(:container_projects, :by_name)).to be_blank
     end
 
     it "adds display_name to underlying namespace" do
-      data_index = parser.instance_variable_get(:@data_index)
-      data_index.store_path(:container_projects, :by_name, 'myproj', {:ems_ref => 'some-uuid'})
+      project_hash = {:ems_ref => 'some-uuid'}
+      parser_data_index.store_path(:container_projects, :by_name, 'myproj', project_hash)
 
       parser.send(:merge_projects_into_namespaces, inventory)
-      expect(data_index.fetch_path(:container_projects, :by_name, 'myproj')).to eq(
+      expect(parser_data_index.fetch_path(:container_projects, :by_name, 'myproj')).to eq(
         :ems_ref      => 'some-uuid',
         :display_name => 'example',
       )
