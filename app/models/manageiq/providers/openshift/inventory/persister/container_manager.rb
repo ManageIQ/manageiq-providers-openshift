@@ -7,7 +7,7 @@ class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < M
     # Skipping these InventoryCollections (instead of returning empty ones)
     # to at least retain existing metadata if it was true and is now false.
     if options.get_container_images
-      initialize_custom_attributes_collections(manager.container_images, %w(labels docker_labels))
+      initialize_custom_attributes_collections(manager, :container_images, %w(labels docker_labels))
     end
   end
 end
