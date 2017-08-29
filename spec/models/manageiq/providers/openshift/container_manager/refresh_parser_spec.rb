@@ -1,7 +1,12 @@
 require 'recursive-open-struct'
 
 describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
-  let(:parser) { described_class.new }
+  let(:store_unused_images) { true }
+  let(:options) do
+    # using Struct not OpenStruct ensures we specify all options the code actually accesses
+    Struct.new(:store_unused_images).new(store_unused_images)
+  end
+  let(:parser) { described_class.new(options) }
   let(:parser_data) { parser.instance_variable_get('@data') }
   let(:parser_data_index) { parser.instance_variable_get('@data_index') }
 
@@ -192,6 +197,34 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
       check_data_index_images
     end
 
+    context "store_unused_images=false" do
+      let(:store_unused_images) { false }
+
+      it "adds metadata to existing image" do
+        given_image(
+          :name          => image_name,
+          :tag           => image_tag,
+          :digest        => image_digest,
+          :image_ref     => image_ref,
+          :registered_on => Time.now.utc - 2.minutes
+        )
+
+        inventory = {"image" => [image_from_openshift,]}
+
+        parser.get_or_merge_openshift_images(inventory)
+        expect(parser_data[:container_images].size).to eq(1)
+        expect(parser_data[:container_images][0][:architecture]).to eq('amd64')
+        check_data_index_images
+      end
+
+      it "doesn't add new images" do
+        inventory = {"image" => [image_from_openshift,]}
+
+        parser.get_or_merge_openshift_images(inventory)
+        expect(parser_data[:container_images].blank?).to be true
+      end
+    end
+
     it "matches images by digest" do
       FIRST_NAME = "first_name".freeze
       FIRST_TAG = "first_tag".freeze
@@ -233,6 +266,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
           :port => image_registry_port,
         )
         parse_single_openshift_image_with_registry
+      end
+
+      context "store_unused_images=false" do
+        let(:store_unused_images) { false }
+
+        it "still adds the registries" do
+          parse_single_openshift_image_with_registry
+        end
       end
     end
   end

@@ -40,7 +40,9 @@ module ManageIQ::Providers
         openshift_result = parse_openshift_image(openshift_image)
         # This hides @data_index reading and writing.
         container_result = parse_container_image(openshift_result.delete(:id),
-                                                 openshift_result.delete(:ref))
+                                                 openshift_result.delete(:ref),
+                                                 :store_new_images => @options.store_unused_images)
+        return if container_result.nil? # not storing because store_unused_images = false and wasn't mentioned by any pod
         container_result.merge!(openshift_result)
         container_result
       end
