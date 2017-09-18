@@ -13,7 +13,9 @@
 :ems_refresh:
   :openshift:
     :refresh_interval: 15.minutes
-    :inventory_object_refresh: false
+    :inventory_object_refresh: true
+    :inventory_collections:
+      :saver_strategy: :batch
     :get_container_images: true
     :store_unused_images: true
 :workers:
