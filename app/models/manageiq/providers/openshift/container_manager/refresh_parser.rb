@@ -294,6 +294,7 @@ module ManageIQ::Providers
         new_result[:labels] = parse_labels(template)
         new_result[:objects] = template.objects.to_a.collect(&:to_h)
         new_result[:type] = "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate"
+        new_result[:object_labels] = template.labels.to_h
         new_result
       end
 
