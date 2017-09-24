@@ -11,18 +11,6 @@ module ManageIQ::Providers
         {:name => 'build_configs'}, {:name => 'builds'}, {:name => 'templates'}
       ]
 
-      def fetch_hawk_inv(ems)
-        hawk = ManageIQ::Providers::Kubernetes::ContainerManager::MetricsCapture::HawkularClient.new(ems, '_ops')
-        keys = hawk.strings.query(:miq_metric => true)
-        keys.each_with_object({}) do |k, attributes|
-          values = hawk.strings.get_data(k.json["id"], :limit => 1, :order => "DESC")
-          attributes[k.json["id"]] = values.first["value"] unless values.empty?
-        end
-      rescue => err
-        _log.error err.message
-        return nil
-      end
-
       # Full refresh. Collecting immediately. Don't have separate Collector classes.
       def collect_inventory_for_targets(ems, _targets)
         request_entities = OPENSHIFT_ENTITIES.dup
@@ -36,7 +24,6 @@ module ManageIQ::Providers
         end
 
         inventory = openshift_inventory.merge(kube_inventory)
-        inventory["additional_attributes"] = fetch_hawk_inv(ems) || {}
         EmsRefresh.log_inv_debug_trace(inventory, "inv_hash:")
         [[ems, inventory]]
       end
