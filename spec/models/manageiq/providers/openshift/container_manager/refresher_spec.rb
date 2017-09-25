@@ -17,12 +17,6 @@ shared_examples "openshift refresher VCR tests" do |check_metadata_not_deleted: 
                                                           :port     => "8443"},
                                       :authentication => {:role     => :bearer,
                                                           :auth_key => token,
-                                                          :userid   => "_"}},
-                                     {:endpoint       => {:role     => :hawkular,
-                                                          :hostname => hostname,
-                                                          :port     => "443"},
-                                      :authentication => {:role     => :hawkular,
-                                                          :auth_key => token,
                                                           :userid   => "_"}}]
     )
   end
@@ -58,43 +52,11 @@ shared_examples "openshift refresher VCR tests" do |check_metadata_not_deleted: 
       assert_specific_container_template
       assert_specific_used_container_image(:metadata => true)
       assert_specific_unused_container_image(:metadata => true, :archived => false)
-      assert_specific_container_node_custom_attributes
     end
   end
 
   it "will perform a full refresh on openshift" do
     full_refresh_test
-  end
-
-  it "will skip additional attributes when hawk connection fails" do
-    hostname = 'host2.example.com'
-    token = 'theToken'
-
-    ems = FactoryGirl.create(
-      :ems_openshift,
-      :name                      => 'OpenShiftProvider2',
-      :connection_configurations => [{:endpoint       => {:role     => :default,
-                                                          :hostname => hostname,
-                                                          :port     => "8443"},
-                                      :authentication => {:role     => :bearer,
-                                                          :auth_key => token,
-                                                          :userid   => "_"}},
-                                     {:endpoint       => {:role     => :hawkular,
-                                                          :hostname => 'badHost',
-                                                          :port     => "443"},
-                                      :authentication => {:role     => :hawkular,
-                                                          :auth_key => "BadToken",
-                                                          :userid   => "_"}}]
-    )
-
-    ems.reload
-    VCR.use_cassette("#{described_class.name.underscore}_hawk_fails",
-                     :match_requests_on => [:path,]) do # , :record => :new_episodes) do
-      EmsRefresh.refresh(ems)
-    end
-    ems.reload
-
-    assert_container_node_with_no_hawk_attributes
   end
 
   it 'will skip container_images if get_container_images = false' do
@@ -353,17 +315,6 @@ shared_examples "openshift refresher VCR tests" do |check_metadata_not_deleted: 
     expect(@containernode.ext_management_system).to eq(@ems)
   end
 
-  def assert_specific_container_node_custom_attributes
-    @customattribute = CustomAttribute.find_by(:name => "test_attribute")
-    expect(@customattribute).to have_attributes(
-      :name          => "test_attribute",
-      :value         => "test-value",
-      :resource_type => "ContainerNode"
-    )
-
-    expect(ContainerNode.find(@customattribute.resource_id)).to eq(@containernode)
-  end
-
   def assert_specific_container_services
     @containersrv = ContainerService.find_by(:name => "kubernetes")
     expect(@containersrv).to have_attributes(
@@ -518,12 +469,6 @@ shared_examples "openshift refresher VCR tests" do |check_metadata_not_deleted: 
         #:tag            => "latest",
       )
     end
-  end
-
-  def assert_container_node_with_no_hawk_attributes
-    containernode = ContainerNode.first
-    expect(containernode.custom_attributes.count).to eq(5)
-    expect(CustomAttribute.find_by(:name => "test_attr")).to be nil
   end
 end
 
