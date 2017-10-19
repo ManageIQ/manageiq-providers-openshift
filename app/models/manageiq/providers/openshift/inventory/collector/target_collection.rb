@@ -1,45 +1,15 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::TargetCollection < ManageIQ::Providers::Openshift::Inventory::Collector
+  include ManageIQ::Providers::Kubernetes::ContainerManager::TargetCollectionMixin
+
   def inventory(entities)
-    # Return [] for all inventory call by default
-    full_inventory = entities.each_with_object({}) { |entity, obj| obj[entity[:name].singularize] = [] }
+    full_inventory = clean_inventory(entities)
 
     # Fill pods from Targets
     full_inventory['pod'] = pods
+    # Fill pods references
+    full_inventory.merge!(pods_references(pods))
 
-    # TODO(lsmola) we should either have watches for nodes and projects + db load strategy based on names, or we should
-    # fetch only referenced nodes and projects from the API
-    # Fetch all nodes and projects, so we can always connect pods to them
-    kube_inventory = manager.with_provider_connection(:service => ManageIQ::Providers::Kubernetes::ContainerManager.ems_type) do |kubeclient|
-      fetch_entities(kubeclient, [{:name => 'nodes'}, {:name => 'namespaces'}])
-    end
     # TODO(lsmola) I am collecting just namespaces, there are OSE projects, but return [], should it work?
-    # openshift_inventory = manager.with_provider_connection do |openshift_client|
-    #   fetch_entities(openshift_client, [{:name => 'projects'}])
-    # end
-    full_inventory['node']      = kube_inventory['node']
-    full_inventory['namespace'] = kube_inventory['namespace']
-
     full_inventory
-  end
-
-  def pods
-    # We have only pods targets now
-    target.targets.map { |target| JSON.parse(target.options, object_class: OpenStruct).payload }
-  end
-
-  private
-
-  # TODO(lsmola) this method comes from the refresher, expose it somewhere where we can share it, but more likely we
-  # be fetching subsets of entities, so this will look different
-  def fetch_entities(client, entities)
-    entities.each_with_object({}) do |entity, h|
-      begin
-        h[entity[:name].singularize] = client.send("get_#{entity[:name]}")
-      rescue KubeException => e
-        raise e if entity[:default].nil?
-        $log.warn("Unexpected Exception during refresh: #{e}")
-        h[entity[:name].singularize] = entity[:default]
-      end
-    end
   end
 end
