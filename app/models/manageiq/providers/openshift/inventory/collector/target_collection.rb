@@ -2,7 +2,7 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::TargetCollection < M
   include ManageIQ::Providers::Kubernetes::ContainerManager::TargetCollectionMixin
 
   def inventory(entities)
-    full_inventory = clean_inventory(entities)
+    full_inventory = empty_inventory(entities)
 
     # Fill pods from Targets
     full_inventory['pod'] = pods
