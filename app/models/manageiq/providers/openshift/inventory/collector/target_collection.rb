@@ -5,6 +5,7 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::TargetCollection < M
     full_inventory = empty_inventory(entities)
 
     # Fill pods from Targets
+    pods                  = pod_list
     full_inventory['pod'] = pods
     # Fill pods references
     full_inventory.merge!(pods_references(pods))
