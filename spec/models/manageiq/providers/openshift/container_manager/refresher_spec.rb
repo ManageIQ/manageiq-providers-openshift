@@ -327,10 +327,6 @@ shared_examples "openshift refresher VCR tests" do
   end
 
   def assert_specific_container_image_registry
-    expect(ContainerService.find_by(:name => "docker-registry").container_image_registry.name). to eq("172.30.190.81")
-  end
-
-  def assert_specific_container_image_registry
     @registry = ContainerImageRegistry.find_by(:name => "172.30.190.81")
     expect(@registry).to have_attributes(
       :name => "172.30.190.81",
@@ -338,6 +334,8 @@ shared_examples "openshift refresher VCR tests" do
       :port => "5000"
     )
     expect(@registry.container_services.first.name).to eq("docker-registry")
+
+    expect(ContainerService.find_by(:name => "docker-registry").container_image_registry.name). to eq("172.30.190.81")
   end
 
   def assert_specific_container_project

@@ -11,8 +11,19 @@ module ManageIQ::Providers
         {:name => 'build_configs'}, {:name => 'builds'}, {:name => 'templates'}
       ]
 
-      # Full refresh. Collecting immediately. Don't have separate Collector classes.
-      def collect_inventory_for_targets(ems, _targets)
+      def target_collection_collector_class
+        ManageIQ::Providers::Openshift::Inventory::Collector::TargetCollection
+      end
+
+      def refresh_parser_class
+        ManageIQ::Providers::Openshift::ContainerManager::RefreshParser
+      end
+
+      def all_entities
+        OPENSHIFT_ENTITIES + KUBERNETES_ENTITIES + [{:name => 'images'}]
+      end
+
+      def collect_full_inventory(ems)
         request_entities = OPENSHIFT_ENTITIES.dup
         request_entities << {:name => 'images'} if refresher_options.get_container_images
 
@@ -24,16 +35,7 @@ module ManageIQ::Providers
         end
 
         inventory = openshift_inventory.merge(kube_inventory)
-        EmsRefresh.log_inv_debug_trace(inventory, "inv_hash:")
-        [[ems, inventory]]
-      end
-
-      def parse_targeted_inventory(ems, _target_is_ems, inventory)
-        if refresher_options.inventory_object_refresh
-          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_inv_collections(ems, inventory, refresher_options)
-        else
-          ManageIQ::Providers::Openshift::ContainerManager::RefreshParser.ems_inv_to_hashes(inventory, refresher_options)
-        end
+        inventory
       end
     end
   end
