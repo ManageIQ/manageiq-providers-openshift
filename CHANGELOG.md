@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 72 ending 2017-10-30
+
+### Added
+- Targeted refresh for pods using watches [(#54)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/54)
+- Annotate successful images with details [(#41)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/41)
+
 ## Unreleased as of Sprint 71 ending 2017-10-16
 
 ### Added
