@@ -2,6 +2,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::InventoryCollectorWorker
   require_nested :Runner
 
   def self.has_required_role?
-    !worker_settings[:disabled] && Settings.fetch_path(:ems_refresh, ems_class.ems_type.to_sym, :inventory_object_refresh)
+    return false unless Settings.fetch_path(:ems_refresh, ems_class.ems_type.to_sym, :inventory_object_refresh)
+    super
   end
 end
