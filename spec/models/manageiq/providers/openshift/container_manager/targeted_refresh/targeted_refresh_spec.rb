@@ -52,14 +52,13 @@ shared_examples "openshift refresher VCR targeted refresh tests" do
     # Below, a code from ManageIQ::Providers::Kubernetes::ContainerManager::InventoryCollectorWorker::Runner#do_work
     ems_ref = parse_notice_pod_ems_ref(notice['object'])
 
-    target = ManagerRefresh::Target.new(
+    target_opts = {
       :manager     => @ems,
       :association => :container_groups,
       :manager_ref => ems_ref,
-      :options     => {
-        :payload => notice['object'].to_json,
-      },
-    )
+    }
+
+    target = ManagerRefresh::Target.new(target_opts).tap { |target| target.payload = notice['object'].to_json }
 
     EmsRefresh.queue_refresh(target)
   end
