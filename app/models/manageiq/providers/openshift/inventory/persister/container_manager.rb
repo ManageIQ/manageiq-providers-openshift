@@ -8,6 +8,7 @@ class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < M
     # to at least retain existing metadata if it was true and is now false.
     if options.get_container_images
       initialize_custom_attributes_collections(@collections[:container_images], %w(labels docker_labels))
+      initialize_taggings_collection(@collections[:container_images])
     end
   end
 end

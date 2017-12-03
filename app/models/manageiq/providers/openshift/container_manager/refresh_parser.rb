@@ -177,11 +177,13 @@ module ManageIQ::Providers
           h[:container_project] = lazy_find_project(:name => h[:namespace])
           parameters = h.delete(:container_template_parameters)
           custom_attrs = h.extract!(:labels)
+          tags = h.delete(:tags)
 
           container_template = collection.build(h)
 
           get_template_parameters_graph(container_template, parameters)
           get_custom_attributes_graph(container_template, custom_attrs)
+          get_taggings_graph(container_template, tags)
         end
       end
 
@@ -297,9 +299,14 @@ module ManageIQ::Providers
       def parse_template(template)
         new_result = parse_base_item(template)
         new_result[:container_template_parameters] = parse_template_parameters(template.parameters)
-        new_result[:labels] = parse_labels(template)
+        # Labels of the template itself, potentially mapped to tags on the template.
+        labels = parse_labels(template)
+        new_result[:labels] = labels
+        new_result[:tags] = map_labels('ContainerTemplate', labels)
         new_result[:objects] = template.objects.to_a.collect(&:to_h)
         new_result[:type] = "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate"
+        # Labels applied to objects instantiated from the template,
+        # not mapped here but may be mapped when we refresh those objects.
         new_result[:object_labels] = template.labels.to_h
         new_result
       end
@@ -338,12 +345,14 @@ module ManageIQ::Providers
 
         docker_metadata = openshift_image[:dockerImageMetadata]
         if docker_metadata.present?
+          labels = parse_labels(openshift_image)
           new_result.merge!(
             :architecture   => docker_metadata[:Architecture],
             :author         => docker_metadata[:Author],
             :docker_version => docker_metadata[:DockerVersion],
             :size           => docker_metadata[:Size],
-            :labels         => parse_labels(openshift_image)
+            :labels         => labels,
+            :tags           => map_labels('ContainerImage', labels)
           )
           docker_config = docker_metadata[:Config]
           if docker_config.present?

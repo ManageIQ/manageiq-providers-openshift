@@ -116,6 +116,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                            :environment_variables    => {"VAR1" => "VALUE1", "VAR2" => "VALUE2"},
                            :size                     => "123456",
                            :labels                   => [],
+                           :tags                     => [],
                            :docker_labels            => [{:section => "docker_labels",
                                                           :name    => "key1",
                                                           :value   => "value1",
@@ -153,6 +154,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                            :docker_version           => nil,
                            :size                     => nil,
                            :labels                   => [],
+                           :tags                     => [],
                            :type                     => "ManageIQ::Providers::Openshift::ContainerManager::ContainerImage",
                          )
     end
@@ -176,6 +178,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                            :environment_variables    => {},
                            :size                     => nil,
                            :labels                   => [],
+                           :tags                     => [],
                            :docker_labels            => [],
                            :type                     => "ManageIQ::Providers::Openshift::ContainerManager::ContainerImage",
                          )
@@ -457,7 +460,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                              :creationTimestamp => '2015-11-17T09:18:42Z',
                              :labels            => {
                                :name => 'example'
-                             }
+                             },
                            },
                            :parameters => [
                              {'name'        => 'IMAGE_VERSION',
@@ -483,6 +486,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                       :value   => 'example',
                                       :source  => 'kubernetes'}
                                    ],
+                                   :tags                          => [],
                                    :objects                       => [],
                                    :type                          => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
                                    :object_labels                 => {
@@ -519,6 +523,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
                                    :ems_created_on                => '2017-06-17T09:18:42Z',
                                    :resource_version              => '242359',
                                    :labels                        => [],
+                                   :tags                          => [],
                                    :objects                       => [],
                                    :type                          => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
                                    :object_labels                 => {},
