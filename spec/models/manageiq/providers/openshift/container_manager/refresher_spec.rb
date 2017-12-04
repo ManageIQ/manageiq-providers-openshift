@@ -19,6 +19,8 @@ shared_examples "openshift refresher VCR tests" do
                                                           :auth_key => token,
                                                           :userid   => "_"}}]
     )
+
+    @user_tag = FactoryGirl.create(:classification_cost_center_with_tags).entries.first.tag
   end
 
   it ".ems_type" do
@@ -106,6 +108,9 @@ shared_examples "openshift refresher VCR tests" do
     # done
 
     before(:each) do
+      @key_route_label_mapping = FactoryGirl.create(:tag_mapping_with_category, :label_name => 'key-route-label')
+      @key_route_label_category = @key_route_label_mapping.tag.category
+
       VCR.use_cassette("#{described_class.name.underscore}_before_openshift_deletions",
                        :match_requests_on => [:path,]) do # , :record => :new_episodes) do
         EmsRefresh.refresh(@ems)
@@ -122,7 +127,12 @@ shared_examples "openshift refresher VCR tests" do
       expect(ContainerBuildPod.count).to eq(3)
       expect(CustomAttribute.count).to eq(564)
       expect(ContainerTemplateParameter.count).to eq(367)
-      expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(1)
+      expect(ContainerRoute.find_by(:name => "my-route-2").labels).to contain_exactly(
+        label_with_name_value("key-route-label", "value-route-label")
+      )
+      expect(ContainerRoute.find_by(:name => "my-route-2").tags).to contain_exactly(
+        tag_in_category_with_description(@key_route_label_category, "value-route-label")
+      )
       expect(ContainerTemplate.find_by(:name => "my-template-2").container_template_parameters.count).to eq(1)
       ContainerBuildPod.all.each do |cbp|
         expect(cbp.container_group.container_project.name).to eq(cbp.namespace)
@@ -149,7 +159,12 @@ shared_examples "openshift refresher VCR tests" do
       # oc edit template my-template-2 # remove the template parameters from the file and save it
       # oc delete pod my-pod-2
 
+      let(:extra_route_tags) { [] }
+
       before(:each) do
+        # Simulate user assigning tags between 1st and 2nd refresh
+        ContainerRoute.find_by(:name => "my-route-2").tags.concat(extra_route_tags)
+
         VCR.use_cassette("#{described_class.name.underscore}_after_openshift_deletions",
                          :match_requests_on => [:path,]) do # , :record => :new_episodes) do
           EmsRefresh.refresh(@ems)
@@ -188,7 +203,17 @@ shared_examples "openshift refresher VCR tests" do
         expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-1")).to be_nil
 
         expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(0)
+        expect(ContainerRoute.find_by(:name => "my-route-2").tags.count).to eq(0)
         expect(ContainerTemplate.find_by(:name => "my-template-2").container_template_parameters.count).to eq(0)
+      end
+
+      context "with user-assigned tags before 2nd refresh" do
+        let(:extra_route_tags) { [@user_tag] }
+
+        it "retains user tags when removing mapped tags" do
+          expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(0)
+          expect(ContainerRoute.find_by(:name => "my-route-2").tags).to contain_exactly(@user_tag)
+        end
       end
 
       it "disconnects container projects" do
@@ -465,6 +490,17 @@ shared_examples "openshift refresher VCR tests" do
         #:tag            => "latest",
       )
     end
+  end
+
+  def label_with_name_value(name, value)
+    an_object_having_attributes(
+      :section => 'labels', :source => 'kubernetes',
+      :name => name, :value => value
+    )
+  end
+
+  def tag_in_category_with_description(category, description)
+    satisfy { |tag| tag.category == category && tag.classification.description == description }
   end
 end
 
