@@ -131,9 +131,12 @@ module ManageIQ::Providers
           h[:container_project] = lazy_find_project(:name => h[:namespace])
           h[:container_service] = lazy_find_service(h.delete(:container_service_ref))
           custom_attrs = h.extract!(:labels)
+          tags = h.delete(:tags)
+
           container_route = collection.build(h)
 
           get_custom_attributes_graph(container_route, custom_attrs)
+          get_taggings_graph(container_route, tags)
         end
       end
 
@@ -144,9 +147,12 @@ module ManageIQ::Providers
           h = parse_build(data)
           h[:container_project] = lazy_find_project(:name => h[:namespace])
           custom_attrs = h.extract!(:labels)
+          tags = h.delete(:tags)
+
           container_build = collection.build(h)
 
           get_custom_attributes_graph(container_build, custom_attrs)
+          get_taggings_graph(container_build, tags)
         end
       end
 
