@@ -102,7 +102,8 @@ shared_examples "openshift refresher VCR tests" do
     # spec/vcr_cassettes/manageiq/providers/openshift/container_manager/test_objects_template.yml
     # And these commands to their equivalents:
     # for ind in 0 1 2; do
-    #   oc new-project my-project-$ind;
+    #   oc new-project my-project-$ind
+    #   oc project my-project-$ind
     #   oc process -f ./test_objects_template.yml -v INDEX=$ind | oc create -f -
     #   oc start-build my-build-config-$ind
     # done
