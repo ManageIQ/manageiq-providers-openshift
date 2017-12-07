@@ -6,15 +6,17 @@ shared_examples "openshift refresher VCR tests" do
 
   before(:each) do
     allow(MiqServer).to receive(:my_zone).and_return("default")
-    hostname = 'host.example.com'
-    token = 'theToken'
+    # env vars for easier VCR recording, see test_objects_record.sh
+    hostname = ENV["API_HOST"] || "host.example.com"
+    token = ENV["API_TOKEN"] || "theToken"
 
     @ems = FactoryGirl.create(
       :ems_openshift,
-      :name                      => 'OpenShiftProvider',
-      :connection_configurations => [{:endpoint       => {:role     => :default,
-                                                          :hostname => hostname,
-                                                          :port     => "8443"},
+      :name                      => "OpenShiftProvider",
+      :connection_configurations => [{:endpoint       => {:role              => :default,
+                                                          :hostname          => hostname,
+                                                          :port              => "8443",
+                                                          :security_protocol => "ssl-without-validation"},
                                       :authentication => {:role     => :bearer,
                                                           :auth_key => token,
                                                           :userid   => "_"}}]
@@ -97,23 +99,17 @@ shared_examples "openshift refresher VCR tests" do
   end
 
   context "when refreshing an empty DB" do
-    # CREATING FIRST VCR
-    # To recreate the tested objects in OpenShift use the template file:
-    # spec/vcr_cassettes/manageiq/providers/openshift/container_manager/test_objects_template.yml
-    # And these commands to their equivalents:
-    # for ind in 0 1 2; do
-    #   oc new-project my-project-$ind
-    #   oc project my-project-$ind
-    #   oc process -f ./test_objects_template.yml -v INDEX=$ind | oc create -f -
-    #   oc start-build my-build-config-$ind
-    # done
+    # To recreate both VCRs used here, use the script:
+    # spec/vcr_cassettes/manageiq/providers/openshift/container_manager/test_objects_record.sh
+    # which creates my-project-{0,1,2}.
 
     before(:each) do
       @key_route_label_mapping = FactoryGirl.create(:tag_mapping_with_category, :label_name => 'key-route-label')
       @key_route_label_category = @key_route_label_mapping.tag.category
 
+      mode = ENV['RECORD_VCR'] == 'before_openshift_deletions' ? :new_episodes : :none
       VCR.use_cassette("#{described_class.name.underscore}_before_openshift_deletions",
-                       :match_requests_on => [:path,]) do # , :record => :new_episodes) do
+                       :match_requests_on => [:path,], :record => mode) do
         EmsRefresh.refresh(@ems)
       end
     end
@@ -141,24 +137,10 @@ shared_examples "openshift refresher VCR tests" do
     end
 
     context "when refreshing non empty DB" do
-      # CREATING SECOND VCR
-      # To delete the tested objects in OpenShift use the following commands:
-      # oc delete project my-project-0
-      # oc project my-project-1
-      # oc delete pod my-pod-1
-      # oc delete service my-service-1
-      # oc delete route my-route-1
-      # oc delete resourceQuota my-resource-quota-1
-      # oc delete limitRange my-limit-range-1
-      # oc delete persistentVolumeClaim my-persistentvolumeclaim-1
-      # oc delete template my-template-1
-      # oc delete build my-build-config-1
-      # oc delete buildconfig my-build-config
-      # oc delete rc/my-replicationcontroller-1
-      # oc project my-project-2
-      # oc label route my-route-2 key-route-label-
-      # oc edit template my-template-2 # remove the template parameters from the file and save it
-      # oc delete pod my-pod-2
+      # After deleting resources in the cluster:
+      # "my-project-0" - The whole project
+      # "my-project-1" - All resources inside the project
+      # "my-project-2" - "my-pod-2", label of "my-route-2", parameters of "my-template-2"
 
       let(:extra_route_tags) { [] }
 
@@ -166,8 +148,11 @@ shared_examples "openshift refresher VCR tests" do
         # Simulate user assigning tags between 1st and 2nd refresh
         ContainerRoute.find_by(:name => "my-route-2").tags.concat(extra_route_tags)
 
+        skip('meaningless at this stage of re-recording') if ENV['RECORD_VCR'] == 'before_openshift_deletions'
+
+        mode = ENV['RECORD_VCR'] == 'after_openshift_deletions' ? :new_episodes : :none
         VCR.use_cassette("#{described_class.name.underscore}_after_openshift_deletions",
-                         :match_requests_on => [:path,]) do # , :record => :new_episodes) do
+                         :match_requests_on => [:path,], :record => mode) do
           EmsRefresh.refresh(@ems)
         end
       end
@@ -197,11 +182,11 @@ shared_examples "openshift refresher VCR tests" do
         expect(ContainerReplicator.find_by(:name => "my-replicationcontroller-0")).to be_nil
         expect(ContainerReplicator.find_by(:name => "my-replicationcontroller-1")).to be_nil
 
-        expect(ContainerBuildPod.find_by(:name => "my-build-0")).to be_nil
-        expect(ContainerBuildPod.find_by(:name => "my-build-1")).to be_nil
+        expect(ContainerBuildPod.find_by(:name => "my-build-config-0-1")).to be_nil
+        expect(ContainerBuildPod.find_by(:name => "my-build-config-1-1")).to be_nil
 
-        expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-0")).to be_nil
-        expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-1")).to be_nil
+        expect(ContainerBuild.find_by(:name => "my-build-config-0", :namespace => "my-project-0")).to be_nil
+        expect(ContainerBuild.find_by(:name => "my-build-config-1", :namespace => "my-project-1")).to be_nil
 
         expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(0)
         expect(ContainerRoute.find_by(:name => "my-route-2").tags.count).to eq(0)
