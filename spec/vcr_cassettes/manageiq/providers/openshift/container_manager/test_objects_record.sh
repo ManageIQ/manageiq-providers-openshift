@@ -45,11 +45,9 @@ for ind in 0 1 2; do
   oc start-build my-build-config-$ind
 done
 
-for ind in 0 1 2; do
-  while ! oc get build -n my-project-$ind my-build-config-$ind-1; do
-    echo "... waiting for builds to start ..."
-    sleep 3
-  done
+while out="$(oc get build --all-namespaces)"; echo "$out"; [ "$(echo "$out" | egrep --count --word 'Complete|Failed|Error')" -ne 3 ]; do
+  echo "... waiting for builds to complete ..."
+  sleep 3
 done
 
 echo; echo "===== Record first VCR ====="
