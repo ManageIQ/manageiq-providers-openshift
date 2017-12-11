@@ -94,6 +94,12 @@ oc label route my-route-2 key-route-label-
 oc patch --type=merge template my-template-2 --patch='{"parameters": []}'
 oc delete pod my-pod-2
 
+
+while oc get --show-all projects | grep my-project-0; do
+  echo "... waiting for my-project-0 to disappear ..."
+  sleep 3
+done
+
 echo; echo "===== Record second VCR ====="
 
 rm -v "$VCR_DIR"/refresher_after_openshift_deletions.{yml,txt} || true
