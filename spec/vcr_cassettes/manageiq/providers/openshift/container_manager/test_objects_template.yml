@@ -138,17 +138,6 @@ objects:
           ports:
           - containerPort: 80
 - apiVersion: v1
-  kind: ResourceQuota
-  metadata:
-    name: my-resource-quota-${INDEX}
-  spec:
-    hard:
-      configmaps: "10"
-      persistentvolumeclaims: "4"
-      replicationcontrollers: "20"
-      secrets: "10"
-      services: "10"
-- apiVersion: v1
   kind: Template
   metadata:
     name: my-template-${INDEX}
@@ -180,6 +169,17 @@ objects:
     resources:
       requests:
         storage: 8Gi
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+    name: my-resource-quota-${INDEX}
+  spec:
+    hard:
+      configmaps: "10"
+      persistentvolumeclaims: "4"
+      replicationcontrollers: "20"
+      secrets: "10"
+      services: "10"
 parameters:
 - name: INDEX
   value: "0"
