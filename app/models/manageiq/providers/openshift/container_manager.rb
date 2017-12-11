@@ -39,4 +39,8 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   rescue KubeException => e
     raise MiqException::MiqProvisionError, "Unexpected Exception while creating project: #{e}"
   end
+
+  def supported_catalog_types
+    %w(generic_container_template).freeze
+  end
 end
