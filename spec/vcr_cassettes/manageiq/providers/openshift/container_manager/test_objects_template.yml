@@ -180,6 +180,27 @@ objects:
       replicationcontrollers: "20"
       secrets: "10"
       services: "10"
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+    name: my-resource-quota-scopes1-${INDEX}
+  spec:
+    scopes:
+    - NotTerminating
+    hard:
+      pods: "6"
+      requests.cpu: "10"
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+    name: my-resource-quota-scopes2-${INDEX}
+  spec:
+    scopes:
+    - Terminating
+    - NotBestEffort
+    hard:
+      pods: "3"
+      requests.cpu: "5"
 parameters:
 - name: INDEX
   value: "0"
