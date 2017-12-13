@@ -58,11 +58,14 @@ describe_vcr () {
   oc version
   echo
   echo "CAVEAT: status shown here might differ from moment captured in VCR!"
-  echo "== oc get projects --show-all =="
-  oc get projects --show-all
+  echo "== oc get projects --show-all --show-kind --show-labels =="
+  oc get projects --show-all --show-kind --show-labels
   echo
-  echo "== oc get all --show-all =="
-  oc get all --show-all
+  echo "== oc get all --show-all --all-namespaces -o wide --show-labels =="
+  oc get all --show-all --all-namespaces -o wide --show-labels
+  echo
+  echo "== oc get images =="
+  oc get images
 }
 
 # Deleting VCR file allows using :new_episodes so multiple specs calling refresh
