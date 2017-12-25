@@ -114,16 +114,25 @@ shared_examples "openshift refresher VCR tests" do
       end
     end
 
+    let(:object_counts) do
+      # using strings instead of actual model classes for compact rspec diffs
+      {
+        'ContainerProject'           => 8,
+        'ContainerImage'             => 39,
+        'ContainerRoute'             => 5,
+        'ContainerTemplate'          => 33,
+        'ContainerReplicator'        => 6,
+        'ContainerBuild'             => 3,
+        'ContainerBuildPod'          => 3,
+        'CustomAttribute'            => 564,
+        'ContainerTemplateParameter' => 367,
+      }
+    end
+
     it "saves the objects in the DB" do
-      expect(ContainerProject.count).to eq(8)
-      expect(ContainerImage.count).to eq(39)
-      expect(ContainerRoute.count).to eq(5)
-      expect(ContainerTemplate.count).to eq(33)
-      expect(ContainerReplicator.count).to eq(6)
-      expect(ContainerBuild.count).to eq(3)
-      expect(ContainerBuildPod.count).to eq(3)
-      expect(CustomAttribute.count).to eq(564)
-      expect(ContainerTemplateParameter.count).to eq(367)
+      actual_counts = object_counts.collect { |k, _| [k, k.constantize.count] }.to_h
+      expect(actual_counts).to eq(object_counts)
+
       expect(ContainerRoute.find_by(:name => "my-route-2").labels).to contain_exactly(
         label_with_name_value("key-route-label", "value-route-label")
       )
@@ -158,20 +167,30 @@ shared_examples "openshift refresher VCR tests" do
       end
 
       it "archives objects" do
-        expect(ContainerProject.count).to eq(8)
-        expect(ContainerProject.where(:deleted_on => nil).count).to eq(7)
-        expect(ContainerImage.count).to eq(38) # should be 39
-        expect(ContainerImage.where(:deleted_on => nil).count).to eq(38) # should be 39
+        expect(ContainerProject.count).to eq(object_counts['ContainerProject'])
+        expect(ContainerProject.active.count).to eq(object_counts['ContainerProject'] - 1)
+        expect(ContainerProject.archived.count).to eq(1)
+
+        pending("why refresh DELETES 1 image from DB?")
+        expect(ContainerImage.count).to eq(object_counts['ContainerImage'])
+        expect(ContainerImage.active.count).to eq(object_counts['ContainerImage'] - 1)
+        expect(ContainerImage.archived.count).to eq(1)
       end
 
       it "removes the deleted objects from the DB" do
-        expect(ContainerRoute.count).to eq(3)
-        expect(ContainerTemplate.count).to eq(31)
-        expect(ContainerReplicator.count).to eq(4)
-        expect(ContainerBuild.count).to eq(1)
-        expect(ContainerBuildPod.count).to eq(1)
-        expect(CustomAttribute.count).to eq(549)
-        expect(ContainerTemplateParameter.count).to eq(364)
+        # TODO: check whether these make sense
+        deleted = {
+          'ContainerRoute'             => 2,
+          'ContainerTemplate'          => 2,
+          'ContainerReplicator'        => 2,
+          'ContainerBuild'             => 2,
+          'ContainerBuildPod'          => 2,
+          'CustomAttribute'            => 15,
+          'ContainerTemplateParameter' => 3,
+        }
+        expected_counts = deleted.collect { |k, d| [k, object_counts[k] - d] }.to_h
+        actual_counts = expected_counts.collect { |k, _| [k, k.constantize.count] }.to_h
+        expect(actual_counts).to eq(expected_counts)
 
         expect(ContainerTemplate.find_by(:name => "my-template-0")).to be_nil
         expect(ContainerTemplate.find_by(:name => "my-template-1")).to be_nil
