@@ -70,9 +70,9 @@ describe_vcr () {
 
 # Deleting VCR file allows using :new_episodes so multiple specs calling refresh
 # is not a problem, only the first will re-record the VCR.
-rm -v "$VCR_DIR"/refresher_before_openshift_deletions.{yml,txt} || true
-describe_vcr > "$VCR_DIR"/refresher_before_openshift_deletions.txt
-env RECORD_VCR=before_openshift_deletions bundle exec rspec "$SPEC" || echo "^^ FAILURES ARE POSSIBLE, YOU'LL HAVE TO EDIT THE SPEC"
+rm -v "$VCR_DIR"/refresher_before_deletions.{yml,txt} || true
+describe_vcr > "$VCR_DIR"/refresher_before_deletions.txt
+env RECORD_VCR=before_deletions bundle exec rspec "$SPEC" || echo "^^ FAILURES ARE POSSIBLE, YOU'LL HAVE TO EDIT THE SPEC"
 
 echo; echo "===== Various deletions ====="
 
@@ -105,8 +105,8 @@ done
 
 echo; echo "===== Record second VCR ====="
 
-rm -v "$VCR_DIR"/refresher_after_openshift_deletions.{yml,txt} || true
-describe_vcr > "$VCR_DIR"/refresher_after_openshift_deletions.txt
-env RECORD_VCR=after_openshift_deletions bundle exec rspec "$SPEC" || echo "^^ FAILURES ARE POSSIBLE, YOU'LL HAVE TO EDIT THE SPEC"
+rm -v "$VCR_DIR"/refresher_after_deletions.{yml,txt} || true
+describe_vcr > "$VCR_DIR"/refresher_after_deletions.txt
+env RECORD_VCR=after_deletions bundle exec rspec "$SPEC" || echo "^^ FAILURES ARE POSSIBLE, YOU'LL HAVE TO EDIT THE SPEC"
 
 echo; echo "Summaries written to .txt files near the .yml files."

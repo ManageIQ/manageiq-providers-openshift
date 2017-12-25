@@ -107,8 +107,8 @@ shared_examples "openshift refresher VCR tests" do
       @key_route_label_mapping = FactoryGirl.create(:tag_mapping_with_category, :label_name => 'key-route-label')
       @key_route_label_category = @key_route_label_mapping.tag.category
 
-      mode = ENV['RECORD_VCR'] == 'before_openshift_deletions' ? :new_episodes : :none
-      VCR.use_cassette("#{described_class.name.underscore}_before_openshift_deletions",
+      mode = ENV['RECORD_VCR'] == 'before_deletions' ? :new_episodes : :none
+      VCR.use_cassette("#{described_class.name.underscore}_before_deletions",
                        :match_requests_on => [:path,], :record => mode) do
         EmsRefresh.refresh(@ems)
       end
@@ -157,10 +157,10 @@ shared_examples "openshift refresher VCR tests" do
         # Simulate user assigning tags between 1st and 2nd refresh
         ContainerRoute.find_by(:name => "my-route-2").tags.concat(extra_route_tags)
 
-        skip('meaningless at this stage of re-recording') if ENV['RECORD_VCR'] == 'before_openshift_deletions'
+        skip('meaningless at this stage of re-recording') if ENV['RECORD_VCR'] == 'before_deletions'
 
-        mode = ENV['RECORD_VCR'] == 'after_openshift_deletions' ? :new_episodes : :none
-        VCR.use_cassette("#{described_class.name.underscore}_after_openshift_deletions",
+        mode = ENV['RECORD_VCR'] == 'after_deletions' ? :new_episodes : :none
+        VCR.use_cassette("#{described_class.name.underscore}_after_deletions",
                          :match_requests_on => [:path,], :record => mode) do
           EmsRefresh.refresh(@ems)
         end
