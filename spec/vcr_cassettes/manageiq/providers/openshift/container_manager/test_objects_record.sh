@@ -2,6 +2,8 @@
 
 set -e  # abort on error
 
+echo '===== Ensure API server ====='
+
 if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
   echo "OPENSHIFT_MASTER_HOST unset, trying minishift"
   if which minishift && minishift status | grep -i 'openshift:.*running'; then
