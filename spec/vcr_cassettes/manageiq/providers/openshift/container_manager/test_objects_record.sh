@@ -11,10 +11,9 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
     eval $(minishift oc-env --shell bash) # Ensure oc in PATH
     oc login -u system:admin # With minishift, we know we can just do this
   else
-    echo 'Either set $OPENSHIFT_MASTER_HOST and perform `oc login` with admin powers,'
-    echo 'or have minishift in $PATH and already running, e.g.'
-    echo '    minishift addons enable manageiq'
-    echo '    minishift start --vm-driver virtualbox --openshift-version v3.7.0'
+    echo 'Either set $OPENSHIFT_MASTER_HOST and perform `oc login` with cluster-admin powers,'
+    echo 'or have minishift in $PATH and already started.'
+    echo 'See https://github.com/ManageIQ/guides/blob/master/providers/openshift.md'
     exit 1
   fi
 fi
