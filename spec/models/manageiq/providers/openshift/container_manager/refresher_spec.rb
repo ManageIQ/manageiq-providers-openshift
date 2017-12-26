@@ -7,8 +7,8 @@ shared_examples "openshift refresher VCR tests" do
   before(:each) do
     allow(MiqServer).to receive(:my_zone).and_return("default")
     # env vars for easier VCR recording, see test_objects_record.sh
-    hostname = ENV["API_HOST"] || "host.example.com"
-    token = ENV["API_TOKEN"] || "theToken"
+    hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
+    token = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
 
     @ems = FactoryGirl.create(
       :ems_openshift,
