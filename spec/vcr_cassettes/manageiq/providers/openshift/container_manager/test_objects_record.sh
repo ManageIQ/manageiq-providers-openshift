@@ -23,10 +23,8 @@ if [ -z "$OPENSHIFT_MANAGEMENT_ADMIN_TOKEN" ]; then
   export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
 fi
 
-VCR_DIR="$(dirname "$(realpath "$0")")"
-
-cd "$(realpath "$0" | sed 's:\(manageiq-providers-openshift/\).*$:\1:')" # repo root
-
+cd "$(git rev-parse --show-toplevel)" # repo root
+VCR_DIR=./spec/vcr_cassettes/manageiq/providers/openshift/container_manager/
 SPEC=./spec/models/manageiq/providers/openshift/container_manager/refresher_spec.rb
 
 echo; echo "===== Clean slate, create objects ====="
