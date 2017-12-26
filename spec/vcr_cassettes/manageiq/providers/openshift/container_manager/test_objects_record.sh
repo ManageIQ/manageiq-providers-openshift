@@ -45,7 +45,7 @@ for ind in 0 1 2; do
   oc start-build my-build-config-$ind
 done
 
-while out="$(oc get build --all-namespaces)"; echo "$out"; [ "$(echo "$out" | egrep --count --word 'Complete|Failed|Error')" -ne 3 ]; do
+while OUT="$(oc get build --all-namespaces)"; echo "$OUT"; [ "$(echo "$OUT" | egrep --count --word 'Complete|Failed|Error')" -ne 3 ]; do
   echo "... waiting for builds to complete ..."
   sleep 3
 done
