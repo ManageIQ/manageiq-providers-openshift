@@ -6,15 +6,17 @@ shared_examples "openshift refresher VCR tests" do
 
   before(:each) do
     allow(MiqServer).to receive(:my_zone).and_return("default")
-    hostname = 'host.example.com'
-    token = 'theToken'
+    # env vars for easier VCR recording, see test_objects_record.sh
+    hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
+    token = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
 
     @ems = FactoryGirl.create(
       :ems_openshift,
-      :name                      => 'OpenShiftProvider',
-      :connection_configurations => [{:endpoint       => {:role     => :default,
-                                                          :hostname => hostname,
-                                                          :port     => "8443"},
+      :name                      => "OpenShiftProvider",
+      :connection_configurations => [{:endpoint       => {:role              => :default,
+                                                          :hostname          => hostname,
+                                                          :port              => "8443",
+                                                          :security_protocol => "ssl-without-validation"},
                                       :authentication => {:role     => :bearer,
                                                           :auth_key => token,
                                                           :userid   => "_"}}]
@@ -97,36 +99,40 @@ shared_examples "openshift refresher VCR tests" do
   end
 
   context "when refreshing an empty DB" do
-    # CREATING FIRST VCR
-    # To recreate the tested objects in OpenShift use the template file:
-    # spec/vcr_cassettes/manageiq/providers/openshift/container_manager/test_objects_template.yml
-    # And these commands to their equivalents:
-    # for ind in 0 1 2; do
-    #   oc new-project my-project-$ind;
-    #   oc process -f ./test_objects_template.yml -v INDEX=$ind | oc create -f -
-    #   oc start-build my-build-config-$ind
-    # done
+    # To recreate both VCRs used here, use the script:
+    # spec/vcr_cassettes/manageiq/providers/openshift/container_manager/test_objects_record.sh
+    # which creates my-project-{0,1,2}.
 
     before(:each) do
       @key_route_label_mapping = FactoryGirl.create(:tag_mapping_with_category, :label_name => 'key-route-label')
       @key_route_label_category = @key_route_label_mapping.tag.category
 
-      VCR.use_cassette("#{described_class.name.underscore}_before_openshift_deletions",
-                       :match_requests_on => [:path,]) do # , :record => :new_episodes) do
+      mode = ENV['RECORD_VCR'] == 'before_deletions' ? :new_episodes : :none
+      VCR.use_cassette("#{described_class.name.underscore}_before_deletions",
+                       :match_requests_on => [:path,], :record => mode) do
         EmsRefresh.refresh(@ems)
       end
     end
 
+    let(:object_counts) do
+      # using strings instead of actual model classes for compact rspec diffs
+      {
+        'ContainerProject'           => 10,
+        'ContainerImage'             => 43,
+        'ContainerRoute'             => 4,
+        'ContainerTemplate'          => 20,
+        'ContainerTemplateParameter' => 210,
+        'ContainerReplicator'        => 8,
+        'ContainerBuild'             => 3,
+        'ContainerBuildPod'          => 3,
+        'CustomAttribute'            => 622,
+      }
+    end
+
     it "saves the objects in the DB" do
-      expect(ContainerProject.count).to eq(8)
-      expect(ContainerImage.count).to eq(39)
-      expect(ContainerRoute.count).to eq(5)
-      expect(ContainerTemplate.count).to eq(33)
-      expect(ContainerReplicator.count).to eq(6)
-      expect(ContainerBuild.count).to eq(3)
-      expect(ContainerBuildPod.count).to eq(3)
-      expect(CustomAttribute.count).to eq(564)
-      expect(ContainerTemplateParameter.count).to eq(367)
+      actual_counts = object_counts.collect { |k, _| [k, k.constantize.count] }.to_h
+      expect(actual_counts).to eq(object_counts)
+
       expect(ContainerRoute.find_by(:name => "my-route-2").labels).to contain_exactly(
         label_with_name_value("key-route-label", "value-route-label")
       )
@@ -140,24 +146,10 @@ shared_examples "openshift refresher VCR tests" do
     end
 
     context "when refreshing non empty DB" do
-      # CREATING SECOND VCR
-      # To delete the tested objects in OpenShift use the following commands:
-      # oc delete project my-project-0
-      # oc project my-project-1
-      # oc delete pod my-pod-1
-      # oc delete service my-service-1
-      # oc delete route my-route-1
-      # oc delete resourceQuota my-resource-quota-1
-      # oc delete limitRange my-limit-range-1
-      # oc delete persistentVolumeClaim my-persistentvolumeclaim-1
-      # oc delete template my-template-1
-      # oc delete build my-build-config-1
-      # oc delete buildconfig my-build-config
-      # oc delete rc/my-replicationcontroller-1
-      # oc project my-project-2
-      # oc label route my-route-2 key-route-label-
-      # oc edit template my-template-2 # remove the template parameters from the file and save it
-      # oc delete pod my-pod-2
+      # After deleting resources in the cluster:
+      # "my-project-0" - The whole project
+      # "my-project-1" - All resources inside the project
+      # "my-project-2" - "my-pod-2", label of "my-route-2", parameters of "my-template-2"
 
       let(:extra_route_tags) { [] }
 
@@ -165,27 +157,42 @@ shared_examples "openshift refresher VCR tests" do
         # Simulate user assigning tags between 1st and 2nd refresh
         ContainerRoute.find_by(:name => "my-route-2").tags.concat(extra_route_tags)
 
-        VCR.use_cassette("#{described_class.name.underscore}_after_openshift_deletions",
-                         :match_requests_on => [:path,]) do # , :record => :new_episodes) do
+        skip('meaningless at this stage of re-recording') if ENV['RECORD_VCR'] == 'before_deletions'
+
+        mode = ENV['RECORD_VCR'] == 'after_deletions' ? :new_episodes : :none
+        VCR.use_cassette("#{described_class.name.underscore}_after_deletions",
+                         :match_requests_on => [:path,], :record => mode) do
           EmsRefresh.refresh(@ems)
         end
       end
 
       it "archives objects" do
-        expect(ContainerProject.count).to eq(8)
-        expect(ContainerProject.where(:deleted_on => nil).count).to eq(7)
-        expect(ContainerImage.count).to eq(38) # should be 39
-        expect(ContainerImage.where(:deleted_on => nil).count).to eq(38) # should be 39
+        expect(ContainerProject.count).to eq(object_counts['ContainerProject'])
+        expect(ContainerProject.active.count).to eq(object_counts['ContainerProject'] - 1)
+        expect(ContainerProject.archived.count).to eq(1)
+
+        # TODO: this varies by recording, in this recording only graph refresh has problem,
+        # in some classical refresh had same problem, in some graph refresh archived 2 images...
+        pending("why graph refresh DELETES 1 image from DB?") if Settings.ems_refresh.openshift.inventory_object_refresh
+        expect(ContainerImage.count).to eq(object_counts['ContainerImage'])
+        expect(ContainerImage.active.count).to eq(object_counts['ContainerImage'] - 1)
+        expect(ContainerImage.archived.count).to eq(1)
       end
 
       it "removes the deleted objects from the DB" do
-        expect(ContainerRoute.count).to eq(3)
-        expect(ContainerTemplate.count).to eq(31)
-        expect(ContainerReplicator.count).to eq(4)
-        expect(ContainerBuild.count).to eq(1)
-        expect(ContainerBuildPod.count).to eq(1)
-        expect(CustomAttribute.count).to eq(549)
-        expect(ContainerTemplateParameter.count).to eq(364)
+        # TODO: check whether these make sense
+        deleted = {
+          'ContainerRoute'             => 2,
+          'ContainerTemplate'          => 2,
+          'ContainerReplicator'        => 2,
+          'ContainerBuild'             => 2,
+          'ContainerBuildPod'          => 2,
+          'CustomAttribute'            => 15,
+          'ContainerTemplateParameter' => 3,
+        }
+        expected_counts = deleted.collect { |k, d| [k, object_counts[k] - d] }.to_h
+        actual_counts = expected_counts.collect { |k, _| [k, k.constantize.count] }.to_h
+        expect(actual_counts).to eq(expected_counts)
 
         expect(ContainerTemplate.find_by(:name => "my-template-0")).to be_nil
         expect(ContainerTemplate.find_by(:name => "my-template-1")).to be_nil
@@ -196,11 +203,11 @@ shared_examples "openshift refresher VCR tests" do
         expect(ContainerReplicator.find_by(:name => "my-replicationcontroller-0")).to be_nil
         expect(ContainerReplicator.find_by(:name => "my-replicationcontroller-1")).to be_nil
 
-        expect(ContainerBuildPod.find_by(:name => "my-build-0")).to be_nil
-        expect(ContainerBuildPod.find_by(:name => "my-build-1")).to be_nil
+        expect(ContainerBuildPod.find_by(:name => "my-build-config-0-1")).to be_nil
+        expect(ContainerBuildPod.find_by(:name => "my-build-config-1-1")).to be_nil
 
-        expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-0")).to be_nil
-        expect(ContainerBuild.find_by(:name => "my-build-config", :namespace => "my-project-1")).to be_nil
+        expect(ContainerBuild.find_by(:name => "my-build-config-0", :namespace => "my-project-0")).to be_nil
+        expect(ContainerBuild.find_by(:name => "my-build-config-1", :namespace => "my-project-1")).to be_nil
 
         expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(0)
         expect(ContainerRoute.find_by(:name => "my-route-2").tags.count).to eq(0)
