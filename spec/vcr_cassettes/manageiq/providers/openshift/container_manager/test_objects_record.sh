@@ -35,13 +35,13 @@ while oc get --show-all projects | grep my-project; do
   sleep 3
 done
 
-for ind in 0 1 2; do
-  oc new-project my-project-$ind
-  oc project my-project-$ind
+for IND in 0 1 2; do
+  oc new-project my-project-$IND
+  oc project my-project-$IND
   # Some objects here require the admin priviledges we got above.
-  oc process -f "$VCR_DIR"/test_objects_template.yml -v INDEX=$ind | oc create -f -
+  oc process -f "$VCR_DIR"/test_objects_template.yml -v INDEX=$IND | oc create -f -
 
-  oc start-build my-build-config-$ind
+  oc start-build my-build-config-$IND
 done
 
 while OUT="$(oc get build --all-namespaces)"; echo "$OUT"; [ "$(echo "$OUT" | egrep --count --word 'Complete|Failed|Error')" -ne 3 ]; do
