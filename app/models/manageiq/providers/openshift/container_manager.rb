@@ -22,6 +22,8 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
           :autosave    => true,
           :dependent   => :destroy
 
+  delegate :delete_project, :to => :connect
+
   def self.ems_type
     @ems_type ||= "openshift".freeze
   end
@@ -36,8 +38,27 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
 
   def create_project(project)
     connect.create_project_request(project)
-  rescue KubeException => e
-    raise MiqException::MiqProvisionError, "Unexpected Exception while creating project: #{e}"
+  end
+
+  def users_from_provider
+    connect.get_users
+  end
+
+  def user_from_provider(user_name)
+    connect.get_user(user_name)
+  end
+
+  def user_exists_in_provider?(user_name)
+    !user_from_provider(user_name).nil?
+  end
+
+  def add_user_in_provider(user_name)
+    user = Kubeclient::Resource.new
+    user.metadata = {}
+    user.metadata.name = user_name
+    user.identities = {}
+    user.groups = {}
+    connect.create_user(user)
   end
 
   def supported_catalog_types
