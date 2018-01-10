@@ -7,16 +7,11 @@ describe ManageIQ::Providers::Openshift::ContainerManager::ContainerImage do
     end
     let(:blob) do
       FactoryGirl.create(:binary_blob,
-                         :binary => File.read(
-                           File.expand_path(
-                             File.join(File.dirname(__FILE__),
-                                       "ssg-fedora-ds-arf.xml")
-                           )
-                         ).encode("UTF-8"),
+                         :binary => "blah",
                          :name   => "test_blob")
     end
     let(:scan_result) do
-      FactoryGirl.create(:openscap_result,
+      FactoryGirl.create(:openscap_result_skip_callback,
                          :binary_blob        => blob,
                          :resource_id        => container_image.id,
                          :resource_type      => openshift_image_type,
@@ -36,8 +31,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::ContainerImage do
     end
 
     before :each do
-      container_image.openscap_result = scan_result
-      container_image.openscap_result.openscap_rule_results.delete_all
+      container_image.update(:openscap_result => scan_result)
       container_image.openscap_result.openscap_rule_results << successful_rule
       container_image.openscap_result.openscap_rule_results << failed_rule
     end
