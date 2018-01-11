@@ -28,6 +28,10 @@ objects:
           user: "username"
           role: "admin"
           type: "default"
+    volumes:
+    - name: my-pvc-pod-volume-${INDEX}
+      persistentVolumeClaim:
+        claimName: my-persistentvolumeclaim-${INDEX}
 - apiVersion: v1
   kind: Route
   metadata:
@@ -149,7 +153,7 @@ objects:
   - apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
-      name: my-persistentvolumeclaim
+      name: my-persistentvolumeclaim-in-my-template-${INDEX}
     spec:
       accessModes:
         - ReadWriteOnce
@@ -160,6 +164,20 @@ objects:
   - name: MYPARAM
     value: my-value 
 - apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: my-persistentvolume-${INDEX}
+    labels:
+      my-pv-label: my-pv-${INDEX}
+  spec:
+    storageClassName: manual
+    capacity:
+      storage: 10Mi
+    accessModes:
+      - ReadWriteOnce
+    hostPath:
+      path: "/tmp/my-persistentvolume-${INDEX}"
+- apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
     name: my-persistentvolumeclaim-${INDEX}
@@ -168,7 +186,22 @@ objects:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 8Gi
+        storage: 8Mi
+    selector:
+      matchLabels:
+        my-pv-label: my-pv-${INDEX}
+    storageClassName: manual
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: my-persistentvolumeclaim-pending-${INDEX}
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 8Mi
+    storageClassName: no-pv-will-match-this-class
 - apiVersion: v1
   kind: ResourceQuota
   metadata:

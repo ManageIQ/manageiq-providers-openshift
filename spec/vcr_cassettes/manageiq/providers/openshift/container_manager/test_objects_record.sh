@@ -29,6 +29,7 @@ SPEC=./spec/models/manageiq/providers/openshift/container_manager/refresher_spec
 echo; echo "===== Clean slate, create objects ====="
 
 oc delete --ignore-not-found project my-project-{0,1,2}
+oc delete --ignore-not-found persistentvolume my-persistentvolume-{0,1,2}
 
 while oc get --show-all projects | grep my-project; do
   echo "... waiting for projects to disappear ..."
@@ -84,6 +85,7 @@ oc delete route my-route-1
 oc delete resourceQuota my-resource-quota-1
 oc delete limitRange my-limit-range-1
 oc delete persistentVolumeClaim my-persistentvolumeclaim-1
+oc delete persistentVolumeClaim my-persistentvolumeclaim-pending-1
 oc delete template my-template-1
 oc delete buildconfig my-build-config-1 # also deletes its build(s)
 oc delete rc my-replicationcontroller-1
