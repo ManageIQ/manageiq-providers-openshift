@@ -63,8 +63,8 @@ describe_vcr () {
   echo "== oc get all --show-all --all-namespaces -o wide --show-labels =="
   oc get all --show-all --all-namespaces -o wide --show-labels
   echo
-  echo "== oc get images =="
-  oc get images
+  echo "== oc get images --sort-by=.dockerImageReference =="
+  oc get images --sort-by=.dockerImageReference
 }
 
 # Deleting VCR file allows using :new_episodes so multiple specs calling refresh
