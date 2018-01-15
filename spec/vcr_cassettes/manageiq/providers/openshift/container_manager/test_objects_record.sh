@@ -64,6 +64,15 @@ describe_vcr () {
   echo "== oc get all --show-all --all-namespaces -o wide --show-labels =="
   oc get all --show-all --all-namespaces -o wide --show-labels
   echo
+  echo "== oc get resourceQuotas --all-namespaces --show-kind --show-labels =="
+  oc get resourceQuotas --all-namespaces --show-labels
+  echo
+  echo "== oc get persistentvolumes --show-kind --show-labels =="
+  oc get persistentVolumes --show-labels
+  echo
+  echo "== oc get persistentvolumeclaims --all-namespaces --show-kind --show-labels =="
+  oc get persistentVolumeClaims --all-namespaces --show-labels
+  echo
   echo "== oc get images --sort-by=.dockerImageReference =="
   oc get images --sort-by=.dockerImageReference
 }
