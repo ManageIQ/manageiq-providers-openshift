@@ -92,6 +92,8 @@ oc delete pod my-pod-1
 oc delete service my-service-1
 oc delete route my-route-1
 oc delete resourceQuota my-resource-quota-1
+oc delete resourceQuota my-resource-quota-scopes1-1
+oc delete resourceQuota my-resource-quota-scopes2-1
 oc delete limitRange my-limit-range-1
 oc delete persistentVolumeClaim my-persistentvolumeclaim-1
 oc delete persistentVolumeClaim my-persistentvolumeclaim-pending-1
@@ -106,6 +108,14 @@ oc label route my-route-2 key-route-label-
 # Remove template parameters ("json merge" mode completely replaces arrays)
 oc patch --type=merge template my-template-2 --patch='{"parameters": []}'
 oc delete pod my-pod-2
+
+# Using JSON Patch https://erosb.github.io/post/json-patch-vs-merge-patch/
+# Drop pods.
+oc patch quota my-resource-quota-scopes1-2 --type json --patch '[{op: remove, path: /spec/hard/pods}]'
+# Swap order of scopes (this is reflected in openshift response),
+# change requests.cpu from 5.7 to 5.701,
+# reformulate same requests.memory value from "10240Mi" to "10Gi" (this is actually ignored as no-op by openshift)
+oc patch quota my-resource-quota-scopes2-2 --type json --patch '[{op: replace, path: /spec/scopes, value: [NotBestEffort, Terminating]}, {op: replace, path: /spec/hard/requests.cpu, value: "5.701"}, {op: replace, path: /spec/hard/requests.memory, value: "10Gi"}]'
 
 
 while oc get --show-all projects | grep my-project-0; do

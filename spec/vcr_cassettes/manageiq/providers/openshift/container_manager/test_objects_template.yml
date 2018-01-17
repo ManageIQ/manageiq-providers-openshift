@@ -222,7 +222,7 @@ objects:
     - NotTerminating
     hard:
       pods: "6"
-      requests.cpu: "10"
+      requests.cpu: "10.3"
 - apiVersion: v1
   kind: ResourceQuota
   metadata:
@@ -233,7 +233,8 @@ objects:
     - NotBestEffort
     hard:
       pods: "3"
-      requests.cpu: "5"
+      requests.cpu: "5.7"
+      requests.memory: "10240Mi"
 parameters:
 - name: INDEX
   value: "0"
