@@ -43,4 +43,8 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   def supported_catalog_types
     %w(generic_container_template).freeze
   end
+
+  def self.display_name(number = 1)
+    n_('Container Provider (OpenShift)', 'Container Providers (OpenShift)', number)
+  end
 end
