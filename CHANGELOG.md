@@ -5,22 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Gaprindashvili RC
+## Gaprindashvili-1
 
 ### Added
 - Tag mapping in graph refresh [(#64)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/64)
-
-### Fixed
-- Added supported_catalog_types [(#177)](https://github.com/ManageIQ/manageiq-providers-openstack/pull/177)
-
-## Gaprindashvili Beta2
-
-### Fixed
-- Fix Inventory Collector has_required_role? [(#65)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/65)
-
-## Gaprindashvili Beta1
-
-### Added
 - Prometheus alerts [(#22)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/22)
 - Container Template: Parse object_labels [(#25)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/25)
 - Use the kubernetes options for Openshift [(#32)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/32)
@@ -29,7 +17,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Openshift graph refresh [(#34)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/34)
 - Add a setting to only send DELETED notices [(#61)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/61)
 
-## Fixed
+### Fixed
+- Added supported_catalog_types [(#177)](https://github.com/ManageIQ/manageiq-providers-openstack/pull/177)
+- Fix Inventory Collector has_required_role? [(#65)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/65)
 - Don't start CollectorWorker if Graph Refresh disabled [(#60)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/60)
 - Disable inventory collector worker by default [(#63)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/63)
 
