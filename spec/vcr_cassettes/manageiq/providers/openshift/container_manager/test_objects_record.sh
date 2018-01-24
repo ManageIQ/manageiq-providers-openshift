@@ -123,6 +123,11 @@ while oc get --show-all projects | grep my-project-0; do
   sleep 3
 done
 
+while oc get pods --show-all --all-namespaces | grep my-pod; do
+  echo "... waiting for pods to disappear ..."
+  sleep 3
+done
+
 echo; echo "===== Record second VCR ====="
 
 rm -v "$VCR_DIR"/refresher_after_deletions.{yml,txt} || true
