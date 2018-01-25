@@ -356,6 +356,11 @@ shared_examples "openshift refresher VCR tests" do
     expect(@containersrv.container_project).to eq(ContainerProject.find_by(:name => "default"))
     expect(@containersrv.ext_management_system).to eq(@ems)
     expect(@containersrv.container_image_registry).to be_nil
+    expect(@containersrv.container_service_port_configs.pluck(:name, :protocol, :port)).to contain_exactly(
+      ["https", "TCP", 443],
+      ["dns", "UDP", 53],
+      ["dns-tcp", "TCP", 53]
+    )
   end
 
   def assert_specific_container_image_registry
