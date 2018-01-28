@@ -7,7 +7,8 @@ echo '===== Ensure API server ====='
 if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
   echo "OPENSHIFT_MASTER_HOST unset, trying minishift"
   if which minishift && minishift status | grep -i 'openshift:.*running'; then
-    export OPENSHIFT_MASTER_HOST="$(minishift ip)"
+    OPENSHIFT_MASTER_HOST="$(minishift ip)"
+    export OPENSHIFT_MASTER_HOST
     eval $(minishift oc-env --shell bash) # Ensure oc in PATH
     oc login -u system:admin # With minishift, we know we can just do this
   else
@@ -19,7 +20,8 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
 fi
 
 if [ -z "$OPENSHIFT_MANAGEMENT_ADMIN_TOKEN" ]; then
-  export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
+  OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
+  export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN
 fi
 
 cd "$(git rev-parse --show-toplevel)" # repo root
