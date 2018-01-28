@@ -65,16 +65,16 @@ describe_vcr () {
   oc get all --show-all --all-namespaces -o wide --show-labels
   echo
   echo "== oc get resourceQuotas --all-namespaces --show-kind --show-labels =="
-  oc get resourceQuotas --all-namespaces --show-labels
+  oc get resourceQuotas --all-namespaces --show-kind --show-labels
   echo
   echo "== oc get persistentvolumes --show-kind --show-labels =="
-  oc get persistentVolumes --show-labels
+  oc get persistentVolumes --show-kind --show-labels
   echo
   echo "== oc get persistentvolumeclaims --all-namespaces --show-kind --show-labels =="
-  oc get persistentVolumeClaims --all-namespaces --show-labels
+  oc get persistentVolumeClaims --all-namespaces --show-kind --show-labels
   echo
-  echo "== oc get images --sort-by=.dockerImageReference =="
-  oc get images --sort-by=.dockerImageReference
+  echo "== oc get images --show-kind --sort-by=.dockerImageReference =="
+  oc get images --show-kind --sort-by=.dockerImageReference
 }
 
 # Deleting VCR file allows using :new_episodes so multiple specs calling refresh
