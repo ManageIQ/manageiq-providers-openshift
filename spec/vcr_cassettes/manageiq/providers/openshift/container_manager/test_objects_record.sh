@@ -11,6 +11,9 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
     export OPENSHIFT_MASTER_HOST
     eval $(minishift oc-env --shell bash) # Ensure oc in PATH
     oc login -u system:admin # With minishift, we know we can just do this
+
+    echo "-- Deleting minishift PVs for a cleaner inventory --"
+    oc delete --ignore-not-found pv $(printf "pv%s " $(seq -w 0001 0100))
   else
     echo 'Either set $OPENSHIFT_MASTER_HOST and perform `oc login` with cluster-admin powers,'
     echo 'or have minishift in $PATH and already started.'
