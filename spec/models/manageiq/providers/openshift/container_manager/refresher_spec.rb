@@ -118,14 +118,14 @@ shared_examples "openshift refresher VCR tests" do
       # using strings instead of actual model classes for compact rspec diffs
       {
         'ContainerProject'           => 10,
-        'ContainerImage'             => 43,
-        'ContainerRoute'             => 4,
+        'ContainerImage'             => 39,
+        'ContainerRoute'             => 3,
         'ContainerTemplate'          => 20,
         'ContainerTemplateParameter' => 210,
-        'ContainerReplicator'        => 8,
+        'ContainerReplicator'        => 5,
         'ContainerBuild'             => 3,
         'ContainerBuildPod'          => 3,
-        'CustomAttribute'            => 622,
+        'CustomAttribute'            => 596,
       }
     end
 
