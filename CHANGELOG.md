@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Gaprindashvili-1
+## Gaprindashvili-1 - Released 2018-01-31
 
 ### Added
 - Tag mapping in graph refresh [(#64)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/64)
@@ -26,4 +26,4 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Removed
 - Remove hawkular support for inventory collection [(#49)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/49)
 
-## Initial changelog added
+## Initial changelog added 2017-08-15
