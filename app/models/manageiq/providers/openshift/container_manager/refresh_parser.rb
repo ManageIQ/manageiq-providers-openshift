@@ -196,7 +196,8 @@ module ManageIQ::Providers
 
       def lazy_find_service(hash)
         return nil if hash.nil?
-        @inv_collections[:container_services].lazy_find_by(hash, :ref => :by_namespace_and_name)
+        search = {:container_project => lazy_find_project(:name => hash[:namespace]), :name => hash[:name]}
+        @inv_collections[:container_services].lazy_find_by(search, :ref => :by_container_project_and_name)
       end
 
       def lazy_find_build(hash)
