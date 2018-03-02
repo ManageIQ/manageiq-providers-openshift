@@ -494,7 +494,7 @@ shared_examples "openshift refresher VCR tests" do
         :entrypoint     => ["container-entrypoint"],
         :exposed_ports  => {"tcp"=>"8080"},
         :image_ref      => "docker://172.30.190.81:5000/python-project/python-project@sha256:9422207673100308c18bccead913007b76ca3ef48f3c6bb70ce5f19d497c1392",
-        :registered_on  => "Thu, 08 Dec 2016 06:14:59 UTC +00:00",
+        :registered_on  => Time.zone.parse("Thu, 08 Dec 2016 06:14:59 UTC +00:00"),
         :size           => 206_435_839,
 
         # TODO: tag is set by both kubernetes and openshift parsers, so it
