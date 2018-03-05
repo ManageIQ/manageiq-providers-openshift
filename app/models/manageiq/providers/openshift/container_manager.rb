@@ -14,6 +14,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   require_nested :Options
 
   include ManageIQ::Providers::Openshift::ContainerManager::Options
+  include ManageIQ::Providers::Kubernetes::ContainerManager::AlertLabels
 
   # Override HasMonitoringManagerMixin
   has_one :monitoring_manager,
