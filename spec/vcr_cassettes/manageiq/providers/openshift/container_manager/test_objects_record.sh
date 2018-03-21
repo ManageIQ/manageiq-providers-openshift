@@ -95,6 +95,8 @@ oc delete project my-project-0
 oc project my-project-1
 oc delete pod my-pod-1
 oc delete service my-service-1
+oc delete service my-service-empty-1
+oc delete service my-service-without-selector-1
 oc delete route my-route-1
 oc delete resourceQuota my-resource-quota-1
 oc delete resourceQuota my-resource-quota-scopes1-1

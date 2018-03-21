@@ -125,7 +125,7 @@ shared_examples "openshift refresher VCR tests" do
         'ContainerReplicator'        => 5,
         'ContainerBuild'             => 3,
         'ContainerBuildPod'          => 3,
-        'CustomAttribute'            => 596,
+        'CustomAttribute'            => 599,
       }
     end
 
@@ -187,7 +187,7 @@ shared_examples "openshift refresher VCR tests" do
           'ContainerReplicator'        => 2,
           'ContainerBuild'             => 2,
           'ContainerBuildPod'          => 2,
-          'CustomAttribute'            => 15,
+          'CustomAttribute'            => 17,
           'ContainerTemplateParameter' => 3,
         }
         expected_counts = deleted.collect { |k, d| [k, object_counts[k] - d] }.to_h

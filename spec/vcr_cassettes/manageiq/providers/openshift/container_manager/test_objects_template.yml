@@ -55,6 +55,28 @@ objects:
       protocol: TCP
       targetPort: 5000
 - apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-service-empty-${INDEX}
+  spec:
+    selector:
+      no-such-label: no-such-value
+    ports:
+    - nodePort: 0
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-service-without-selector-${INDEX}
+  spec:
+    ports:
+    - nodePort: 0
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+- apiVersion: v1
   kind: "BuildConfig"
   metadata:
     name: my-build-config-${INDEX}
