@@ -105,7 +105,7 @@ shared_examples "openshift refresher VCR tests" do
 
     before(:each) do
       @key_route_label_mapping = FactoryGirl.create(:tag_mapping_with_category, :label_name => 'key-route-label')
-      @key_route_label_category = @key_route_label_mapping.tag.category
+      @key_route_label_category = @key_route_label_mapping.tag.classification
 
       mode = ENV['RECORD_VCR'] == 'before_deletions' ? :new_episodes : :none
       VCR.use_cassette("#{described_class.name.underscore}_before_deletions",
