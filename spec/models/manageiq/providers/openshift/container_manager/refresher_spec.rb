@@ -171,9 +171,6 @@ shared_examples "openshift refresher VCR tests" do
         expect(ContainerProject.active.count).to eq(object_counts['ContainerProject'] - 1)
         expect(ContainerProject.archived.count).to eq(1)
 
-        # TODO: this varies by recording, in this recording only graph refresh has problem,
-        # in some classical refresh had same problem, in some graph refresh archived 2 images...
-        pending("why graph refresh DELETES 1 image from DB?") if Settings.ems_refresh.openshift.inventory_object_refresh
         expect(ContainerImage.count).to eq(object_counts['ContainerImage'])
         expect(ContainerImage.active.count).to eq(object_counts['ContainerImage'] - 1)
         expect(ContainerImage.archived.count).to eq(1)
