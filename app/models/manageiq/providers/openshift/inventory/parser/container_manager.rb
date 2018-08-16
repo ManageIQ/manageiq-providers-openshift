@@ -13,14 +13,12 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
 
   def parse_template(template)
     persister_template = persister.container_templates.build(
-      :ems_ref          => template.metadata.uid,
-      :name             => template.metadata.name,
-      :type             => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
-      :namespace        => template.metadata.namespace,
-      :ems_created_on   => template.metadata.creationTimestamp,
-      :resource_version => template.metadata.resourceVersion,
-      :objects          => template.objects.to_a.collect(&:to_h),
-      :object_labels    => template.labels.to_h,
+      parse_base_item(template).merge(
+        :type              => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
+        :objects           => template.objects.to_a.collect(&:to_h),
+        :object_labels     => template.labels.to_h,
+        :container_project => lazy_find_project(template),
+      )
     )
 
     parse_template_parameters(persister_template, template.parameters)
