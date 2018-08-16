@@ -9,13 +9,11 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::Watches < ManageIQ::Pro
   private
 
   def parse_images(image_notices)
-    return if image_notices.blank?
   end
 
   def parse_templates(template_notices)
-    return if template_notices.blank?
-
     template_notices.each do |template_notice|
+      persister.container_templates.targeted_scope << template_notice.object.metadata.uid
       next if template_notice.action == "DELETE"
 
       template = template_notice.object
