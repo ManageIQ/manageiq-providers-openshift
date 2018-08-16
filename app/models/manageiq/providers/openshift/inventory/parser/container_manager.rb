@@ -15,6 +15,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
     persister.container_templates.build(
       :ems_ref          => template.metadata.uid,
       :name             => template.metadata.name,
+      :type             => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
       :namespace        => template.metadata.namespace,
       :ems_created_on   => template.metadata.creationTimestamp,
       :resource_version => template.metadata.resourceVersion,
