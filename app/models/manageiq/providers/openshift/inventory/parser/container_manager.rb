@@ -12,7 +12,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   end
 
   def parse_template(template)
-    persister.container_templates.build(
+    persister_template = persister.container_templates.build(
       :ems_ref          => template.metadata.uid,
       :name             => template.metadata.name,
       :type             => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
@@ -22,5 +22,24 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
       :objects          => template.objects.to_a.collect(&:to_h),
       :object_labels    => template.labels.to_h,
     )
+
+    parse_template_parameters(persister_template, template.parameters)
+  end
+
+  def parse_template_parameters(persister_template, parameters)
+    parameters.to_a.each do |param|
+      persister.container_template_parameters.build(
+        {
+          :container_template => persister_template,
+          :name               => param['name'],
+          :display_name       => param['displayName'],
+          :description        => param['description'],
+          :value              => param['value'],
+          :generate           => param['generate'],
+          :from               => param['from'],
+          :required           => param['required']
+        }
+      )
+    end
   end
 end
