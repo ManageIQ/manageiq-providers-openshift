@@ -6,6 +6,6 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < M
   private
 
   def openshift_connection
-    @openshift_connection ||= manager.connect
+    @openshift_connection ||= manager.connect(:service => "openshift")
   end
 end
