@@ -60,6 +60,7 @@ shared_examples "openshift refresher VCR tests" do
       assert_specific_container_build
       assert_specific_container_build_pod
       assert_specific_container_template
+      assert_specific_container_service_instance
       assert_specific_used_container_image(:metadata => true)
       assert_specific_unused_container_image(:metadata => true, :archived => false)
     end
@@ -149,10 +150,12 @@ shared_examples "openshift refresher VCR tests" do
 
   def assert_specific_container_project
     @container_pr = ContainerProject.find_by(:name => "default")
-    expect(@container_pr).to have_attributes(
-                               :name         => "default",
-                               :display_name => nil,
-                             )
+    expect(@container_pr).to(
+      have_attributes(
+        :name         => "default",
+        :display_name => nil,
+      )
+    )
 
     expect(@container_pr.container_groups.count).to eq(3)
     expect(@container_pr.container_templates.count).to eq(0)
@@ -196,24 +199,70 @@ shared_examples "openshift refresher VCR tests" do
 
   def assert_specific_container_template
     @container_template = ContainerTemplate.find_by(:ems_ref => "d0d2324c-a16e-11e8-ba7e-d094660d31fb")
-    expect(@container_template).to have_attributes(
-                                     :name             => "manageiq",
-                                     :type             => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
-                                     :resource_version => "33819516"
-                                   )
+    expect(@container_template).to(
+      have_attributes(
+        :name             => "manageiq",
+        :type             => "ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate",
+        :resource_version => "33819516"
+      )
+    )
 
     expect(@container_template.ext_management_system).to eq(@ems)
     expect(@container_template.container_project).to eq(ContainerProject.find_by(:name => "miq-demo"))
     expect(@container_template.container_template_parameters.count).to eq(43)
-    expect(@container_template.container_template_parameters.find_by(:name => "NAME")).to have_attributes(
-                                                                                            :description    => "The name assigned to all of the frontend objects defined in this template.",
-                                                                                            :display_name   => "Name",
-                                                                                            :ems_created_on => nil,
-                                                                                            :value          => "manageiq",
-                                                                                            :generate       => nil,
-                                                                                            :from           => nil,
-                                                                                            :required       => true,
-                                                                                          )
+    expect(@container_template.container_template_parameters.find_by(:name => "NAME")).to(
+      have_attributes(
+        :description    => "The name assigned to all of the frontend objects defined in this template.",
+        :display_name   => "Name",
+        :ems_created_on => nil,
+        :value          => "manageiq",
+        :generate       => nil,
+        :from           => nil,
+        :required       => true,
+      )
+    )
+  end
+
+  def assert_specific_container_service_instance
+    @container_service_instance = ContainerServiceInstance.find_by(:name => "mariadb-persistent-qdkzt")
+    expect(@container_service_instance).to(
+      have_attributes(
+        :name          => "mariadb-persistent-qdkzt",
+        :ems_ref       => "76af97e3-5650-4583-ae85-27294677f88d",
+        :generate_name => nil
+      )
+    )
+    expect(@container_service_instance.extra["spec"]).not_to be_nil
+    expect(@container_service_instance.extra["status"]).not_to be_nil
+
+    # Relation to Project and ems
+    expect(@container_service_instance.container_project).to eq(ContainerProject.find_by(:name => "default"))
+    expect(@container_service_instance.ext_management_system).to eq(@ems)
+
+    # Relation to ContainerServiceClass
+    expect(@container_service_instance.container_service_class).to(
+      have_attributes(
+        :name => "mariadb-persistent"
+      )
+    )
+    expect(@container_service_instance.container_service_class.extra["spec"]).not_to be_nil
+    expect(@container_service_instance.container_service_class.extra["status"]).not_to be_nil
+    expect(@container_service_instance.container_service_class.container_service_instances.count).to eq(1)
+    expect(@container_service_instance.container_service_class.container_service_plans.count).to eq(1)
+    expect(@container_service_instance.container_service_class).to(
+      eq(@container_service_instance.container_service_plan.container_service_class)
+    )
+
+    # Relation to ContainerServicePlan
+    expect(@container_service_instance.container_service_plan).to(
+      have_attributes(
+        :name        => "default",
+        :description => "Default plan",
+      )
+    )
+    expect(@container_service_instance.container_service_plan.extra["spec"]).not_to be_nil
+    expect(@container_service_instance.container_service_plan.extra["status"]).not_to be_nil
+    expect(@container_service_instance.container_service_plan.container_service_instances.count).to eq(1)
   end
 
   def assert_specific_unused_container_image(metadata:, archived:)
