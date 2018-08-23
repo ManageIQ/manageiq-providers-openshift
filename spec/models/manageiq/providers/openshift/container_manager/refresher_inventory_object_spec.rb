@@ -119,12 +119,14 @@ shared_examples "openshift refresher VCR tests" do
 
   def assert_specific_container_group
     @containergroup = ContainerGroup.find_by(:name => "manageiq-backend-0")
-    expect(@containergroup).to have_attributes(
-                                 :name           => "manageiq-backend-0",
-                                 :restart_policy => "Always",
-                                 :dns_policy     => "ClusterFirst",
-                                 :phase          => "Running",
-                               )
+    expect(@containergroup).to(
+      have_attributes(
+        :name           => "manageiq-backend-0",
+        :restart_policy => "Always",
+        :dns_policy     => "ClusterFirst",
+        :phase          => "Running",
+      )
+    )
 
     # Check the relation to container node
     # TODO(lsmola) collect and test
