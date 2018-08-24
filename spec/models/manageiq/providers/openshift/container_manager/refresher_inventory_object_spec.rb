@@ -231,6 +231,7 @@ shared_examples "openshift refresher VCR tests" do
     @service_instance = ServiceInstance.find_by(:name => "mariadb-persistent-qdkzt")
     expect(@service_instance).to(
       have_attributes(
+        :type    => "ManageIQ::Providers::Openshift::ContainerManager::ServiceInstance",
         :name    => "mariadb-persistent-qdkzt",
         :ems_ref => "76af97e3-5650-4583-ae85-27294677f88d",
       )
@@ -246,6 +247,7 @@ shared_examples "openshift refresher VCR tests" do
     # Relation to ServiceOffering
     expect(@service_instance.service_offering).to(
       have_attributes(
+        :type => "ManageIQ::Providers::Openshift::ContainerManager::ServiceOffering",
         :name => "mariadb-persistent"
       )
     )
@@ -260,6 +262,7 @@ shared_examples "openshift refresher VCR tests" do
     # Relation to ServicePlan
     expect(@service_instance.service_plan).to(
       have_attributes(
+        :type        => "ManageIQ::Providers::Openshift::ContainerManager::ServicePlan",
         :name        => "default",
         :description => "Default plan",
       )
