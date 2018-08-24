@@ -60,7 +60,7 @@ shared_examples "openshift refresher VCR tests" do
       assert_specific_container_build
       assert_specific_container_build_pod
       assert_specific_container_template
-      assert_specific_container_service_instance
+      assert_specific_service_instance
       assert_specific_used_container_image(:metadata => true)
       assert_specific_unused_container_image(:metadata => true, :archived => false)
     end
@@ -72,20 +72,20 @@ shared_examples "openshift refresher VCR tests" do
 
   def base_inventory_counts
     {
-      :container_group            => 58,
-      :container_node             => 0,
-      :container                  => 0,
-      :container_port_config      => 0,
-      :container_route            => 0,
-      :container_project          => 18,
-      :container_build            => 0,
-      :container_build_pod        => 0,
-      :container_template         => 188,
-      :container_image            => 0,
-      :container_service_class    => 183,
-      :container_service_instance => 1,
-      :container_service_plan     => 186,
-      :openshift_container_image  => 0,
+      :container_group           => 58,
+      :container_node            => 0,
+      :container                 => 0,
+      :container_port_config     => 0,
+      :container_route           => 0,
+      :container_project         => 18,
+      :container_build           => 0,
+      :container_build_pod       => 0,
+      :container_template        => 188,
+      :container_image           => 0,
+      :service_class             => 183,
+      :service_instance          => 1,
+      :service_plan              => 186,
+      :openshift_container_image => 0,
     }
   end
 
@@ -95,20 +95,20 @@ shared_examples "openshift refresher VCR tests" do
 
   def assert_table_counts(expected_table_counts)
     actual = {
-      :container_group            => ContainerGroup.count,
-      :container_node             => ContainerNode.count,
-      :container                  => Container.count,
-      :container_port_config      => ContainerPortConfig.count,
-      :container_route            => ContainerRoute.count,
-      :container_project          => ContainerProject.count,
-      :container_build            => ContainerBuild.count,
-      :container_build_pod        => ContainerBuildPod.count,
-      :container_template         => ContainerTemplate.count,
-      :container_image            => ContainerImage.count,
-      :container_service_class    => ContainerServiceClass.count,
-      :container_service_instance => ContainerServiceInstance.count,
-      :container_service_plan     => ContainerServicePlan.count,
-      :openshift_container_image  => ManageIQ::Providers::Openshift::ContainerManager::ContainerImage.count,
+      :container_group           => ContainerGroup.count,
+      :container_node            => ContainerNode.count,
+      :container                 => Container.count,
+      :container_port_config     => ContainerPortConfig.count,
+      :container_route           => ContainerRoute.count,
+      :container_project         => ContainerProject.count,
+      :container_build           => ContainerBuild.count,
+      :container_build_pod       => ContainerBuildPod.count,
+      :container_template        => ContainerTemplate.count,
+      :container_image           => ContainerImage.count,
+      :service_class             => ServiceOffering.count,
+      :service_instance          => ServiceInstance.count,
+      :service_plan              => ServicePlan.count,
+      :openshift_container_image => ManageIQ::Providers::Openshift::ContainerManager::ContainerImage.count,
     }
     expect(actual).to match expected_table_counts
   end
@@ -161,9 +161,10 @@ shared_examples "openshift refresher VCR tests" do
 
     expect(@container_pr.container_groups.count).to eq(3)
     expect(@container_pr.container_templates.count).to eq(0)
-    expect(@container_pr.container_service_classes.count).to eq(0)
-    expect(@container_pr.container_service_instances.count).to eq(1)
-    expect(@container_pr.container_service_plans.count).to eq(0)
+    # TODO(lsmola) how do we add link to projects?
+    # expect(@container_pr.service_offerings.count).to eq(0)
+    # expect(@container_pr.service_instances.count).to eq(1)
+    # expect(@container_pr.service_plans.count).to eq(0)
     expect(@container_pr.containers.count).to eq(0)
     expect(@container_pr.container_replicators.count).to eq(0)
     expect(@container_pr.container_routes.count).to eq(0)
@@ -175,9 +176,10 @@ shared_examples "openshift refresher VCR tests" do
     @another_container_pr = ContainerProject.find_by(:name => "miq-demo")
     expect(@another_container_pr.container_groups.count).to eq(5)
     expect(@another_container_pr.container_templates.count).to eq(1)
-    expect(@another_container_pr.container_service_classes.count).to eq(0)
-    expect(@another_container_pr.container_service_instances.count).to eq(0)
-    expect(@another_container_pr.container_service_plans.count).to eq(0)
+    # TODO(lsmola) how do we add link to projects?
+    # expect(@another_container_pr.service_offerings.count).to eq(0)
+    # expect(@another_container_pr.service_instances.count).to eq(0)
+    # expect(@another_container_pr.service_plans.count).to eq(0)
     expect(@another_container_pr.containers.count).to eq(0)
     expect(@another_container_pr.container_replicators.count).to eq(0)
     expect(@another_container_pr.container_routes.count).to eq(0)
@@ -225,46 +227,46 @@ shared_examples "openshift refresher VCR tests" do
     )
   end
 
-  def assert_specific_container_service_instance
-    @container_service_instance = ContainerServiceInstance.find_by(:name => "mariadb-persistent-qdkzt")
-    expect(@container_service_instance).to(
+  def assert_specific_service_instance
+    @service_instance = ServiceInstance.find_by(:name => "mariadb-persistent-qdkzt")
+    expect(@service_instance).to(
       have_attributes(
-        :name          => "mariadb-persistent-qdkzt",
-        :ems_ref       => "76af97e3-5650-4583-ae85-27294677f88d",
-        :generate_name => nil
+        :name    => "mariadb-persistent-qdkzt",
+        :ems_ref => "76af97e3-5650-4583-ae85-27294677f88d",
       )
     )
-    expect(@container_service_instance.extra["spec"]).not_to be_nil
-    expect(@container_service_instance.extra["status"]).not_to be_nil
+    expect(@service_instance.extra["spec"]).not_to be_nil
+    expect(@service_instance.extra["status"]).not_to be_nil
 
     # Relation to Project and ems
-    expect(@container_service_instance.container_project).to eq(ContainerProject.find_by(:name => "default"))
-    expect(@container_service_instance.ext_management_system).to eq(@ems)
+    # TODO(lsmola) how do we add link to projects?
+    # expect(@service_instance.container_project).to eq(ContainerProject.find_by(:name => "default"))
+    expect(@service_instance.ext_management_system).to eq(@ems)
 
-    # Relation to ContainerServiceClass
-    expect(@container_service_instance.container_service_class).to(
+    # Relation to ServiceOffering
+    expect(@service_instance.service_offering).to(
       have_attributes(
         :name => "mariadb-persistent"
       )
     )
-    expect(@container_service_instance.container_service_class.extra["spec"]).not_to be_nil
-    expect(@container_service_instance.container_service_class.extra["status"]).not_to be_nil
-    expect(@container_service_instance.container_service_class.container_service_instances.count).to eq(1)
-    expect(@container_service_instance.container_service_class.container_service_plans.count).to eq(1)
-    expect(@container_service_instance.container_service_class).to(
-      eq(@container_service_instance.container_service_plan.container_service_class)
+    expect(@service_instance.service_offering.extra["spec"]).not_to be_nil
+    expect(@service_instance.service_offering.extra["status"]).not_to be_nil
+    expect(@service_instance.service_offering.service_instances.count).to eq(1)
+    expect(@service_instance.service_offering.service_plans.count).to eq(1)
+    expect(@service_instance.service_offering).to(
+      eq(@service_instance.service_plan.service_offering)
     )
 
-    # Relation to ContainerServicePlan
-    expect(@container_service_instance.container_service_plan).to(
+    # Relation to ServicePlan
+    expect(@service_instance.service_plan).to(
       have_attributes(
         :name        => "default",
         :description => "Default plan",
       )
     )
-    expect(@container_service_instance.container_service_plan.extra["spec"]).not_to be_nil
-    expect(@container_service_instance.container_service_plan.extra["status"]).not_to be_nil
-    expect(@container_service_instance.container_service_plan.container_service_instances.count).to eq(1)
+    expect(@service_instance.service_plan.extra["spec"]).not_to be_nil
+    expect(@service_instance.service_plan.extra["status"]).not_to be_nil
+    expect(@service_instance.service_plan.service_instances.count).to eq(1)
   end
 
   def assert_specific_unused_container_image(metadata:, archived:)
