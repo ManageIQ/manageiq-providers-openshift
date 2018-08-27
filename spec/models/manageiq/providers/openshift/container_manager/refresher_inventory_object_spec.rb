@@ -27,10 +27,10 @@ shared_examples "openshift refresher VCR tests" do
 
   def normal_refresh
     VCR.use_cassette(described_class.name.underscore + '_inventory_object',
+                     :allow_unused_http_interactions => true,
                      :match_requests_on => [:path,]) do # , :record => :new_episodes) do
 
       collector = ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager.new(@ems, @ems)
-      # TODO(lsmola) figure out a way to pass collector info, probably via target
       persister = ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager.new(@ems)
 
       inventory = ::ManagerRefresh::Inventory.new(
@@ -60,7 +60,7 @@ shared_examples "openshift refresher VCR tests" do
       assert_specific_container_build
       assert_specific_container_build_pod
       assert_specific_container_template
-      assert_specific_service_instance
+      assert_specific_service_offering
       assert_specific_used_container_image(:metadata => true)
       assert_specific_unused_container_image(:metadata => true, :archived => false)
     end
@@ -83,7 +83,6 @@ shared_examples "openshift refresher VCR tests" do
       :container_template        => 188,
       :container_image           => 0,
       :service_class             => 183,
-      :service_instance          => 1,
       :service_parameters_set    => 186,
       :openshift_container_image => 0,
     }
@@ -106,7 +105,6 @@ shared_examples "openshift refresher VCR tests" do
       :container_template        => ContainerTemplate.count,
       :container_image           => ContainerImage.count,
       :service_class             => ServiceOffering.count,
-      :service_instance          => ServiceInstance.count,
       :service_parameters_set    => ServiceParametersSet.count,
       :openshift_container_image => ManageIQ::Providers::Openshift::ContainerManager::ContainerImage.count,
     }
@@ -163,7 +161,6 @@ shared_examples "openshift refresher VCR tests" do
     expect(@container_pr.container_templates.count).to eq(0)
     # TODO(lsmola) how do we add link to projects?
     # expect(@container_pr.service_offerings.count).to eq(0)
-    # expect(@container_pr.service_instances.count).to eq(1)
     # expect(@container_pr.service_parameters_sets.count).to eq(0)
     expect(@container_pr.containers.count).to eq(0)
     expect(@container_pr.container_replicators.count).to eq(0)
@@ -178,7 +175,6 @@ shared_examples "openshift refresher VCR tests" do
     expect(@another_container_pr.container_templates.count).to eq(1)
     # TODO(lsmola) how do we add link to projects?
     # expect(@another_container_pr.service_offerings.count).to eq(0)
-    # expect(@another_container_pr.service_instances.count).to eq(0)
     # expect(@another_container_pr.service_parameters_sets.count).to eq(0)
     expect(@another_container_pr.containers.count).to eq(0)
     expect(@another_container_pr.container_replicators.count).to eq(0)
@@ -227,49 +223,33 @@ shared_examples "openshift refresher VCR tests" do
     )
   end
 
-  def assert_specific_service_instance
-    @service_instance = ServiceInstance.find_by(:name => "mariadb-persistent-qdkzt")
-    expect(@service_instance).to(
-      have_attributes(
-        :type    => "ManageIQ::Providers::Openshift::ContainerManager::ServiceInstance",
-        :name    => "mariadb-persistent-qdkzt",
-        :ems_ref => "76af97e3-5650-4583-ae85-27294677f88d",
-      )
-    )
-    expect(@service_instance.extra["spec"]).not_to be_nil
-    expect(@service_instance.extra["status"]).not_to be_nil
+  def assert_specific_service_offering
+    @service_offering = ServiceOffering.find_by(:name => "mariadb-persistent")
+    @service_parameters_set = @service_offering.service_parameters_sets.first
 
-    # Relation to Project and ems
-    # TODO(lsmola) how do we add link to projects?
-    # expect(@service_instance.container_project).to eq(ContainerProject.find_by(:name => "default"))
-    expect(@service_instance.ext_management_system).to eq(@ems)
-
-    # Relation to ServiceOffering
-    expect(@service_instance.service_offering).to(
+    expect(@service_offering).to(
       have_attributes(
         :type => "ManageIQ::Providers::Openshift::ContainerManager::ServiceOffering",
         :name => "mariadb-persistent"
       )
     )
-    expect(@service_instance.service_offering.extra["spec"]).not_to be_nil
-    expect(@service_instance.service_offering.extra["status"]).not_to be_nil
-    expect(@service_instance.service_offering.service_instances.count).to eq(1)
-    expect(@service_instance.service_offering.service_parameters_sets.count).to eq(1)
-    expect(@service_instance.service_offering).to(
-      eq(@service_instance.service_parameters_set.service_offering)
+    expect(@service_offering.extra["spec"]).not_to be_nil
+    expect(@service_offering.extra["status"]).not_to be_nil
+    expect(@service_offering.service_parameters_sets.count).to eq(1)
+    expect(@service_offering).to(
+      eq(@service_parameters_set.service_offering)
     )
 
     # Relation to ServiceParametersSet
-    expect(@service_instance.service_parameters_set).to(
+    expect(@service_parameters_set).to(
       have_attributes(
         :type        => "ManageIQ::Providers::Openshift::ContainerManager::ServiceParametersSet",
         :name        => "default",
         :description => "Default plan",
       )
     )
-    expect(@service_instance.service_parameters_set.extra["spec"]).not_to be_nil
-    expect(@service_instance.service_parameters_set.extra["status"]).not_to be_nil
-    expect(@service_instance.service_parameters_set.service_instances.count).to eq(1)
+    expect(@service_parameters_set.extra["spec"]).not_to be_nil
+    expect(@service_parameters_set.extra["status"]).not_to be_nil
   end
 
   def assert_specific_unused_container_image(metadata:, archived:)
