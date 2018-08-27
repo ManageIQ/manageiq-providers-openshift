@@ -84,7 +84,7 @@ shared_examples "openshift refresher VCR tests" do
       :container_image           => 0,
       :service_class             => 183,
       :service_instance          => 1,
-      :service_plan              => 186,
+      :service_parameters_set    => 186,
       :openshift_container_image => 0,
     }
   end
@@ -107,7 +107,7 @@ shared_examples "openshift refresher VCR tests" do
       :container_image           => ContainerImage.count,
       :service_class             => ServiceOffering.count,
       :service_instance          => ServiceInstance.count,
-      :service_plan              => ServicePlan.count,
+      :service_parameters_set    => ServiceParametersSet.count,
       :openshift_container_image => ManageIQ::Providers::Openshift::ContainerManager::ContainerImage.count,
     }
     expect(actual).to match expected_table_counts
@@ -164,7 +164,7 @@ shared_examples "openshift refresher VCR tests" do
     # TODO(lsmola) how do we add link to projects?
     # expect(@container_pr.service_offerings.count).to eq(0)
     # expect(@container_pr.service_instances.count).to eq(1)
-    # expect(@container_pr.service_plans.count).to eq(0)
+    # expect(@container_pr.service_parameters_sets.count).to eq(0)
     expect(@container_pr.containers.count).to eq(0)
     expect(@container_pr.container_replicators.count).to eq(0)
     expect(@container_pr.container_routes.count).to eq(0)
@@ -179,7 +179,7 @@ shared_examples "openshift refresher VCR tests" do
     # TODO(lsmola) how do we add link to projects?
     # expect(@another_container_pr.service_offerings.count).to eq(0)
     # expect(@another_container_pr.service_instances.count).to eq(0)
-    # expect(@another_container_pr.service_plans.count).to eq(0)
+    # expect(@another_container_pr.service_parameters_sets.count).to eq(0)
     expect(@another_container_pr.containers.count).to eq(0)
     expect(@another_container_pr.container_replicators.count).to eq(0)
     expect(@another_container_pr.container_routes.count).to eq(0)
@@ -254,22 +254,22 @@ shared_examples "openshift refresher VCR tests" do
     expect(@service_instance.service_offering.extra["spec"]).not_to be_nil
     expect(@service_instance.service_offering.extra["status"]).not_to be_nil
     expect(@service_instance.service_offering.service_instances.count).to eq(1)
-    expect(@service_instance.service_offering.service_plans.count).to eq(1)
+    expect(@service_instance.service_offering.service_parameters_sets.count).to eq(1)
     expect(@service_instance.service_offering).to(
-      eq(@service_instance.service_plan.service_offering)
+      eq(@service_instance.service_parameters_set.service_offering)
     )
 
-    # Relation to ServicePlan
-    expect(@service_instance.service_plan).to(
+    # Relation to ServiceParametersSet
+    expect(@service_instance.service_parameters_set).to(
       have_attributes(
-        :type        => "ManageIQ::Providers::Openshift::ContainerManager::ServicePlan",
+        :type        => "ManageIQ::Providers::Openshift::ContainerManager::ServiceParametersSet",
         :name        => "default",
         :description => "Default plan",
       )
     )
-    expect(@service_instance.service_plan.extra["spec"]).not_to be_nil
-    expect(@service_instance.service_plan.extra["status"]).not_to be_nil
-    expect(@service_instance.service_plan.service_instances.count).to eq(1)
+    expect(@service_instance.service_parameters_set.extra["spec"]).not_to be_nil
+    expect(@service_instance.service_parameters_set.extra["status"]).not_to be_nil
+    expect(@service_instance.service_parameters_set.service_instances.count).to eq(1)
   end
 
   def assert_specific_unused_container_image(metadata:, archived:)
