@@ -33,7 +33,7 @@ shared_examples "openshift refresher VCR tests" do
       collector = ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager.new(@ems, @ems)
       persister = ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager.new(@ems)
 
-      inventory = ::ManagerRefresh::Inventory.new(
+      inventory = ::ManageIQ::Providers::Inventory.new(
         persister,
         collector,
         [ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager.new]
