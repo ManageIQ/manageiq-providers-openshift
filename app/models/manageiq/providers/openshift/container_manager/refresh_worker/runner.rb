@@ -2,7 +2,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::RefreshWorker::Runner < 
   include ManageIQ::Providers::Kubernetes::ContainerManager::StreamingRefreshMixin
 
   def connection_for_entity(entity_type)
-    super || openshift_connection
+    super || (openshift_connection if openshift_entity_types.include?(entity_type))
   end
 
   def openshift_connection
@@ -15,7 +15,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::RefreshWorker::Runner < 
     )
   end
 
-  def entity_types
+  def all_entity_types
     super + openshift_entity_types
   end
 end
