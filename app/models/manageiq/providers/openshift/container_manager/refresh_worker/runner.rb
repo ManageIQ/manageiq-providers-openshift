@@ -6,7 +6,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::RefreshWorker::Runner < 
   end
 
   def openshift_connection
-    @openshift_connection ||= ems.connect(:service => "openshift")
+    @openshift_connection ||= connect("openshift")
   end
 
   def openshift_entity_types
