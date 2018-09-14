@@ -1,5 +1,5 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::Watches < ManageIQ::Providers::Kubernetes::Inventory::Collector::Watches
-  def templates
-    @templates ||= notices['Template']&.map { |template_notice| template_notice.object } || []
+  def template_notices
+    @templates ||= notices['Template'] || []
   end
 end
