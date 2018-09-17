@@ -5,13 +5,12 @@ shared_examples "openshift refresher VCR tests" do
   let(:images_managed_by_openshift_count) { 32 } # only images from /oapi/v1/images
 
   before(:each) do
-    allow(MiqServer).to receive(:my_zone).and_return("default")
     # env vars for easier VCR recording, see test_objects_record.sh
     hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
     token    = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
 
     @ems = FactoryGirl.create(
-      :ems_openshift,
+      :ems_openshift_with_zone,
       :name                      => "OpenShiftProvider",
       :connection_configurations => [{:endpoint       => {:role              => :default,
                                                           :hostname          => hostname,
