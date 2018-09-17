@@ -232,7 +232,7 @@ shared_examples "openshift refresher VCR tests" do
         :type    => "ManageIQ::Providers::Openshift::ContainerManager::ServiceInstance",
         :name    => "mariadb-persistent-qdkzt",
         :ems_ref => "76af97e3-5650-4583-ae85-27294677f88d",
-        )
+      )
     )
     expect(@service_instance.extra["spec"]).not_to be_nil
     expect(@service_instance.extra["status"]).not_to be_nil
@@ -263,7 +263,7 @@ shared_examples "openshift refresher VCR tests" do
         :type        => "ManageIQ::Providers::Openshift::ContainerManager::ServiceParametersSet",
         :name        => "default",
         :description => "Default plan",
-        )
+      )
     )
     expect(@service_instance.service_parameters_set.extra["spec"]).not_to be_nil
     expect(@service_instance.service_parameters_set.extra["status"]).not_to be_nil
