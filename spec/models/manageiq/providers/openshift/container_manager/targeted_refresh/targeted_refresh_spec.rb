@@ -1,13 +1,12 @@
 # instantiated at the end
 shared_examples "openshift refresher VCR targeted refresh tests" do
   before(:each) do
-    allow(MiqServer).to receive(:my_zone).and_return("default")
     hostname          = 'host.example.com'
     token             = 'theToken'
     hawkular_hostname = 'host.example.com'
 
     @ems = FactoryGirl.create(
-      :ems_openshift,
+      :ems_openshift_with_zone,
       :name                      => 'OpenshiftProvider',
       :connection_configurations => [{:endpoint       => {:role       => :default,
                                                           :hostname   => hostname,
