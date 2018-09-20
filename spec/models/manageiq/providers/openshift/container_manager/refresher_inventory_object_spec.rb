@@ -24,50 +24,81 @@ shared_examples "openshift refresher VCR tests" do
     @user_tag = FactoryGirl.create(:classification_cost_center_with_tags).entries.first.tag
   end
 
-  def normal_refresh
+  def full_refresh
     VCR.use_cassette(described_class.name.underscore + '_inventory_object',
                      :allow_unused_http_interactions => true,
-                     :match_requests_on => [:path,]) do # , :record => :new_episodes) do
+                     :match_requests_on              => [:path,]) do # , :record => :new_episodes) do
 
       collector = ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager.new(@ems, @ems)
+      parser    = ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager.new
       persister = ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager.new(@ems)
 
-      inventory = ::ManageIQ::Providers::Inventory.new(
-        persister,
-        collector,
-        [ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager.new]
-      )
-
+      inventory = ManageIQ::Providers::Inventory.new(persister, collector, [parser])
       inventory.parse.persist!
     end
   end
 
-  def full_refresh_test
-    2.times do
-      @ems.reload
-      normal_refresh
-      @ems.reload
+  def targeted_refresh(notices = [])
+    collector = ManageIQ::Providers::Openshift::Inventory::Collector::Watches.new(@ems, notices)
+    persister = ManageIQ::Providers::Openshift::Inventory::Persister::TargetCollection.new(@ems)
+    parser    = ManageIQ::Providers::Openshift::Inventory::Parser::Watches.new
 
-      assert_counts
-      assert_specific_container
-      assert_specific_container_group
-      assert_specific_container_node
-      assert_specific_container_services
-      assert_specific_container_image_registry
-      assert_specific_container_project
-      assert_specific_container_route
-      assert_specific_container_build
-      assert_specific_container_build_pod
-      assert_specific_container_template
-      assert_specific_service_instance
-      assert_specific_service_offering
-      assert_specific_used_container_image(:metadata => true)
-      assert_specific_unused_container_image(:metadata => true, :archived => false)
-    end
+    inventory = ManageIQ::Providers::Inventory.new(persister, collector, [parser])
+    inventory.parse.persist!
+  end
+
+  def full_refresh_tests
+    @ems.reload
+    assert_counts
+    assert_specific_container
+    assert_specific_container_group
+    assert_specific_container_node
+    assert_specific_container_services
+    assert_specific_container_image_registry
+    assert_specific_container_project
+    assert_specific_container_route
+    assert_specific_container_build
+    assert_specific_container_build_pod
+    assert_specific_container_template
+    assert_specific_service_instance
+    assert_specific_service_offering
+    assert_specific_used_container_image(:metadata => true)
+    assert_specific_unused_container_image(:metadata => true, :archived => false)
+  end
+
+  def targeted_refresh_delete_tests(deleted_pod_ems_ref)
+    @ems.reload
+
+    expect(@ems.container_groups.count).to eq(base_inventory_counts[:container_group] - 1)
+    deleted_pod = ContainerGroup.find_by(:ems_id => @ems.id, :ems_ref => deleted_pod_ems_ref)
+    expect(deleted_pod.archived?).to be_truthy
   end
 
   it "will perform a full refresh on openshift" do
-    full_refresh_test
+    2.times do
+      full_refresh
+      full_refresh_tests
+    end
+  end
+
+  it "will perform a targeted refresh of a pod on openshift" do
+    full_refresh
+    full_refresh_tests
+
+    # NOTE: this object is from the full refresh, I have deleted most of the
+    # other metadata/spec/status to keep the cruft down since we're only parsing
+    # the uid.
+    notice = Kubeclient::Common::WatchNotice.new(
+      :type   => "DELETED",
+      :object => {
+        :kind       => "Pod",
+        :apiVersion => "v1",
+        :metadata => {:name => "manageiq-0", :generateName => "manageiq-", :namespace => "insights", :selfLink => "/api/v1/namespaces/insights/pods/manageiq-0", :uid => "331830bc-9f3a-11e8-ba7e-d094660d31fb", :resourceVersion => "32782622", :creationTimestamp => "2018-08-13T20:48:14Z", :deletionTimestamp => "2018-09-19T13:22:47Z", :labels => {:"controller-revision-hash" => "manageiq-675d87f7c", :name => "manageiq", :"statefulset.kubernetes.io/pod-name" => "manageiq-0"}, :annotations => {:"openshift.io/scc"=>"anyuid"}, :ownerReferences => [{:apiVersion => "apps/v1beta1", :kind => "StatefulSet", :name => "manageiq", :uid => "331593ab-9f3a-11e8-ba7e-d094660d31fb", :controller => true, :blockOwnerDeletion => true}]}, :spec => {:volumes => [{:name => "manageiq-server", :persistentVolumeClaim => {:claimName=>"manageiq-server-manageiq-0"}}, {:name => "miq-orchestrator-token-qlg96", :secret => {:secretName => "miq-orchestrator-token-qlg96", :defaultMode => 420}}], :containers => [{:name => "manageiq", :image => "docker.io/carbonin/manageiq-pods:frontend-latest-hammer", :ports => [{:containerPort => 80, :protocol => "TCP"}], :env => [{:name => "ALLOW_INSECURE_SESSION", :value => "true"}, {:name => "APPLICATION_ADMIN_PASSWORD", :valueFrom => {:secretKeyRef=>{:name => "manageiq-secrets", :key => "admin-password"}}}, {:name => "DATABASE_REGION", :value => "0"}, {:name => "DATABASE_URL", :valueFrom => {:secretKeyRef=>{:name => "manageiq-secrets", :key => "database-url"}}}, {:name => "MY_POD_NAMESPACE", :valueFrom => {:fieldRef=>{:apiVersion => "v1", :fieldPath => "metadata.namespace"}}}, {:name => "V2_KEY", :valueFrom => {:secretKeyRef=>{:name => "manageiq-secrets", :key => "v2-key"}}}], :resources => {}, :volumeMounts => [{:name => "manageiq-server", :mountPath => "/persistent"}, {:name => "miq-orchestrator-token-qlg96", :readOnly => true, :mountPath => "/var/run/secrets/kubernetes.io/serviceaccount"}], :livenessProbe => {:exec => {:command=>["pidof", "MIQ Server"]}, :initialDelaySeconds => 480, :timeoutSeconds => 3, :periodSeconds => 10, :successThreshold => 1, :failureThreshold => 3}, :readinessProbe => {:tcpSocket => {:port=>80}, :initialDelaySeconds => 200, :timeoutSeconds => 3, :periodSeconds => 10, :successThreshold => 1, :failureThreshold => 3}, :lifecycle => {:preStop=>{:exec=>{:command=>["/opt/manageiq/container-scripts/sync-pv-data"]}}}, :terminationMessagePath => "/dev/termination-log", :terminationMessagePolicy => "File", :imagePullPolicy => "IfNotPresent", :securityContext => {:capabilities=>{:drop=>["MKNOD"]}}}], :restartPolicy => "Always", :terminationGracePeriodSeconds => 90, :dnsPolicy => "ClusterFirst", :nodeSelector => {:"node-role.kubernetes.io/compute"=>"true"}, :serviceAccountName => "miq-orchestrator", :serviceAccount => "miq-orchestrator", :nodeName => "dell-r430-20.cloudforms.lab.eng.rdu2.redhat.com", :securityContext => {:seLinuxOptions=>{:level=>"s0:c11,c0"}}, :imagePullSecrets => [{:name=>"miq-orchestrator-dockercfg-9rvgb"}], :hostname => "manageiq-0", :subdomain => "manageiq", :schedulerName => "default-scheduler"}, :status => {:phase => "Running", :conditions => [{:type => "Initialized", :status => "True", :lastProbeTime => nil, :lastTransitionTime => "2018-08-13T20:48:14Z"}, {:type => "Ready", :status => "True", :lastProbeTime => nil, :lastTransitionTime => "2018-08-13T20:51:52Z"}, {:type => "PodScheduled", :status => "True", :lastProbeTime => nil, :lastTransitionTime => "2018-08-13T20:48:14Z"}], :hostIP => "10.8.96.55", :podIP => "10.129.0.77", :startTime => "2018-08-13T20:48:14Z", :containerStatuses => [{:name => "manageiq", :state => {:running=>{:startedAt=>"2018-08-13T20:48:18Z"}}, :lastState => {}, :ready => true, :restartCount => 0, :image => "docker.io/carbonin/manageiq-pods:frontend-latest-hammer", :imageID => "docker-pullable://docker.io/carbonin/manageiq-pods@sha256:78edb45e68d1c6afb5146e2a1809222ff341d4036b4ee8674b8b3e75fc235a10", :containerID => "docker://51bbd66eadbdc713dddb6900f55410395771bda0c64b2a3cf398a4bd8f71d97b"}], :qosClass => "BestEffort"}
+      }
+    )
+
+    targeted_refresh([notice])
+    targeted_refresh_delete_tests("331830bc-9f3a-11e8-ba7e-d094660d31fb")
   end
 
   def base_inventory_counts
