@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 95 2018-09-24
+
+### Added
+- Handle deleted entities [(#116)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/116)
+- Updates for streaming service catalog [(#113)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/113)
+
 ## Unreleased as of Sprint 93 2018-08-27
 
 ### Added
