@@ -16,3 +16,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "\n"
+
+msgid "Container Provider (OpenShift)"
+msgid_plural "Container Providers (OpenShift)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Container Template (OpenShift)"
+msgid_plural "Container Templates (OpenShift)"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "OpenShift Provider"
+msgstr ""
