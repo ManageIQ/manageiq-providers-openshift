@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Hammer Beta-1
+## Hammer Beta-1 - Released 2018-10-12
 
 ### Added
 - Handle deleted entities [(#116)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/116)
@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Streaming refresh for openshift using watches [(#103)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/103)
 - Persister: InventoryCollection building through add_collection() [(#100)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/100)
 - We need to use existing relation to project so we build valid query [(#79)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/79)
+- Update i18n catalog for hammer [(#120)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/120)
 
 ## Gaprindashvili-1 - Released 2018-01-31
 
