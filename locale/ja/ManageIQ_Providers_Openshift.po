@@ -1,31 +1,29 @@
-# Japanese translations for ManageIQ_Providers_Openshift package.
-# Copyright (C) 2017 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the ManageIQ_Providers_Openshift package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-#
+# kmoriguc <kmoriguc@redhat.com>, 2018. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: ManageIQ_Providers_Openshift 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2017-04-21 10:02+0200\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2018-10-03 15:40+0200\n"
+"PO-Revision-Date: 2018-10-25 10:13+0000\n"
+"Last-Translator: kmoriguc <kmoriguc@redhat.com>\n"
 "Language-Team: Japanese\n"
-"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Zanata 4.6.2\n"
 
+#: ../app/models/manageiq/providers/openshift/container_manager.rb:48
 msgid "Container Provider (OpenShift)"
 msgid_plural "Container Providers (OpenShift)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "コンテナープロバイダー (Openshift)"
 
+#: ../app/models/manageiq/providers/openshift/container_manager/container_template.rb:5
 msgid "Container Template (OpenShift)"
 msgid_plural "Container Templates (OpenShift)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "コンテナーテンプレート (OpenShift)"
 
+#: ../lib/manageiq/providers/openshift/engine.rb:8
 msgid "OpenShift Provider"
-msgstr ""
+msgstr "OpenShift プロバイダー"
