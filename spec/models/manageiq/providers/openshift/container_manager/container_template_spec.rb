@@ -3,7 +3,7 @@ describe ContainerTemplate do
     hostname = 'host.example.com'
     token = 'theToken'
     FactoryGirl.create(
-      :ems_openshift,
+      :ems_openshift_with_zone,
       :name                      => 'OpenShiftProvider',
       :connection_configurations => [{:endpoint       => {:role     => :default,
                                                           :hostname => hostname,
@@ -18,10 +18,6 @@ describe ContainerTemplate do
                                                           :auth_key => token,
                                                           :userid   => "_"}}]
     )
-  end
-
-  before(:each) do
-    allow(MiqServer).to receive(:my_zone).and_return("default")
   end
 
   it "instantiate a template with parameters and object labels" do
