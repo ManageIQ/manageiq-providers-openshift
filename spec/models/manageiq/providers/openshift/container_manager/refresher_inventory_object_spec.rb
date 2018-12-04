@@ -88,7 +88,7 @@ shared_examples "openshift refresher VCR tests" do
     # NOTE: this object is from the full refresh, I have deleted most of the
     # other metadata/spec/status to keep the cruft down since we're only parsing
     # the uid.
-    notice = Kubeclient::Common::WatchNotice.new(
+    notice = Kubeclient::Resource.new(
       :type   => "DELETED",
       :object => {
         :kind       => "Pod",
