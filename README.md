@@ -1,7 +1,7 @@
 # manageiq-providers-openshift
 
 [![Gem Version](https://badge.fury.io/rb/manageiq-providers-openshift.svg)](http://badge.fury.io/rb/manageiq-providers-openshift)
-[![Build Status](https://travis-ci.org/ManageIQ/manageiq-providers-openshift.svg)](https://travis-ci.org/ManageIQ/manageiq-providers-openshift)
+[![Build Status](https://travis-ci.org/ManageIQ/manageiq-providers-openshift.svg?branch=master)](https://travis-ci.org/ManageIQ/manageiq-providers-openshift)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift.svg)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift)
 [![Test Coverage](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/coverage)
 [![Dependency Status](https://gemnasium.com/ManageIQ/manageiq-providers-openshift.svg)](https://gemnasium.com/ManageIQ/manageiq-providers-openshift)
