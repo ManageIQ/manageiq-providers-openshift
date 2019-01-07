@@ -1,8 +1,8 @@
 describe ManageIQ::Providers::Openshift::ContainerManager::OrchestrationStack do
-  let(:ems) { FactoryGirl.create(:ems_openshift) }
-  let(:ctp) { FactoryGirl.create(:container_template_parameter, :name => 'var1', :value => 'p1', :required => true) }
+  let(:ems) { FactoryBot.create(:ems_openshift) }
+  let(:ctp) { FactoryBot.create(:container_template_parameter, :name => 'var1', :value => 'p1', :required => true) }
   let(:container_template) do
-    FactoryGirl.create(:container_template, :ems_id => ems.id).tap do |ct|
+    FactoryBot.create(:container_template, :ems_id => ems.id).tap do |ct|
       ct.container_template_parameters = [ctp]
     end
   end

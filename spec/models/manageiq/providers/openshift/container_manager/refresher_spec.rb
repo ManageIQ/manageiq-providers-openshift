@@ -9,7 +9,7 @@ shared_examples "openshift refresher VCR tests" do
     hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
     token = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
 
-    @ems = FactoryGirl.create(
+    @ems = FactoryBot.create(
       :ems_openshift_with_zone,
       :name                      => "OpenShiftProvider",
       :connection_configurations => [{:endpoint       => {:role              => :default,
@@ -21,7 +21,7 @@ shared_examples "openshift refresher VCR tests" do
                                                           :userid   => "_"}}]
     )
 
-    @user_tag = FactoryGirl.create(:classification_cost_center_with_tags).entries.first.tag
+    @user_tag = FactoryBot.create(:classification_cost_center_with_tags).entries.first.tag
   end
 
   it ".ems_type" do
@@ -103,7 +103,7 @@ shared_examples "openshift refresher VCR tests" do
     # which creates my-project-{0,1,2}.
 
     before(:each) do
-      @key_route_label_mapping = FactoryGirl.create(:tag_mapping_with_category, :label_name => 'key-route-label')
+      @key_route_label_mapping = FactoryBot.create(:tag_mapping_with_category, :label_name => 'key-route-label')
       @key_route_label_category = @key_route_label_mapping.tag.classification
 
       mode = ENV['RECORD_VCR'] == 'before_deletions' ? :new_episodes : :none

@@ -9,7 +9,7 @@ shared_examples "openshift refresher VCR tests" do
     hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
     token    = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
 
-    @ems = FactoryGirl.create(
+    @ems = FactoryBot.create(
       :ems_openshift_with_zone,
       :name                      => "OpenShiftProvider",
       :connection_configurations => [{:endpoint       => {:role              => :default,
@@ -21,7 +21,7 @@ shared_examples "openshift refresher VCR tests" do
                                                           :userid   => "_"}}]
     )
 
-    @user_tag = FactoryGirl.create(:classification_cost_center_with_tags).entries.first.tag
+    @user_tag = FactoryBot.create(:classification_cost_center_with_tags).entries.first.tag
   end
 
   def full_refresh

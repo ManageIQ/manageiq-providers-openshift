@@ -2,7 +2,7 @@ describe ContainerTemplate do
   let(:ems) do
     hostname = 'host.example.com'
     token = 'theToken'
-    FactoryGirl.create(
+    FactoryBot.create(
       :ems_openshift_with_zone,
       :name                      => 'OpenShiftProvider',
       :connection_configurations => [{:endpoint       => {:role     => :default,
@@ -21,7 +21,7 @@ describe ContainerTemplate do
   end
 
   it "instantiate a template with parameters and object labels" do
-    param = FactoryGirl.create(:container_template_parameter,
+    param = FactoryBot.create(:container_template_parameter,
                                :name     => 'VAR',
                                :value    => 'example',
                                :required => true)
@@ -34,7 +34,7 @@ describe ContainerTemplate do
 
     object_labels = {:created_from_template => "true"}
 
-    template = FactoryGirl.create(:openshift_template,
+    template = FactoryBot.create(:openshift_template,
                                   :ems_id        => ems.id,
                                   :objects       => [object],
                                   :object_labels => object_labels).tap do |temp|
