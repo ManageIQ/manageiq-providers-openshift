@@ -13,22 +13,4 @@ class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < M
       add_custom_attributes(:container_images, %w(labels docker_labels))
     end
   end
-
-  protected
-
-  def targeted?
-    false
-  end
-
-  def strategy
-    nil
-  end
-
-  def shared_options
-    {
-      :strategy => strategy,
-      :targeted => targeted?,
-      :parent   => manager.presence
-    }
-  end
 end
