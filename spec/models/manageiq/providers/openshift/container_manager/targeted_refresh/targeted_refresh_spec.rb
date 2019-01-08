@@ -5,7 +5,7 @@ shared_examples "openshift refresher VCR targeted refresh tests" do
     token             = 'theToken'
     hawkular_hostname = 'host.example.com'
 
-    @ems = FactoryGirl.create(
+    @ems = FactoryBot.create(
       :ems_openshift_with_zone,
       :name                      => 'OpenshiftProvider',
       :connection_configurations => [{:endpoint       => {:role       => :default,
