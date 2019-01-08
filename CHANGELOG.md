@@ -5,27 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
-## Unreleased as of Sprint 95 2018-09-24
+## Hammer-1
 
 ### Added
 - Handle deleted entities [(#116)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/116)
 - Updates for streaming service catalog [(#113)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/113)
-
-## Unreleased as of Sprint 93 2018-08-27
-
-### Added
 - Add plugin display name [(#107)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/107)
 - Streaming refresh for openshift using watches [(#103)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/103)
-
-## Unreleased as of Sprint 90 2018-07-16
-
-### Added
 - Persister: InventoryCollection building through add_collection() [(#100)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/100)
-
-## Unreleased as of Sprint 79 2018-02-12
-
-### Added
 - We need to use existing relation to project so we build valid query [(#79)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/79)
+- Update i18n catalog for hammer [(#120)](https://github.com/ManageIQ/manageiq-providers-openshift/pull/120)
 
 ## Gaprindashvili-1 - Released 2018-01-31
 
