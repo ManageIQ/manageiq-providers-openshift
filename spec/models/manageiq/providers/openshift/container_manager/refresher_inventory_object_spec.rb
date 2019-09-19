@@ -1,5 +1,5 @@
 # instantiated at the end, for both classical and graph refresh
-shared_examples "openshift refresher VCR tests" do
+shared_examples "openshift refresher inventory_object VCR tests" do
   let(:all_images_count) { 40 } # including /oapi/v1/images data
   let(:pod_images_count) { 12 } # only images mentioned by pods
   let(:images_managed_by_openshift_count) { 32 } # only images from /oapi/v1/images
@@ -358,7 +358,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
           )
         end
 
-        include_examples "openshift refresher VCR tests"
+        include_examples "openshift refresher inventory_object VCR tests"
       end
     end
   end
