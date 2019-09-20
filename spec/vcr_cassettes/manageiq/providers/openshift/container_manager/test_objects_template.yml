@@ -99,7 +99,7 @@ objects:
       sourceStrategy:
         from:
           kind: "DockerImage"
-          name: "ruby-20-centos7:latest"
+          name: "openshift/ruby-22-centos7:latest"
     output:
       to:
         kind: "ImageStreamTag"

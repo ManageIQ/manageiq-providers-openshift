@@ -45,7 +45,7 @@ for IND in 0 1 2; do
   oc new-project my-project-$IND
   oc project my-project-$IND
   # Some objects here require the admin priviledges we got above.
-  oc process -f "$VCR_DIR"/test_objects_template.yml -v INDEX=$IND | oc create -f -
+  oc process -f "$VCR_DIR"/test_objects_template.yml INDEX=$IND | oc create -f -
 
   oc start-build my-build-config-$IND
 done
