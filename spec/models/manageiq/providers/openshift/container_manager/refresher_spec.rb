@@ -116,15 +116,15 @@ shared_examples "openshift refresher VCR tests" do
     let(:object_counts) do
       # using strings instead of actual model classes for compact rspec diffs
       {
-        'ContainerProject'           => 10,
-        'ContainerImage'             => 39,
+        'ContainerProject'           => 18,
+        'ContainerImage'             => 67,
         'ContainerRoute'             => 3,
-        'ContainerTemplate'          => 20,
-        'ContainerTemplateParameter' => 210,
+        'ContainerTemplate'          => 14,
+        'ContainerTemplateParameter' => 158,
         'ContainerReplicator'        => 5,
         'ContainerBuild'             => 3,
         'ContainerBuildPod'          => 3,
-        'CustomAttribute'            => 599,
+        'CustomAttribute'            => 1112,
       }
     end
 
