@@ -1,4 +1,3 @@
-# instantiated at the end, for both classical and graph refresh
 shared_examples "openshift refresher VCR tests" do
   let(:all_images_count) { 40 } # including /oapi/v1/images data
   let(:pod_images_count) { 12 } # only images mentioned by pods
@@ -513,41 +512,19 @@ shared_examples "openshift refresher VCR tests" do
 end
 
 describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
-  context "classical refresh" do
-    before(:each) do
-      stub_settings_merge(
-        :ems_refresh => {:openshift => {:inventory_object_refresh => false}}
-      )
-
-      expect(ManageIQ::Providers::Openshift::ContainerManager::RefreshParser).not_to receive(:ems_inv_to_inv_collections)
-    end
-
-    include_examples "openshift refresher VCR tests"
-  end
-
-  context "graph refresh" do
-    before(:each) do
-      stub_settings_merge(
-        :ems_refresh => {:openshift => {:inventory_object_refresh => true}}
-      )
-
-      expect(ManageIQ::Providers::Openshift::ContainerManager::RefreshParser).not_to receive(:ems_inv_to_hashes)
-    end
-
-    [
-      {:saver_strategy => "default"},
-      {:saver_strategy => "batch", :use_ar_object => true},
-      {:saver_strategy => "batch", :use_ar_object => false}
-    ].each do |saver_options|
-      context "with #{saver_options}" do
-        before(:each) do
-          stub_settings_merge(
-            :ems_refresh => {:openshift => {:inventory_collections => saver_options}}
-          )
-        end
-
-        include_examples "openshift refresher VCR tests"
+  [
+    {:saver_strategy => "default"},
+    {:saver_strategy => "batch", :use_ar_object => true},
+    {:saver_strategy => "batch", :use_ar_object => false}
+  ].each do |saver_options|
+    context "with #{saver_options}" do
+      before(:each) do
+        stub_settings_merge(
+          :ems_refresh => {:openshift => {:inventory_collections => saver_options}}
+        )
       end
+
+      include_examples "openshift refresher VCR tests"
     end
   end
 end

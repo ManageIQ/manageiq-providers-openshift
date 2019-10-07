@@ -1,20 +1,6 @@
 module ManageIQ::Providers
   module Openshift
     class ContainerManager::RefreshParser < ManageIQ::Providers::Kubernetes::ContainerManager::RefreshParser
-      def ems_inv_to_hashes(inventory, options = Config::Options.new)
-        super(inventory, options)
-        merge_projects_into_namespaces(inventory)
-        get_routes(inventory)
-        get_builds(inventory)
-        get_build_pods(inventory)
-        get_templates(inventory)
-        get_or_merge_openshift_images(inventory) if options.get_container_images
-        EmsRefresh.log_inv_debug_trace(@data, "data:")
-
-        # Returning a hash triggers save_inventory_container code path.
-        @data
-      end
-
       def persister_class
         ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager
       end
