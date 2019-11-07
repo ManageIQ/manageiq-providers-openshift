@@ -8,7 +8,6 @@
 [![Security](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/master.svg)](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/master)
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/manageiq-providers-openshift?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Translate](https://img.shields.io/badge/translate-zanata-blue.svg)](https://translate.zanata.org/zanata/project/view/manageiq-providers-openshift)
 
 ManageIQ plugin for the Openshift provider.
 
