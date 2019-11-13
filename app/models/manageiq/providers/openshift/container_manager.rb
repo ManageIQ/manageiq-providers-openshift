@@ -33,6 +33,10 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
     ManageIQ::Providers::Openshift::ContainerManager::EventCatcher
   end
 
+  def self.default_port
+    DEFAULT_PORT
+  end
+
   def create_project(project)
     connect.create_project_request(project)
   rescue KubeException => e
