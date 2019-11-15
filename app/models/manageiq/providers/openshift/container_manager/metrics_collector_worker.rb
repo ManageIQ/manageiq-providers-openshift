@@ -7,9 +7,5 @@ module ManageIQ::Providers
     def friendly_name
       @friendly_name ||= "C&U Metrics Collector for OpenShift"
     end
-
-    def self.ems_class
-      ManageIQ::Providers::Openshift::ContainerManager
-    end
   end
 end
