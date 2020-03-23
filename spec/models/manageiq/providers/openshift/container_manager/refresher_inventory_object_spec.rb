@@ -341,12 +341,6 @@ end
 
 describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
   context "graph refresh" do
-    before(:each) do
-      stub_settings_merge(
-        :ems_refresh => {:openshift => {:inventory_object_refresh => true}}
-      )
-    end
-
     [
       {:saver_strategy => "batch", :use_ar_object => true},
       {:saver_strategy => "batch", :use_ar_object => false}
