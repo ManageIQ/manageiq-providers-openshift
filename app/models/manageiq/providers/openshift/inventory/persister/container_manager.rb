@@ -1,10 +1,6 @@
-class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < ManageIQ::Providers::Openshift::Inventory::Persister
-  include ManageIQ::Providers::Kubernetes::Inventory::Persister::Definitions::ContainerCollections
-
+class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Persister::ContainerManager
   def initialize_inventory_collections
     super
-
-    initialize_container_inventory_collections
 
     # get_container_images=false mode is a stopgap to speed up refresh by reducing functionality.
     # Skipping these InventoryCollections (instead of returning empty ones)
