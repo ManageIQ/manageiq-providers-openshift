@@ -5,22 +5,19 @@ module ManageIQ::Providers
 
       KUBERNETES_EMS_TYPE = ManageIQ::Providers::Kubernetes::ContainerManager.ems_type
 
-      OPENSHIFT_ENTITIES = [
-        {:name => 'routes'}, {:name => 'projects'},
-        {:name => 'build_configs'}, {:name => 'builds'}, {:name => 'templates'}
-      ]
+      OPENSHIFT_ENTITIES = %w[routes projects build_configs builds templates]
 
       def refresh_parser_class
         ManageIQ::Providers::Openshift::ContainerManager::RefreshParser
       end
 
       def all_entities
-        OPENSHIFT_ENTITIES + KUBERNETES_ENTITIES + [{:name => 'images'}]
+        OPENSHIFT_ENTITIES + KUBERNETES_ENTITIES + ['images']
       end
 
       def collect_full_inventory(ems)
         request_entities = OPENSHIFT_ENTITIES.dup
-        request_entities << {:name => 'images'} if refresher_options.get_container_images
+        request_entities << 'images' if refresher_options.get_container_images
 
         kube_inventory = ems.with_provider_connection(:service => KUBERNETES_EMS_TYPE) do |kubeclient|
           fetch_entities(kubeclient, KUBERNETES_ENTITIES)
