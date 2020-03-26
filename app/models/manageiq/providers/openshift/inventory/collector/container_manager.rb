@@ -1,20 +1,31 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Collector::ContainerManager
-  def collect
-    super
+  def routes
+    @routes ||= fetch_entity(openshift_connection, "routes")
+  end
 
-    entities = openshift_entities.dup
-    entities << "images" if refresher_options.get_container_images
+  def projects
+    @projects ||= fetch_entity(openshift_connection, "projects")
+  end
 
-    @inventory.merge!(fetch_entities(openshift_connection, entities))
+  def build_configs
+    @build_configs ||= fetch_entity(openshift_connection, "build_configs")
+  end
+
+  def builds
+    @builds ||= fetch_entity(openshift_connection, "builds")
+  end
+
+  def templates
+    @templates ||= fetch_entity(openshift_connection, "templates")
+  end
+
+  def images
+    @images ||= refresher_options.get_container_images ? fetch_entity(openshift_connection, "images") : {}
   end
 
   private
 
   def openshift_connection
     @openshift_connection ||= connect("openshift")
-  end
-
-  def openshift_entities
-    %w[routes projects build_configs builds templates]
   end
 end

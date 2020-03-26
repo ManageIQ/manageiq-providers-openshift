@@ -13,7 +13,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   ## hashes -> save_inventory_container methods
 
   def get_or_merge_openshift_images(inventory)
-    inventory["image"].each { |img| get_or_merge_openshift_image(img) }
+    collector.images.each { |img| get_or_merge_openshift_image(img) }
   end
 
   def get_or_merge_openshift_image(openshift_image)
@@ -27,73 +27,10 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
     container_result
   end
 
-  def get_builds(inventory)
-    key = path_for_entity("build_config")
-    process_collection(inventory["build_config"], key) { |n| parse_build(n) }
-
-    @data[key].each do |b|
-      b[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, b[:namespace])
-      @data_index.store_path(key, :by_namespace_and_name, b[:namespace], b[:name], b)
-    end
-  end
-
-  def get_build_pods(inventory)
-    key = path_for_entity("build")
-    process_collection(inventory["build"], key) { |n| parse_build_pod(n) }
-
-    @data[key].each do |bp|
-      config_ref = bp.delete(:build_config_ref)
-      bp[:build_config] = config_ref && @data_index.fetch_path(
-        path_for_entity("build_config"),
-        :by_namespace_and_name, config_ref[:namespace], config_ref[:name]
-      )
-      @data_index.store_path(key, :by_name, bp[:name], bp)
-    end
-  end
-
-  def get_routes(inventory)
-    key = path_for_entity("route")
-    process_collection(inventory["route"], path_for_entity("route")) { |n| parse_route(n) }
-
-    @data[key].each do |r|
-      r[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, r[:namespace])
-      service_ref = r.delete(:container_service_ref)
-      r[:container_service] = service_ref && @data_index.fetch_path(
-        path_for_entity("service"),
-        :by_namespace_and_name, service_ref[:namespace], service_ref[:name]
-      )
-    end
-  end
-
-  # Merge into results of parse_namespace
-  def merge_projects_into_namespaces(inventory)
-    key = path_for_entity("namespace")
-    inventory["project"].each do |item|
-      project = parse_project(item)
-      name = project.delete(:name)
-
-      namespace = @data_index.fetch_path(key, :by_name, name)
-      next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
-      namespace.merge!(project)
-    end
-  end
-
-  def get_templates(inventory)
-    key = path_for_entity("template")
-    process_collection(inventory["template"], key) { |n| parse_template(n) }
-
-    @data[key].each do |ct|
-      ct[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, ct[:namespace])
-      @data_index.store_path(key, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
-    end
-  end
-
-  ## InventoryObject refresh methods
-
   def merge_projects_into_namespaces_graph(inventory)
     collection = @inv_collections[:container_projects]
 
-    inventory["project"].each do |data|
+    collector.projects.each do |data|
       h = parse_project(data)
       # Assumes full refresh, and running after get_namespaces_graph.
       # Will be a problem with partial refresh.
@@ -106,7 +43,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   def get_routes_graph(inventory)
     collection = @inv_collections[:container_routes]
 
-    inventory["route"].each do |data|
+    collector.routes.each do |data|
       h = parse_route(data)
       h[:container_project] = lazy_find_project(:name => h[:namespace])
       h[:container_service] = lazy_find_service(h.delete(:container_service_ref))
@@ -123,7 +60,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   def get_builds_graph(inventory)
     collection = @inv_collections[:container_builds]
 
-    inventory["build_config"].each do |data|
+    collector.build_configs.each do |data|
       h = parse_build(data)
       h[:container_project] = lazy_find_project(:name => h[:namespace])
       custom_attrs = h.extract!(:labels)
@@ -139,7 +76,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   def get_build_pods_graph(inventory)
     collection = @inv_collections[:container_build_pods]
 
-    inventory["build"].each do |data|
+    collector.builds.each do |data|
       h = parse_build_pod(data)
       h[:container_build] = lazy_find_build(h.delete(:build_config_ref))
       custom_attrs = h.extract!(:labels)
@@ -152,7 +89,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   def get_templates_graph(inventory)
     collection = @inv_collections[:container_templates]
 
-    inventory["template"].each do |data|
+    collector.templates.each do |data|
       h = parse_template(data)
       h[:container_project] = lazy_find_project(:name => h[:namespace])
       parameters = h.delete(:container_template_parameters)
