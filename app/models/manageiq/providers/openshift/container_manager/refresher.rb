@@ -10,10 +10,6 @@ module ManageIQ::Providers
         {:name => 'build_configs'}, {:name => 'builds'}, {:name => 'templates'}
       ]
 
-      def target_collection_collector_class
-        ManageIQ::Providers::Openshift::Inventory::Collector::TargetCollection
-      end
-
       def refresh_parser_class
         ManageIQ::Providers::Openshift::ContainerManager::RefreshParser
       end
