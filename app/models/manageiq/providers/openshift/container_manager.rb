@@ -7,7 +7,6 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   require_nested :EventParser
   require_nested :MetricsCollectorWorker
   require_nested :OrchestrationStack
-  require_nested :RefreshParser
   require_nested :RefreshWorker
   require_nested :Refresher
   require_nested :Options
