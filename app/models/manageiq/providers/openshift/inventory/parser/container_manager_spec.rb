@@ -1,15 +1,14 @@
 require 'recursive-open-struct'
 
-describe ManageIQ::Providers::Openshift::ContainerManager::RefreshParser do
+describe ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager do
+  let(:ems) { FactoryBot.create(:ems_openshift) }
+  let(:persister) { ManageIQ::Providers::Kubernetes::Inventory::Persister::ContainerManager.new(ems) }
   let(:store_unused_images) { true }
-  let(:options) do
-    # using Struct not OpenStruct ensures we specify all options the code actually accesses
-    Struct.new(:store_unused_images).new(store_unused_images)
-  end
-  let(:parser) { described_class.new(options) }
+  let(:parser)  { described_class.new.tap { |p| p.persister = persister } }
   let(:parser_data) { parser.instance_variable_get('@data') }
   let(:parser_data_index) { parser.instance_variable_get('@data_index') }
 
+  before { stub_settings_merge(:ems_refresh => {:openshift => {:store_unused_images => store_unused_images}}) }
   def given_image(image)
     parser_data[:container_images] ||= []
     parser_data[:container_images] << image
