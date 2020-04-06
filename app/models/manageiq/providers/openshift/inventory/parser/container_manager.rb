@@ -1,188 +1,115 @@
 class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Parser::ContainerManager
-  def ems_inv_populate_collections(inventory, options = Config::Options.new)
+  def ems_inv_populate_collections
     super
-    merge_projects_into_namespaces_graph(inventory)
-    get_routes_graph(inventory)
-    get_builds_graph(inventory)
-    get_build_pods_graph(inventory)
-    get_templates_graph(inventory)
-    # For now, we're reusing @data_index-reading-and-writing code path for images.
-    get_or_merge_openshift_images(inventory) if options.get_container_images
+
+    projects
+    routes
+    builds
+    build_pods
+    templates
+    openshift_images
   end
 
   ## hashes -> save_inventory_container methods
 
-  def get_or_merge_openshift_images(inventory)
-    inventory["image"].each { |img| get_or_merge_openshift_image(img) }
-  end
+  # For now, we're reusing @data_index-reading-and-writing code path for images.
+  def openshift_images
+    return unless refresher_options.get_container_images
 
-  def get_or_merge_openshift_image(openshift_image)
-    openshift_result = parse_openshift_image(openshift_image)
-    # This hides @data_index reading and writing.
-    container_result = parse_container_image(openshift_result.delete(:id),
-                                             openshift_result.delete(:ref),
-                                             :store_new_images => refresher_options.store_unused_images)
-    return if container_result.nil? # not storing because store_unused_images = false and wasn't mentioned by any pod
-    container_result.merge!(openshift_result)
-    container_result
-  end
+    opts = {:store_new_images => refresher_options.store_unused_images}
 
-  def get_builds(inventory)
-    key = path_for_entity("build_config")
-    process_collection(inventory["build_config"], key) { |n| parse_build(n) }
+    collector.images.each do |image|
+      openshift_result = parse_openshift_image(image)
 
-    @data[key].each do |b|
-      b[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, b[:namespace])
-      @data_index.store_path(key, :by_namespace_and_name, b[:namespace], b[:name], b)
+      id  = openshift_result.delete(:id)
+      ref = openshift_result.delete(:ref)
+
+      # This hides @data_index reading and writing.
+      parse_container_image(id, ref, opts)&.merge!(openshift_result)
     end
   end
 
-  def get_build_pods(inventory)
-    key = path_for_entity("build")
-    process_collection(inventory["build"], key) { |n| parse_build_pod(n) }
-
-    @data[key].each do |bp|
-      config_ref = bp.delete(:build_config_ref)
-      bp[:build_config] = config_ref && @data_index.fetch_path(
-        path_for_entity("build_config"),
-        :by_namespace_and_name, config_ref[:namespace], config_ref[:name]
-      )
-      @data_index.store_path(key, :by_name, bp[:name], bp)
-    end
-  end
-
-  def get_routes(inventory)
-    key = path_for_entity("route")
-    process_collection(inventory["route"], path_for_entity("route")) { |n| parse_route(n) }
-
-    @data[key].each do |r|
-      r[:project] = @data_index.fetch_path(path_for_entity("namespace"), :by_name, r[:namespace])
-      service_ref = r.delete(:container_service_ref)
-      r[:container_service] = service_ref && @data_index.fetch_path(
-        path_for_entity("service"),
-        :by_namespace_and_name, service_ref[:namespace], service_ref[:name]
-      )
-    end
-  end
-
-  # Merge into results of parse_namespace
-  def merge_projects_into_namespaces(inventory)
-    key = path_for_entity("namespace")
-    inventory["project"].each do |item|
-      project = parse_project(item)
-      name = project.delete(:name)
-
-      namespace = @data_index.fetch_path(key, :by_name, name)
-      next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
-      namespace.merge!(project)
-    end
-  end
-
-  def get_templates(inventory)
-    key = path_for_entity("template")
-    process_collection(inventory["template"], key) { |n| parse_template(n) }
-
-    @data[key].each do |ct|
-      ct[:container_project] = @data_index.fetch_path(path_for_entity("project"), :by_name, ct[:namespace])
-      @data_index.store_path(key, :by_namespace_and_name, ct[:namespace], ct[:name], ct)
-    end
-  end
-
-  ## InventoryObject refresh methods
-
-  def merge_projects_into_namespaces_graph(inventory)
-    collection = @inv_collections[:container_projects]
-
-    inventory["project"].each do |data|
+  def projects
+    collector.projects.each do |data|
       h = parse_project(data)
-      # Assumes full refresh, and running after get_namespaces_graph.
+      # Assumes full refresh, and running after get_namespaces.
       # Will be a problem with partial refresh.
-      namespace = collection.find(h.delete(:name), :ref => :by_name)
+      namespace = persister.container_projects.find(h.delete(:name), :ref => :by_name)
       next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
       namespace.data.merge!(h)
     end
   end
 
-  def get_routes_graph(inventory)
-    collection = @inv_collections[:container_routes]
-
-    inventory["route"].each do |data|
+  def routes
+    collector.routes.each do |data|
       h = parse_route(data)
       h[:container_project] = lazy_find_project(:name => h[:namespace])
       h[:container_service] = lazy_find_service(h.delete(:container_service_ref))
       custom_attrs = h.extract!(:labels)
       tags = h.delete(:tags)
 
-      container_route = collection.build(h)
+      container_route = persister.container_routes.build(h)
 
-      get_custom_attributes_graph(container_route, custom_attrs)
-      get_taggings_graph(container_route, tags)
+      custom_attributes(container_route, custom_attrs)
+      taggings(container_route, tags)
     end
   end
 
-  def get_builds_graph(inventory)
-    collection = @inv_collections[:container_builds]
-
-    inventory["build_config"].each do |data|
+  def builds
+    collector.build_configs.each do |data|
       h = parse_build(data)
       h[:container_project] = lazy_find_project(:name => h[:namespace])
       custom_attrs = h.extract!(:labels)
       tags = h.delete(:tags)
 
-      container_build = collection.build(h)
+      container_build = persister.container_builds.build(h)
 
-      get_custom_attributes_graph(container_build, custom_attrs)
-      get_taggings_graph(container_build, tags)
+      custom_attributes(container_build, custom_attrs)
+      taggings(container_build, tags)
     end
   end
 
-  def get_build_pods_graph(inventory)
-    collection = @inv_collections[:container_build_pods]
-
-    inventory["build"].each do |data|
+  def build_pods
+    collector.builds.each do |data|
       h = parse_build_pod(data)
       h[:container_build] = lazy_find_build(h.delete(:build_config_ref))
       custom_attrs = h.extract!(:labels)
-      container_build_pod = collection.build(h)
+      container_build_pod = persister.container_build_pods.build(h)
 
-      get_custom_attributes_graph(container_build_pod, custom_attrs)
+      custom_attributes(container_build_pod, custom_attrs)
     end
   end
 
-  def get_templates_graph(inventory)
-    collection = @inv_collections[:container_templates]
-
-    inventory["template"].each do |data|
+  def templates
+    collector.templates.each do |data|
       h = parse_template(data)
       h[:container_project] = lazy_find_project(:name => h[:namespace])
       parameters = h.delete(:container_template_parameters)
       custom_attrs = h.extract!(:labels)
 
-      container_template = collection.build(h)
+      container_template = persister.container_templates.build(h)
 
-      get_template_parameters_graph(container_template, parameters)
-      get_custom_attributes_graph(container_template, custom_attrs)
+      template_parameters(container_template, parameters)
+      custom_attributes(container_template, custom_attrs)
     end
   end
 
-  def get_template_parameters_graph(parent, parameters)
-    collection = @inv_collections[:container_template_parameters]
-
+  def template_parameters(parent, parameters)
     parameters.each do |h|
       h[:container_template] = parent
-      collection.build(h)
+      persister.container_template_parameters.build(h)
     end
   end
 
   def lazy_find_service(hash)
     return nil if hash.nil?
     search = {:container_project => lazy_find_project(:name => hash[:namespace]), :name => hash[:name]}
-    @inv_collections[:container_services].lazy_find_by(search, :ref => :by_container_project_and_name)
+    persister.container_services.lazy_find_by(search, :ref => :by_container_project_and_name)
   end
 
   def lazy_find_build(hash)
     return nil if hash.nil?
-    @inv_collections[:container_builds].lazy_find_by(hash, :ref => :by_namespace_and_name)
+    persister.container_builds.lazy_find_by(hash, :ref => :by_namespace_and_name)
   end
 
   ## Shared parsing methods
@@ -195,7 +122,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
     new_result
   end
 
-  def get_service_name(route)
+  def service_name(route)
     route.spec.try(:to).try(:kind) == 'Service' ? route.spec.try(:to).try(:name) : nil
   end
 
@@ -210,7 +137,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
       :tags      => map_labels('ContainerRoute', labels),
       :path      => route.path
     )
-    service_name = get_service_name(route)
+    service_name = service_name(route)
     unless service_name.nil?
       # In same namespace:  https://docs.openshift.org/latest/rest_api/openshift_v1.html#v1-routetargetreference
       new_result[:container_service_ref] = {:namespace => new_result[:namespace], :name => service_name}
