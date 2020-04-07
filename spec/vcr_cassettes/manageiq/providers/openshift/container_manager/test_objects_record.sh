@@ -14,9 +14,16 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
 
     echo "-- Deleting minishift PVs for a cleaner inventory --"
     oc delete --ignore-not-found pv $(printf "pv%s " $(seq -w 0001 0100))
+  elif which crc && crc status | grep -i 'crc vm:.*running'; then
+    OPENSHIFT_MASTER_HOST="$(crc ip)"
+    export OPENSHIFT_MASTER_HOST
+    eval $(crc oc-env --shell bash)
+
+    kubeadmin_password=$(<~/.crc/cache/crc_libvirt_*/kubeadmin-password)
+    oc login -u kubeadmin -p $kubeadmin_password https://api.crc.testing:6443
   else
     echo 'Either set $OPENSHIFT_MASTER_HOST and perform `oc login` with cluster-admin powers,'
-    echo 'or have minishift in $PATH and already started.'
+    echo 'or have minishift/crc in $PATH and already started.'
     echo 'See https://github.com/ManageIQ/guides/blob/master/providers/openshift.md'
     exit 1
   fi
@@ -36,7 +43,7 @@ echo; echo "===== Clean slate, create objects ====="
 oc delete --ignore-not-found project my-project-{0,1,2}
 oc delete --ignore-not-found persistentvolume my-persistentvolume-{0,1,2}
 
-while oc get --show-all projects | grep my-project; do
+while oc get projects | grep my-project; do
   echo "... waiting for projects to disappear ..."
   sleep 3
 done
@@ -63,11 +70,11 @@ describe_vcr () {
   oc version
   echo
   echo "CAVEAT: status shown here might differ from moment captured in VCR!"
-  echo "== oc get projects --show-all --show-kind --show-labels =="
-  oc get projects --show-all --show-kind --show-labels
+  echo "== oc get projects --show-kind --show-labels =="
+  oc get projects --show-kind --show-labels
   echo
-  echo "== oc get all --show-all --all-namespaces -o wide --show-labels =="
-  oc get all --show-all --all-namespaces -o wide --show-labels
+  echo "== oc get all --all-namespaces -o wide --show-labels =="
+  oc get all --all-namespaces -o wide --show-labels
   echo
   echo "== oc get resourceQuotas --all-namespaces --show-kind --show-labels =="
   oc get resourceQuotas --all-namespaces --show-kind --show-labels
@@ -125,12 +132,12 @@ oc patch quota my-resource-quota-scopes1-2 --type json --patch '[{op: remove, pa
 oc patch quota my-resource-quota-scopes2-2 --type json --patch '[{op: replace, path: /spec/scopes, value: [NotBestEffort, Terminating]}, {op: replace, path: /spec/hard/requests.cpu, value: "5.701"}, {op: replace, path: /spec/hard/requests.memory, value: "10Gi"}]'
 
 
-while oc get --show-all projects | grep my-project-0; do
+while oc get projects | grep my-project-0; do
   echo "... waiting for my-project-0 to disappear ..."
   sleep 3
 done
 
-while oc get pods --show-all --all-namespaces | grep my-pod; do
+while oc get pods --all-namespaces | grep my-pod; do
   echo "... waiting for pods to disappear ..."
   sleep 3
 done
