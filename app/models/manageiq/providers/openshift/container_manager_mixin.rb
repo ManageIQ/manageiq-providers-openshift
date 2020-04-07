@@ -45,7 +45,8 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
 
     def openshift_v4_connect(hostname, port, options)
-      options = {:path => '/apis/apps.openshift.io', :version => api_version}.merge(options)
+      api_group = options[:api_group] || "apps.openshift.io"
+      options = {:path => "/apis/#{api_group}", :version => api_version}.merge(options)
       kubernetes_connect(hostname, port, options)
     end
   end
