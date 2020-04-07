@@ -27,29 +27,41 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < M
 
   private
 
-  def connect(service, opts = {})
-    manager.connect(opts.merge(:service => service))
-  rescue KubeException
-    nil
-  end
-
   def openshift_connection(group)
     detect_openshift_version! if version.nil?
     send("openshift_connection_#{version}", group)
   end
 
   def detect_openshift_version!
-    @version = "v3" if openshift_connection_v3.present?
-    @version = "v4" if @version.nil? && openshift_connection_v4("project.openshift.io").present?
+    @version = begin
+      openshift_connection_v3
+      "v3"
+    rescue Kubeclient::ResourceNotFoundError
+      nil
+    end
+
+    @version ||= begin
+      openshift_connection_v4("project.openshift.io")
+      "v4"
+    rescue Kubeclient::ResourceNotFoundError
+      nil
+    end
+
     raise "Failed to detect OpenShift version" if @version.nil?
   end
 
   def openshift_connection_v3(_group = nil)
-    @openshift_connection_v3 ||= connect("openshift")
+    @openshift_connection_v3 ||= begin
+      opts = manager.connect_options
+      manager.class.openshift_v3_connect(opts[:hostname], opts[:port], opts)
+    end
   end
 
   def openshift_connection_v4(group)
     @openshift_connection_v4 ||= {}
-    @openshift_connection_v4[group] ||= connect("openshift", :path => "/apis/#{group}")
+    @openshift_connection_v4[group] ||= begin
+      opts = manager.connect_options(:path => "/apis/#{group}")
+      manager.class.openshift_v4_connect(opts[:hostname], opts[:port], opts)
+    end
   end
 end

@@ -32,7 +32,20 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
 
     def openshift_connect(hostname, port, options)
+      # First attempt to connect to the /oapi endpoint and if that fails with
+      # a ResourceNotFoundError attempt to connect to /apis/...
+      openshift_v3_connect(hostname, port, options)
+    rescue Kubeclient::ResourceNotFoundError
+      openshift_v4_connect(hostname, port, options)
+    end
+
+    def openshift_v3_connect(hostname, port, options)
       options = {:path => '/oapi', :version => api_version}.merge(options)
+      kubernetes_connect(hostname, port, options)
+    end
+
+    def openshift_v4_connect(hostname, port, options)
+      options = {:path => '/apis/apps.openshift.io', :version => api_version}.merge(options)
       kubernetes_connect(hostname, port, options)
     end
   end
