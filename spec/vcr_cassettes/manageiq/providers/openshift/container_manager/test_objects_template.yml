@@ -99,7 +99,7 @@ objects:
       sourceStrategy:
         from:
           kind: "DockerImage"
-          name: "openshift/ruby-22-centos7:latest"
+          name: "centos/ruby-25-centos7:latest"
     output:
       to:
         kind: "ImageStreamTag"
@@ -125,23 +125,23 @@ objects:
       - type: "Pod"
         max:
           cpu: "2"
-          memory: "1Gi"
+          memory: "2Gi"
         min:
           cpu: "200m"
           memory: "6Mi"
       - type: "Container"
         max:
           cpu: "2"
-          memory: "1Gi"
+          memory: "2Gi"
         min:
           cpu: "100m"
           memory: "4Mi"
         default:
           cpu: "300m"
-          memory: "200Mi"
+          memory: "600Mi"
         defaultRequest:
           cpu: "200m"
-          memory: "100Mi"
+          memory: "600Mi"
         maxLimitRequestRatio:
           cpu: "10"
 - apiVersion: v1
@@ -256,7 +256,7 @@ objects:
     hard:
       pods: "3"
       requests.cpu: "5.7"
-      requests.memory: "10240Mi"
+      requests.memory: "16384Mi"
 parameters:
 - name: INDEX
   value: "0"
