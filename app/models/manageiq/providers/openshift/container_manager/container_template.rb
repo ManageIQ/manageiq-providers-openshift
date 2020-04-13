@@ -34,7 +34,8 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate < Mana
     obj[:metadata][:namespace] = project
     method_name = "create_#{obj[:kind].underscore}"
     begin
-      ext_management_system.connect_client(obj[:apiVersion], method_name).send(method_name, obj)
+      client = ext_management_system.connect_client(obj[:kind], obj[:apiVersion], method_name)
+      client.send(method_name, obj)
     rescue KubeException => e
       rollback_objects(@created_objects)
       raise MiqException::MiqProvisionError, "Unexpected Exception while creating object: #{e}"
@@ -50,9 +51,8 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate < Mana
   def rollback_object(obj)
     method_name = "delete_#{obj[:kind].underscore}"
     begin
-      ext_management_system.connect_client(obj[:apiVersion], method_name).send(method_name,
-                                                                               obj[:metadata][:name],
-                                                                               obj[:metadata][:namespace])
+      client = ext_management_system.connect_client(obj[:kind], obj[:apiVersion], method_name)
+      client.send(method_name, obj[:metadata][:name], obj[:metadata][:namespace])
     rescue KubeException => e
       _log.error("Unexpected Exception while deleting object: #{e}")
     end

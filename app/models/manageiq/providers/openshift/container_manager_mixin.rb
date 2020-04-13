@@ -51,7 +51,7 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
   end
 
-  def connect_client(api_version, method_name)
+  def connect_client(kind, api_version, method_name)
     @clients ||= {}
     api, version = api_version.split('/', 2)
     if version
