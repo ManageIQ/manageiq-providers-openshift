@@ -30,7 +30,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate < Mana
   end
 
   def create_object(obj, project)
-    obj = obj.symbolize_keys
+    obj = obj.deep_symbolize_keys
     obj[:metadata][:namespace] = project
     method_name = "create_#{obj[:kind].underscore}"
     begin
