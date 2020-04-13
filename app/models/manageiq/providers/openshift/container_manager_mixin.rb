@@ -51,17 +51,22 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
   end
 
-  def connect_client(api_version, method_name)
+  def connect_client(kind, api_version, method_name)
     @clients ||= {}
     api, version = api_version.split('/', 2)
     if version
       @clients[api_version] ||= connect(:service => 'kubernetes', :version => version, :path => '/apis/' + api)
     else
-      openshift = 'oapi' + api_version
-      kubernetes = 'api' + api_version
-      @clients[openshift] ||= connect(:version => api_version)
-      @clients[kubernetes] ||= connect(:service => 'kubernetes', :version => api_version)
-      @clients[openshift].respond_to?(method_name) ? @clients[openshift] : @clients[kubernetes]
+      # If we're given an OpenShift object lookup its v4 API Group
+      api_group = api_group_for_kind(kind)
+      path      = api_group ? "/apps/#{api_group}" : "/oapi"
+
+      openshift_client_key  = File.join(path, api_version)
+      kubernetes_client_key = File.join("/api", api_version)
+
+      @clients[openshift_client_key] ||= connect(:api_group => api_group, :version => api_version)
+      @clients[kubernetes_client_key] ||= connect(:service => 'kubernetes', :version => api_version)
+      @clients[openshift_client_key].respond_to?(method_name) ? @clients[openshift_client_key] : @clients[kubernetes_client_key]
     end
   end
 
@@ -75,5 +80,23 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
 
   def external_logging_path
     '/'
+  end
+
+  def api_group_for_kind(kind)
+    # TODO: is there a more general way of detecting this?
+    case kind
+    when "BuildConfig", "Build"
+      "build.openshift.io"
+    when "DeploymentConfig"
+      "apps.openshift.io"
+    when "Image"
+      "image.openshift.io"
+    when "Project"
+      "project.openshift.io"
+    when "Route"
+      "route.openshift.io"
+    when "Template"
+      "template.openshift.io"
+    end
   end
 end
