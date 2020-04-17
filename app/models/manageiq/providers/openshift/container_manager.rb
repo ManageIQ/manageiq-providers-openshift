@@ -36,6 +36,10 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
     DEFAULT_PORT
   end
 
+  def inventory_object_refresh?
+    true
+  end
+
   def create_project(project)
     connect.create_project_request(project)
   rescue KubeException => e
