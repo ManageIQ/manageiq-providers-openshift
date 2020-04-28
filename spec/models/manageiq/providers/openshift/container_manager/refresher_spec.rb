@@ -106,25 +106,10 @@ shared_examples "openshift refresher VCR tests" do
       @key_route_label_category = @key_route_label_mapping.tag.classification
 
       mode = ENV['RECORD_VCR'] == 'before_deletions' ? :new_episodes : :none
-      VCR.use_cassette("#{described_class.name.underscore}_before_deletions",
+      VCR.use_cassette("#{described_class.name.underscore}_before_deletions_#{openshift_version}",
                        :match_requests_on => [:path,], :record => mode) do
         EmsRefresh.refresh(@ems)
       end
-    end
-
-    let(:object_counts) do
-      # using strings instead of actual model classes for compact rspec diffs
-      {
-        'ContainerProject'           => 18,
-        'ContainerImage'             => 67,
-        'ContainerRoute'             => 3,
-        'ContainerTemplate'          => 14,
-        'ContainerTemplateParameter' => 158,
-        'ContainerReplicator'        => 5,
-        'ContainerBuild'             => 3,
-        'ContainerBuildPod'          => 3,
-        'CustomAttribute'            => 1112,
-      }
     end
 
     it "saves the objects in the DB" do
@@ -158,7 +143,7 @@ shared_examples "openshift refresher VCR tests" do
         skip('meaningless at this stage of re-recording') if ENV['RECORD_VCR'] == 'before_deletions'
 
         mode = ENV['RECORD_VCR'] == 'after_deletions' ? :new_episodes : :none
-        VCR.use_cassette("#{described_class.name.underscore}_after_deletions",
+        VCR.use_cassette("#{described_class.name.underscore}_after_deletions_#{openshift_version}",
                          :match_requests_on => [:path,], :record => mode) do
           EmsRefresh.refresh(@ems)
         end
@@ -512,19 +497,51 @@ shared_examples "openshift refresher VCR tests" do
 end
 
 describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
-  [
-    {:saver_strategy => "default"},
-    {:saver_strategy => "batch", :use_ar_object => true},
-    {:saver_strategy => "batch", :use_ar_object => false}
-  ].each do |saver_options|
-    context "with #{saver_options}" do
-      before(:each) do
-        stub_settings_merge(
-          :ems_refresh => {:openshift => {:inventory_collections => saver_options}}
-        )
-      end
+  %w[v3 v4].each do |version|
+    object_counts = {
+      "v3" => {
+        'ContainerProject'           => 18,
+        'ContainerImage'             => 67,
+        'ContainerRoute'             => 3,
+        'ContainerTemplate'          => 14,
+        'ContainerTemplateParameter' => 158,
+        'ContainerReplicator'        => 5,
+        'ContainerBuild'             => 3,
+        'ContainerBuildPod'          => 3,
+        'CustomAttribute'            => 1112,
+      },
+      "v4" => {
+        'ContainerProject'           => 57,
+        'ContainerImage'             => 264,
+        'ContainerRoute'             => 11,
+        'ContainerTemplate'          => 126,
+        'ContainerTemplateParameter' => 3787,
+        'ContainerReplicator'        => 3,
+        'ContainerBuild'             => 3,
+        'ContainerBuildPod'          => 3,
+        'CustomAttribute'            => 6868,
+      }
+    }
 
-      include_examples "openshift refresher VCR tests"
+    describe "with OpenShift version #{version}" do
+      let(:object_counts) { object_counts[version] }
+      let(:openshift_version) { version }
+
+      [
+        {:saver_strategy => "default"},
+        {:saver_strategy => "batch", :use_ar_object => true},
+        {:saver_strategy => "batch", :use_ar_object => false}
+      ].each do |saver_options|
+        context "with #{saver_options}" do
+          before(:each) do
+            stub_settings_merge(
+              :ems_refresh => {:openshift => {:inventory_collections => saver_options}}
+            )
+          end
+
+          include_examples "openshift refresher VCR tests"
+        end
+      end
     end
   end
 end
