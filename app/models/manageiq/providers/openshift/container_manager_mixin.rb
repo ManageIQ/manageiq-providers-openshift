@@ -6,10 +6,6 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
   DEFAULT_PORT = 8443
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
-  included do
-    has_many :container_routes, :foreign_key => :ems_id, :dependent => :destroy
-  end
-
   # This is the API version that we use and support throughout the entire code
   # (parsers, events, etc.). It should be explicitly selected here and not
   # decided by the user nor out of control in the defaults of openshift gem
