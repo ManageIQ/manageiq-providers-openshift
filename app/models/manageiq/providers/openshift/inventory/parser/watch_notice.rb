@@ -4,8 +4,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::WatchNotice < ManageIQ:
   def parse
     super
 
-    # TODO: projects only set the display_name and labels on top of namespaces
-    # projects
+    projects
     routes
     builds
     build_pods

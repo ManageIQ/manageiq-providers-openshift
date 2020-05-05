@@ -19,13 +19,8 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
   end
 
   def projects
-    collector.projects.each do |data|
-      h = parse_project(data)
-      # Assumes full refresh, and running after get_namespaces.
-      # Will be a problem with partial refresh.
-      namespace = persister.container_projects.find(h.delete(:name), :ref => :by_name)
-      next if namespace.nil? # ignore openshift projects without an underlying kubernetes namespace
-      namespace.data.merge!(h)
+    collector.projects.each do |project|
+      parse_project(project)
     end
   end
 
@@ -104,11 +99,15 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
   ## Shared parsing methods
 
   def parse_project(project_item)
-    new_result = {:name => project_item.metadata.name}
-    unless project_item.metadata.annotations.nil?
-      new_result[:display_name] = project_item.metadata.annotations['openshift.io/display-name']
-    end
-    new_result
+    namespace = collector.namespaces_by_name[project_item.metadata.name]
+    return if namespace.nil?
+
+    container_project = persister.container_projects.find_or_build(namespace.metadata.uid)
+
+    display_name = project_item.metadata.annotations['openshift.io/display-name']
+    container_project.display_name = display_name if display_name
+
+    container_project
   end
 
   def service_name(route)
