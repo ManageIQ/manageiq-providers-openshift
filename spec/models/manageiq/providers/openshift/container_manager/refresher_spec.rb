@@ -3,42 +3,15 @@ shared_examples "openshift refresher VCR tests" do
   let(:pod_images_count) { 12 } # only images mentioned by pods
   let(:images_managed_by_openshift_count) { 32 } # only images from /oapi/v1/images
 
-  before(:each) do
-    # env vars for easier VCR recording, see test_objects_record.sh
-    hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
-    token = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
-
-    @ems = FactoryBot.create(
-      :ems_openshift_with_zone,
-      :name                      => "OpenShiftProvider",
-      :connection_configurations => [{:endpoint       => {:role              => :default,
-                                                          :hostname          => hostname,
-                                                          :port              => "8443",
-                                                          :security_protocol => "ssl-without-validation"},
-                                      :authentication => {:role     => :bearer,
-                                                          :auth_key => token,
-                                                          :userid   => "_"}}]
-    )
-
-    @user_tag = FactoryBot.create(:classification_cost_center_with_tags).entries.first.tag
-  end
-
   it ".ems_type" do
     expect(described_class.ems_type).to eq(:openshift)
   end
 
-  def normal_refresh
-    VCR.use_cassette(described_class.name.underscore,
-                     :match_requests_on => [:path,]) do # , :record => :new_episodes) do
-      EmsRefresh.refresh(@ems)
-    end
-  end
-
   def full_refresh_test
     2.times do
-      @ems.reload
-      normal_refresh
-      @ems.reload
+      ems.reload
+      full_refresh
+      ems.reload
 
       assert_ems
       assert_table_counts
@@ -68,30 +41,30 @@ shared_examples "openshift refresher VCR tests" do
     VCR.use_cassette(described_class.name.underscore,
                      :match_requests_on              => [:path,],
                      :allow_unused_http_interactions => true) do # , :record => :new_episodes) do
-      EmsRefresh.refresh(@ems)
+      EmsRefresh.refresh(ems)
     end
 
-    @ems.reload
+    ems.reload
 
     expect(ContainerImage.count).to eq(pod_images_count)
     assert_specific_used_container_image(:metadata => false)
   end
 
   it 'will not delete previously collected metadata if get_container_images = false' do
-    normal_refresh
+    full_refresh
     stub_settings_merge(
       :ems_refresh => {:openshift => {:get_container_images => false}},
     )
     VCR.use_cassette(described_class.name.underscore,
                      :match_requests_on              => [:path,],
                      :allow_unused_http_interactions => true) do # , :record => :new_episodes) do
-      EmsRefresh.refresh(@ems)
+      EmsRefresh.refresh(ems)
     end
 
-    @ems.reload
+    ems.reload
 
     # Unused images are archived, metadata is retained either way.
-    expect(@ems.container_images.count).to eq(pod_images_count)
+    expect(ems.container_images.count).to eq(pod_images_count)
     assert_specific_used_container_image(:metadata => true)
     assert_specific_unused_container_image(:metadata => true, :archived => true)
   end
@@ -108,7 +81,7 @@ shared_examples "openshift refresher VCR tests" do
       mode = ENV['RECORD_VCR'] == 'before_deletions' ? :new_episodes : :none
       VCR.use_cassette("#{described_class.name.underscore}_before_deletions_#{openshift_version}",
                        :match_requests_on => [:path,], :record => mode) do
-        EmsRefresh.refresh(@ems)
+        EmsRefresh.refresh(ems)
       end
     end
 
@@ -145,7 +118,7 @@ shared_examples "openshift refresher VCR tests" do
         mode = ENV['RECORD_VCR'] == 'after_deletions' ? :new_episodes : :none
         VCR.use_cassette("#{described_class.name.underscore}_after_deletions_#{openshift_version}",
                          :match_requests_on => [:path,], :record => mode) do
-          EmsRefresh.refresh(@ems)
+          EmsRefresh.refresh(ems)
         end
       end
 
@@ -195,11 +168,11 @@ shared_examples "openshift refresher VCR tests" do
       end
 
       context "with user-assigned tags before 2nd refresh" do
-        let(:extra_route_tags) { [@user_tag] }
+        let(:extra_route_tags) { [user_tag] }
 
         it "retains user tags when removing mapped tags" do
           expect(ContainerRoute.find_by(:name => "my-route-2").labels.count).to eq(0)
-          expect(ContainerRoute.find_by(:name => "my-route-2").tags).to contain_exactly(@user_tag)
+          expect(ContainerRoute.find_by(:name => "my-route-2").tags).to contain_exactly(user_tag)
         end
       end
 
@@ -223,25 +196,25 @@ shared_examples "openshift refresher VCR tests" do
     stub_settings_merge(
       :ems_refresh => {:openshift => {:store_unused_images => false}},
     )
-    normal_refresh
+    full_refresh
 
-    @ems.reload
+    ems.reload
 
     expect(ContainerImage.count).to eq(pod_images_count)
     assert_specific_used_container_image(:metadata => true)
   end
 
   it 'will not delete previously collected metadata if store_unused_images = false' do
-    normal_refresh
+    full_refresh
     stub_settings_merge(
       :ems_refresh => {:openshift => {:store_unused_images => false}},
     )
-    normal_refresh
+    full_refresh
 
-    @ems.reload
+    ems.reload
 
     # Unused images are disconnected, metadata is retained either way.
-    expect(@ems.container_images.count).to eq(pod_images_count)
+    expect(ems.container_images.count).to eq(pod_images_count)
     assert_specific_used_container_image(:metadata => true)
     assert_specific_unused_container_image(:metadata => true, :archived => true)
   end
@@ -263,7 +236,7 @@ shared_examples "openshift refresher VCR tests" do
   end
 
   def assert_ems
-    expect(@ems).to have_attributes(
+    expect(ems).to have_attributes(
       :port => 8443,
       :type => "ManageIQ::Providers::Openshift::ContainerManager"
     )
@@ -311,7 +284,7 @@ shared_examples "openshift refresher VCR tests" do
     )
 
     expect(@containergroup.container_project).to eq(ContainerProject.find_by(:name => "openshift-infra"))
-    expect(@containergroup.ext_management_system).to eq(@ems)
+    expect(@containergroup.ext_management_system).to eq(ems)
   end
 
   def assert_specific_container_node
@@ -322,7 +295,7 @@ shared_examples "openshift refresher VCR tests" do
       :lives_on_id   => nil
     )
 
-    expect(@containernode.ext_management_system).to eq(@ems)
+    expect(@containernode.ext_management_system).to eq(ems)
   end
 
   def assert_specific_container_services
@@ -334,7 +307,7 @@ shared_examples "openshift refresher VCR tests" do
     )
 
     expect(@containersrv.container_project).to eq(ContainerProject.find_by(:name => "default"))
-    expect(@containersrv.ext_management_system).to eq(@ems)
+    expect(@containersrv.ext_management_system).to eq(ems)
     expect(@containersrv.container_image_registry).to be_nil
     expect(@containersrv.container_service_port_configs.pluck(:name, :protocol, :port)).to contain_exactly(
       ["https", "TCP", 443],
@@ -369,7 +342,7 @@ shared_examples "openshift refresher VCR tests" do
     expect(@container_pr.container_services.count).to eq(1)
     expect(@container_pr.container_builds.count).to eq(1)
     expect(ContainerBuildPod.where(:namespace => @container_pr.name).count).to eq(1)
-    expect(@container_pr.ext_management_system).to eq(@ems)
+    expect(@container_pr.ext_management_system).to eq(ems)
   end
 
   def assert_specific_container_route
@@ -387,7 +360,7 @@ shared_examples "openshift refresher VCR tests" do
       :name    => "default"
     )
 
-    expect(@container_route.ext_management_system).to eq(@ems)
+    expect(@container_route.ext_management_system).to eq(ems)
   end
 
   def assert_specific_container_build
@@ -431,7 +404,7 @@ shared_examples "openshift refresher VCR tests" do
       :resource_version => "871"
     )
 
-    expect(@container_template.ext_management_system).to eq(@ems)
+    expect(@container_template.ext_management_system).to eq(ems)
     expect(@container_template.container_project).to eq(ContainerProject.find_by(:name => "openshift-infra"))
     expect(@container_template.container_template_parameters.count).to eq(4)
     expect(@container_template.container_template_parameters.find_by(:name => "NODE")).to have_attributes(
@@ -459,7 +432,7 @@ shared_examples "openshift refresher VCR tests" do
     # An image mentioned both in /pods and /images, built by openshift so it has metadata.
     @container_image = ContainerImage.find_by(:name => "python-project/python-project")
 
-    expect(@container_image.ext_management_system).to eq(@ems)
+    expect(@container_image.ext_management_system).to eq(ems)
     expect(@container_image.environment_variables.count).to eq(metadata ? 12 : 0)
     # TODO: for next recording, oc label some running, openshift-built image
     expect(@container_image.labels.count).to eq(0)
@@ -497,6 +470,28 @@ shared_examples "openshift refresher VCR tests" do
 end
 
 describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
+  include Spec::Support::EmsRefreshHelper
+
+  let(:ems) do
+    # env vars for easier VCR recording, see test_objects_record.sh
+    hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
+    token = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
+
+    FactoryBot.create(
+      :ems_openshift_with_zone,
+      :name                      => "OpenShiftProvider",
+      :connection_configurations => [{:endpoint       => {:role              => :default,
+                                                          :hostname          => hostname,
+                                                          :port              => "8443",
+                                                          :security_protocol => "ssl-without-validation"},
+                                      :authentication => {:role     => :bearer,
+                                                          :auth_key => token,
+                                                          :userid   => "_"}}]
+    )
+  end
+
+  let(:user_tag) { FactoryBot.create(:classification_cost_center_with_tags).entries.first.tag }
+
   %w[v3 v4].each do |version|
     object_counts = {
       "v3" => {
@@ -542,6 +537,164 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
           include_examples "openshift refresher VCR tests"
         end
       end
+    end
+  end
+
+  context "Targeted refresh" do
+    let(:kubeclient) { double("Kubeclient::Client") }
+    before { full_refresh }
+
+    it "doesn't impact unassociated records" do
+      namespace = Kubeclient::Resource.new(:metadata => {:name => "default", :uid => "ba04ecb4-bb98-11e6-8a18-001a4a2314d5"})
+      allow(kubeclient).to receive(:get_namespace).and_return(namespace)
+      allow(ems).to receive(:connect).and_return(kubeclient)
+
+      after_full_refresh = serialize_inventory
+      targeted_refresh(
+        %w[project route build build_config template].map do |type|
+          Kubeclient::Resource.new(:type => "MODIFIED", :object => load_watch_notice_data(type))
+        end
+      )
+      assert_inventory_not_changed(after_full_refresh, serialize_inventory)
+    end
+
+    context "projects" do
+      let(:project) { load_watch_notice_data("project") }
+      let(:new_project) { load_watch_notice_data("new_project") }
+
+      it "created" do
+        namespace = Kubeclient::Resource.new(:metadata => {:name => "new-project", :uid => "c1b261ae-ec24-425f-9e98-ed46db418364"})
+        allow(kubeclient).to receive(:get_namespace).and_return(namespace)
+        allow(ems).to receive(:connect).and_return(kubeclient)
+
+        targeted_refresh([Kubeclient::Resource.new(:type => "ADDED", :object => new_project)])
+
+        expect(ems.container_projects.pluck(:ems_ref)).to include(new_project.dig(:metadata, :uid))
+      end
+
+      it "updated" do
+        namespace = Kubeclient::Resource.new(:metadata => {:name => "default", :uid => "ba04ecb4-bb98-11e6-8a18-001a4a2314d5"})
+        allow(kubeclient).to receive(:get_namespace).and_return(namespace)
+        allow(ems).to receive(:connect).and_return(kubeclient)
+
+        project[:metadata][:annotations]['openshift.io/display-name'] = "My Default Project"
+        targeted_refresh([Kubeclient::Resource.new(:type => "MODIFIED", :object => project)])
+        expect(ems.container_projects.find_by(:ems_ref => project.dig(:metadata, :uid)).display_name).to eq("My Default Project")
+      end
+
+      it "deleted" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "DELETED", :object => project)])
+        expect(ems.container_projects.pluck(:ems_ref)).not_to include(project.dig(:metadata, :uid))
+      end
+    end
+
+    context "routes" do
+      let(:route) { load_watch_notice_data("route") }
+      let(:new_route) { load_watch_notice_data("new_route") }
+
+      it "created" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "ADDED", :object => new_route)])
+
+        expect(ems.container_routes.pluck(:ems_ref)).to include(new_route.dig(:metadata, :uid))
+      end
+
+      it "updated" do
+        route[:metadata][:name] = "java-server-updated"
+        targeted_refresh([Kubeclient::Resource.new(:type => "MODIFIED", :object => route)])
+        expect(ems.container_routes.find_by(:ems_ref => route.dig(:metadata, :uid)).name).to eq("java-server-updated")
+      end
+
+      it "deleted" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "DELETED", :object => route)])
+        expect(ems.container_routes.pluck(:ems_ref)).not_to include(route.dig(:metadata, :uid))
+      end
+    end
+
+    context "builds" do
+      let(:build) { load_watch_notice_data("build") }
+      let(:new_build) { load_watch_notice_data("new_build") }
+
+      it "created" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "ADDED", :object => new_build)])
+
+        expect(ems.container_build_pods.pluck(:ems_ref)).to include(new_build.dig(:metadata, :uid))
+      end
+
+      it "updated" do
+        build[:status][:phase] = "Failed"
+        targeted_refresh([Kubeclient::Resource.new(:type => "MODIFIED", :object => build)])
+        expect(ems.container_build_pods.find_by(:ems_ref => build.dig(:metadata, :uid)).phase).to eq("Failed")
+      end
+
+      it "deleted" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "DELETED", :object => build)])
+        expect(ems.container_build_pods.pluck(:ems_ref)).not_to include(build.dig(:metadata, :uid))
+      end
+    end
+
+    context "build_configs" do
+      let(:build_config) { load_watch_notice_data("build_config") }
+      let(:new_build_config) { load_watch_notice_data("new_build_config") }
+
+      it "created" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "ADDED", :object => new_build_config)])
+
+        expect(ems.container_builds.pluck(:ems_ref)).to include(new_build_config.dig(:metadata, :uid))
+      end
+
+      it "updated" do
+        build_config[:metadata][:name] = "python-project-updated"
+        targeted_refresh([Kubeclient::Resource.new(:type => "MODIFIED", :object => build_config)])
+        expect(ems.container_builds.find_by(:ems_ref => build_config.dig(:metadata, :uid)).name).to eq("python-project-updated")
+      end
+
+      it "deleted" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "DELETED", :object => build_config)])
+        expect(ems.container_builds.pluck(:ems_ref)).not_to include(build_config.dig(:metadata, :uid))
+      end
+    end
+
+    context "templates" do
+      let(:template) { load_watch_notice_data("template") }
+      let(:new_template) { load_watch_notice_data("new_template") }
+
+      it "created" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "ADDED", :object => new_template)])
+
+        expect(ems.container_templates.pluck(:ems_ref)).to include(new_template.dig(:metadata, :uid))
+      end
+
+      it "updated" do
+        template[:metadata][:name] = "rails-postgresql-example-updated"
+        targeted_refresh([Kubeclient::Resource.new(:type => "MODIFIED", :object => template)])
+        expect(ems.container_templates.find_by(:ems_ref => template.dig(:metadata, :uid)).name).to eq("rails-postgresql-example-updated")
+      end
+
+      it "deleted" do
+        targeted_refresh([Kubeclient::Resource.new(:type => "DELETED", :object => template)])
+        expect(ems.container_templates.pluck(:ems_ref)).not_to include(template.dig(:metadata, :uid))
+      end
+    end
+
+    def targeted_refresh(notices)
+      collector = ManageIQ::Providers::Openshift::Inventory::Collector::WatchNotice.new(ems, notices)
+      persister = ManageIQ::Providers::Openshift::Inventory::Persister::WatchNotice.new(ems, nil)
+      parser    = ManageIQ::Providers::Openshift::Inventory::Parser::WatchNotice.new
+
+      parser.collector = collector
+      parser.persister = persister
+      parser.parse
+      persister.persist!
+    end
+
+    def load_watch_notice_data(type)
+      YAML.load_file("spec/models/manageiq/providers/openshift/container_manager/watches_data/#{type}.yml")
+    end
+  end
+
+  def full_refresh
+    VCR.use_cassette(described_class.name.underscore, :match_requests_on => [:path,]) do
+      EmsRefresh.refresh(ems)
     end
   end
 end

@@ -1,0 +1,47 @@
+---
+:metadata:
+  :name: python-project
+  :namespace: python-project
+  :selfLink: "/oapi/v1/namespaces/python-project/buildconfigs/python-project"
+  :uid: 65691775-bd0c-11e6-8a18-001a4a2314d5
+  :resourceVersion: '67432'
+  :creationTimestamp: '2016-12-08T06:06:02Z'
+  :labels:
+    :app: python-project
+  :annotations:
+    :openshift.io/generated-by: OpenShiftWebConsole
+:spec:
+  :triggers:
+  - :type: Generic
+    :generic:
+      :secret: 6ad25cc41e52421f
+  - :type: GitHub
+    :github:
+      :secret: 880016f721ba227b
+  - :type: ImageChange
+    :imageChange:
+      :lastTriggeredImageID: centos/python-35-centos7@sha256:4696720a1783ebeebc0d078b5dead8d86688f959e943d486d1340b7c7d083dca
+  - :type: ConfigChange
+  :runPolicy: Serial
+  :source:
+    :type: Git
+    :git:
+      :uri: https://github.com/openshift/django-ex.git
+      :ref: master
+  :strategy:
+    :type: Source
+    :sourceStrategy:
+      :from:
+        :kind: ImageStreamTag
+        :namespace: openshift
+        :name: python:3.5
+  :output:
+    :to:
+      :kind: ImageStreamTag
+      :name: python-project:latest
+  :resources: {}
+  :postCommit: {}
+:status:
+  :lastVersion: 1
+:kind: BuildConfig
+:apiVersion: v1

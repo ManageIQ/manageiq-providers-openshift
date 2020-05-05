@@ -1,0 +1,20 @@
+---
+:metadata:
+  :name: default
+  :selfLink: "/oapi/v1/projects/default"
+  :uid: ba04ecb4-bb98-11e6-8a18-001a4a2314d5
+  :resourceVersion: '592'
+  :creationTimestamp: '2016-12-06T09:45:31Z'
+  :annotations:
+    :openshift.io/node-selector: ''
+    :openshift.io/sa.scc.mcs: s0:c3,c2
+    :openshift.io/sa.scc.supplemental-groups: 1000010000/10000
+    :openshift.io/sa.scc.uid-range: 1000010000/10000
+:spec:
+  :finalizers:
+  - kubernetes
+  - openshift.io/origin
+:status:
+  :phase: Active
+:kind: Project
+:apiVersion: v1
