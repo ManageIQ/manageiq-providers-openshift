@@ -1,5 +1,5 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Collector::WatchNotice
-  attr_reader :build_configs, :builds, :routes, :templates
+  attr_reader :build_configs, :builds, :routes, :templates, :images
 
   def initialize_collections!
     super
@@ -9,6 +9,7 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::WatchNotice < Manage
     @projects = []
     @routes = []
     @templates = []
+    @images = []
   end
 
   def namespaces_by_name

@@ -4,6 +4,6 @@ class ManageIQ::Providers::Openshift::ContainerManager::RefreshWorker::Runner < 
   end
 
   def openshift_entity_types
-    %w[projects routes build_configs builds templates]
+    %w[projects routes build_configs builds templates images]
   end
 end

@@ -551,7 +551,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
 
       after_full_refresh = serialize_inventory
       targeted_refresh(
-        %w[project route build build_config template].map do |type|
+        %w[project route build build_config template image].map do |type|
           Kubeclient::Resource.new(:type => "MODIFIED", :object => load_watch_notice_data(type))
         end
       )
