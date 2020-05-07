@@ -1,0 +1,31 @@
+---
+:metadata:
+  :name: java-server
+  :namespace: java-server
+  :selfLink: "/oapi/v1/namespaces/java-server/routes/java-server"
+  :uid: 4bf07cb3-bd0c-11e6-8a18-001a4a2314d5
+  :resourceVersion: '67368'
+  :creationTimestamp: '2016-12-08T06:05:19Z'
+  :labels:
+    :app: java-server
+  :annotations:
+    :openshift.io/generated-by: OpenShiftWebConsole
+    :openshift.io/host.generated: 'true'
+:spec:
+  :host: java-server-java-server.router.default.svc.cluster.local
+  :to:
+    :kind: Service
+    :name: java-server
+    :weight: 100
+  :port:
+    :targetPort: 8080-tcp
+:status:
+  :ingress:
+  - :host: java-server-java-server.router.default.svc.cluster.local
+    :routerName: router
+    :conditions:
+    - :type: Admitted
+      :status: 'True'
+      :lastTransitionTime: '2016-12-08T06:05:19Z'
+:kind: Route
+:apiVersion: v1

@@ -45,6 +45,24 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
       options = {:path => "/apis/#{api_group}", :version => api_version}.merge(options)
       kubernetes_connect(hostname, port, options)
     end
+
+    def api_group_for_kind(kind)
+      # TODO: is there a more general way of detecting this?
+      case kind
+      when "BuildConfig", "Build"
+        "build.openshift.io"
+      when "DeploymentConfig"
+        "apps.openshift.io"
+      when "Image"
+        "image.openshift.io"
+      when "Project"
+        "project.openshift.io"
+      when "Route"
+        "route.openshift.io"
+      when "Template"
+        "template.openshift.io"
+      end
+    end
   end
 
   def connect_client(kind, api_version, method_name)
@@ -54,7 +72,7 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
       @clients[api_version] ||= connect(:service => 'kubernetes', :version => version, :path => '/apis/' + api)
     else
       # If we're given an OpenShift object lookup its v4 API Group
-      api_group = api_group_for_kind(kind)
+      api_group = self.class.api_group_for_kind(kind)
       path      = api_group ? "/apps/#{api_group}" : "/oapi"
 
       openshift_client_key  = File.join(path, api_version)
@@ -76,23 +94,5 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
 
   def external_logging_path
     '/'
-  end
-
-  def api_group_for_kind(kind)
-    # TODO: is there a more general way of detecting this?
-    case kind
-    when "BuildConfig", "Build"
-      "build.openshift.io"
-    when "DeploymentConfig"
-      "apps.openshift.io"
-    when "Image"
-      "image.openshift.io"
-    when "Project"
-      "project.openshift.io"
-    when "Route"
-      "route.openshift.io"
-    when "Template"
-      "template.openshift.io"
-    end
   end
 end

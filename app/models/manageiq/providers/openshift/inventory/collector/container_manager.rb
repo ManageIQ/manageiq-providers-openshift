@@ -5,6 +5,10 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < M
     @routes ||= fetch_entity(openshift_connection("route.openshift.io"), "routes")
   end
 
+  def namespaces_by_name
+    @namespaces_by_name ||= namespaces.index_by { |ns| ns.metadata.name }
+  end
+
   def projects
     @projects ||= fetch_entity(openshift_connection("project.openshift.io"), "projects")
   end
