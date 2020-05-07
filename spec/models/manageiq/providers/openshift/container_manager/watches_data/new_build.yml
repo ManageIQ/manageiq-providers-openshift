@@ -1,0 +1,63 @@
+---
+:metadata:
+  :name: go-project-1
+  :namespace: default
+  :selfLink: "/oapi/v1/namespaces/default/builds/go-project-1"
+  :uid: 8a599447-ce2e-4990-8495-3f3fbfa754cc
+  :resourceVersion: '67661'
+  :creationTimestamp: '2016-12-08T06:06:02Z'
+  :labels:
+    :app: go-project
+    :buildconfig: go-project
+    :openshift.io/build-config.name: go-project
+    :openshift.io/build.start-policy: Serial
+  :annotations:
+    :openshift.io/build-config.name: go-project
+    :openshift.io/build.number: '1'
+    :openshift.io/build.pod-name: go-project-1-build
+:spec:
+  :serviceAccount: builder
+  :source:
+    :type: Git
+    :git:
+      :uri: https://github.com/openshift/django-ex.git
+      :ref: master
+  :revision:
+    :type: Git
+    :git:
+      :commit: b7ce64258655354e2e26caa7ebc28eb58b02a27d
+      :author:
+        :name: Ben Parees
+        :email: bparees@users.noreply.github.com
+      :committer:
+        :name: GitHub
+        :email: noreply@github.com
+      :message: 'Merge pull request #68 from coreydaley/github_12043_origin_image_test_failure'
+  :strategy:
+    :type: Source
+    :sourceStrategy:
+      :from:
+        :kind: DockerImage
+        :name: centos/python-35-centos7@sha256:4696720a1783ebeebc0d078b5dead8d86688f959e943d486d1340b7c7d083dca
+  :output:
+    :to:
+      :kind: ImageStreamTag
+      :name: python-project:latest
+    :pushSecret:
+      :name: builder-dockercfg-bp9hh
+  :resources: {}
+  :postCommit: {}
+  :triggeredBy:
+  - :message: Build configuration change
+:status:
+  :phase: Complete
+  :startTimestamp: '2016-12-08T06:06:09Z'
+  :completionTimestamp: '2016-12-08T06:15:01Z'
+  :duration: 532000000000
+  :outputDockerImageReference: 172.30.190.81:5000/python-project/python-project:latest
+  :config:
+    :kind: BuildConfig
+    :namespace: default
+    :name: go-project
+:kind: Build
+:apiVersion: v1
