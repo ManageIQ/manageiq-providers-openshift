@@ -84,6 +84,17 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
   end
 
+  OPENSHIFT_ROUTES = {
+    "hawkular"          => %w[hawkular-metrics openshift-infra],
+    "prometheus"        => %w[prometheus openshift-metrics],
+    "prometheus_alerts" => %w[alerts openshift-metrics]
+  }.freeze
+
+  def hostname_for_service(service_type)
+    routes = connect(:service => "openshift", :api_group => "route.openshift.io")
+    routes.get_route(*OPENSHIFT_ROUTES[service_type])&.spec&.host
+  end
+
   def external_logging_route_name
     DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME
   end
