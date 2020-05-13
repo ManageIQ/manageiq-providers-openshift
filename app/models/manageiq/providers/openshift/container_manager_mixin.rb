@@ -84,15 +84,44 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
   end
 
-  OPENSHIFT_ROUTES = {
-    "hawkular"          => %w[hawkular-metrics openshift-infra],
-    "prometheus"        => %w[prometheus openshift-metrics],
-    "prometheus_alerts" => %w[alerts openshift-metrics]
-  }.freeze
+  def openshift_version
+    @openshift_version ||= begin
+      version = begin
+        self.class.openshift_v3_connect(address, port, connect_options)
+        "v3"
+      rescue Kubeclient::ResourceNotFoundError
+        nil
+      end
+
+      version ||= begin
+        self.class.openshift_v4_connect(address, port, connect_options)
+        "v4"
+      rescue Kubeclient::ResourceNotFoundError
+        nil
+      end
+
+      version
+    end
+  end
 
   def hostname_for_service(service_type)
+    openshift_route_and_project = {
+      "v3" => {
+        "hawkular"          => %w[hawkular-metrics openshift-infra],
+        "prometheus"        => %w[prometheus openshift-metrics],
+        "prometheus_alerts" => %w[alerts openshift-metrics]
+      },
+      "v4" => {
+        "prometheus"        => %w[prometheus-k8s openshift-monitoring],
+        "prometheus_alerts" => %w[alertmanager-main openshift-monitoring]
+      }
+    }
+
+    route_name, project_name = openshift_route_and_project[openshift_version][service_type]
+    return if route_name.nil?
+
     routes = connect(:service => "openshift", :api_group => "route.openshift.io")
-    routes.get_route(*OPENSHIFT_ROUTES[service_type])&.spec&.host
+    routes.get_route(route_name, project_name)&.spec&.host
   end
 
   def external_logging_route_name
