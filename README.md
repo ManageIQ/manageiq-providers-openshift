@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.com/ManageIQ/manageiq-providers-openshift.svg?branch=master)](https://travis-ci.com/ManageIQ/manageiq-providers-openshift)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift.svg)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift)
 [![Test Coverage](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/coverage)
-[![Dependency Status](https://gemnasium.com/ManageIQ/manageiq-providers-openshift.svg)](https://gemnasium.com/ManageIQ/manageiq-providers-openshift)
 [![Security](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/master.svg)](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/master)
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/manageiq-providers-openshift?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
