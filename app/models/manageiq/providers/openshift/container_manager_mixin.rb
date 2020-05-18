@@ -112,8 +112,7 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
         "prometheus_alerts" => %w[alerts openshift-metrics]
       },
       "v4" => {
-        "prometheus"        => %w[prometheus-k8s openshift-monitoring],
-        "prometheus_alerts" => %w[alertmanager-main openshift-monitoring]
+        "prometheus" => %w[prometheus-k8s openshift-monitoring],
       }
     }
 
