@@ -1,5 +1,9 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Collector::ContainerManager
-  attr_reader :version
+  def clusterversion
+    @clusterversion ||= begin
+      openshift_connection("config.openshift.io/v1").get_cluster_version("version") if openshift_version == "v4"
+    end
+  end
 
   def routes
     @routes ||= fetch_entity(openshift_connection("route.openshift.io/v1"), "routes")
@@ -32,26 +36,31 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < M
   private
 
   def openshift_connection(group)
-    detect_openshift_version! if version.nil?
-    send("openshift_connection_#{version}", group)
+    send("openshift_connection_#{openshift_version}", group)
+  end
+
+  def openshift_version
+    @openshift_version ||= detect_openshift_version!
   end
 
   def detect_openshift_version!
-    @version = begin
+    version = begin
       openshift_connection_v3
       "v3"
     rescue Kubeclient::ResourceNotFoundError
       nil
     end
 
-    @version ||= begin
+    version ||= begin
       openshift_connection_v4("project.openshift.io/v1")
       "v4"
     rescue Kubeclient::ResourceNotFoundError
       nil
     end
 
-    raise "Failed to detect OpenShift version" if @version.nil?
+    raise "Failed to detect OpenShift version" if version.nil?
+
+    version
   end
 
   def openshift_connection_v3(_group = nil)

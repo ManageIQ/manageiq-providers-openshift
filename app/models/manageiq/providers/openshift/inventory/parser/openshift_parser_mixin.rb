@@ -18,6 +18,20 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
     end
   end
 
+  def clusterversion
+    version = collector.clusterversion
+    return if version.nil?
+
+    api_version = version.status.desired.version
+    cluster_id  = version.spec.clusterID
+
+    persister.ext_management_system.build(
+      :guid        => collector.manager.guid,
+      :api_version => api_version,
+      :uid_ems     => cluster_id,
+    )
+  end
+
   def projects
     collector.projects.each do |project|
       parse_project(project)

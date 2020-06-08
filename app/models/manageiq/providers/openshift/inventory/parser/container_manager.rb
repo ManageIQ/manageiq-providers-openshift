@@ -4,6 +4,7 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < Mana
   def ems_inv_populate_collections
     super
 
+    clusterversion
     projects
     routes
     builds
