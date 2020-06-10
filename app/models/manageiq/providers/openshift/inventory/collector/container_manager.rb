@@ -44,23 +44,21 @@ class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < M
   end
 
   def detect_openshift_version!
-    version = begin
+    begin
       openshift_connection_v3
-      "v3"
+      return "v3"
     rescue Kubeclient::ResourceNotFoundError
       nil
     end
 
-    version ||= begin
+    begin
       openshift_connection_v4("project.openshift.io/v1")
-      "v4"
+      return "v4"
     rescue Kubeclient::ResourceNotFoundError
       nil
     end
 
-    raise "Failed to detect OpenShift version" if version.nil?
-
-    version
+    raise "Failed to detect OpenShift version"
   end
 
   def openshift_connection_v3(_group = nil)
