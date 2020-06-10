@@ -2,8 +2,6 @@ class ManageIQ::Providers::Openshift::Inventory::Persister::WatchNotice < Manage
   def initialize_inventory_collections
     super
 
-    add_collection(container, :ext_management_system)
-
     # get_container_images=false mode is a stopgap to speed up refresh by reducing functionality.
     # Skipping these InventoryCollections (instead of returning empty ones)
     # to at least retain existing metadata if it was true and is now false.
