@@ -4,7 +4,6 @@ class ManageIQ::Providers::Openshift::Inventory::Parser::WatchNotice < ManageIQ:
   def parse
     super
 
-    clusterversion
     projects
     routes
     builds

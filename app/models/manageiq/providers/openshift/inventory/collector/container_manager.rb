@@ -1,8 +1,21 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Collector::ContainerManager
-  def clusterversion
-    @clusterversion ||= begin
-      openshift_connection("config.openshift.io/v1").get_cluster_version("version") if openshift_version == "v4"
+  def api_version
+    @api_version ||= begin
+      if openshift_version == "v3"
+        version = JSON.parse(openshift_connection_v3.create_rest_client("/version/openshift").get.body)
+        version["gitVersion"].match(/(\d+\.?)+/)[0]
+      else
+        clusterversion.status.desired.version
+      end
     end
+  end
+
+  def cluster_id
+    @cluster_id ||= clusterversion.spec.clusterID if openshift_version != "v3"
+  end
+
+  def clusterversion
+    @clusterversion ||= openshift_connection_v4("config.openshift.io/v1").get_cluster_version("version") if openshift_version == "v4"
   end
 
   def routes
