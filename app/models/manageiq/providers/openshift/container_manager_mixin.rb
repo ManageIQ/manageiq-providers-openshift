@@ -6,22 +6,7 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
   DEFAULT_PORT = 8443
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
-  # This is the API version that we use and support throughout the entire code
-  # (parsers, events, etc.). It should be explicitly selected here and not
-  # decided by the user nor out of control in the defaults of openshift gem
-  # because it's not guaranteed that the next default version will work with
-  # our specific code in ManageIQ.
-  delegate :api_version, :to => :class
-
-  def api_version=(_value)
-    raise 'OpenShift api_version cannot be modified'
-  end
-
   class_methods do
-    def api_version
-      'v1'
-    end
-
     def raw_connect(hostname, port, options)
       options[:service] ||= "openshift"
       send("#{options[:service]}_connect", hostname, port, options)
@@ -36,13 +21,15 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
 
     def openshift_v3_connect(hostname, port, options)
-      options = {:path => '/oapi', :version => api_version}.merge(options)
+      options = {:path => '/oapi', :version => "v1"}.merge(options)
       kubernetes_connect(hostname, port, options)
     end
 
     def openshift_v4_connect(hostname, port, options)
-      api_group = options[:api_group] || "apps.openshift.io"
-      options = {:path => "/apis/#{api_group}", :version => api_version}.merge(options)
+      api_group = options[:api_group] || "apps.openshift.io/v1"
+      api_path, api_version = api_group.split("/")
+
+      options = {:path => "/apis/#{api_path}", :version => api_version}.merge(options)
       kubernetes_connect(hostname, port, options)
     end
 
@@ -50,17 +37,17 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
       # TODO: is there a more general way of detecting this?
       case kind
       when "BuildConfig", "Build"
-        "build.openshift.io"
+        "build.openshift.io/v1"
       when "DeploymentConfig"
-        "apps.openshift.io"
+        "apps.openshift.io/v1"
       when "Image"
-        "image.openshift.io"
+        "image.openshift.io/v1"
       when "Project"
-        "project.openshift.io"
+        "project.openshift.io/v1"
       when "Route"
-        "route.openshift.io"
+        "route.openshift.io/v1"
       when "Template"
-        "template.openshift.io"
+        "template.openshift.io/v1"
       end
     end
   end
@@ -119,7 +106,7 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     route_name, project_name = openshift_route_and_project[openshift_version][service_type]
     return if route_name.nil?
 
-    routes = connect(:service => "openshift", :api_group => "route.openshift.io")
+    routes = connect(:service => "openshift", :api_group => "route.openshift.io/v1")
     routes.get_route(route_name, project_name)&.spec&.host
   end
 

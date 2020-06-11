@@ -37,7 +37,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   end
 
   def create_project(project)
-    connect(:api_group => "project.openshift.io").create_project_request(project)
+    connect(:api_group => "project.openshift.io/v1").create_project_request(project)
   rescue KubeException => e
     raise MiqException::MiqProvisionError, "Unexpected Exception while creating project: #{e}"
   end

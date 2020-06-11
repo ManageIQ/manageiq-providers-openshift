@@ -9,6 +9,8 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
   if which minishift && minishift status | grep -i 'openshift:.*running'; then
     OPENSHIFT_MASTER_HOST="$(minishift ip)"
     export OPENSHIFT_MASTER_HOST
+    OPENSHIFT_MASTER_PORT="8443"
+    export OPENSHIFT_MASTER_PORT
     eval $(minishift oc-env --shell bash) # Ensure oc in PATH
     oc login -u system:admin # With minishift, we know we can just do this
 
@@ -17,6 +19,8 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
   elif which crc && crc status | grep -i 'crc vm:.*running'; then
     OPENSHIFT_MASTER_HOST="$(crc ip)"
     export OPENSHIFT_MASTER_HOST
+    OPENSHIFT_MASTER_PORT="6443"
+    export OPENSHIFT_MASTER_PORT
     eval $(crc oc-env --shell bash)
 
     kubeadmin_password=$(<~/.crc/cache/crc_libvirt_*/kubeadmin-password)
