@@ -18,7 +18,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate < Mana
   def instantiate(params, project = nil, labels = nil)
     project ||= container_project.name
     labels  ||= object_labels
-    processed_template = process_template(ext_management_system.connect(:api_group => "template.openshift.io"),
+    processed_template = process_template(ext_management_system.connect(:api_group => "template.openshift.io/v1"),
                                           :metadata   => {
                                             :name      => name,
                                             :namespace => project
