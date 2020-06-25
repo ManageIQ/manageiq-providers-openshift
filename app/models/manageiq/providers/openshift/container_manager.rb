@@ -36,6 +36,14 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
     DEFAULT_PORT
   end
 
+  def v3?
+    api_version.to_s =~ /3\..*/
+  end
+
+  def v4?
+    api_version.to_s =~ /4\..*/
+  end
+
   def create_project(project)
     connect(:api_group => "project.openshift.io/v1").create_project_request(project)
   rescue KubeException => e

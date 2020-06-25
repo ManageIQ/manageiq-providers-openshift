@@ -3,6 +3,8 @@ autoload(:KubeException, 'kubeclient')
 class ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate < ManageIQ::Providers::ContainerManager::ContainerTemplate
   include ManageIQ::Providers::Kubernetes::ContainerManager::EntitiesMapping
 
+  supports :instantiate
+
   def instantiate(params, project = nil, labels = nil)
     project ||= container_project.name
     labels  ||= object_labels
