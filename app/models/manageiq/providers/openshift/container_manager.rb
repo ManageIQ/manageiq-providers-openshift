@@ -37,11 +37,11 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Co
   end
 
   def v3?
-    api_version.to_s =~ /3\..*/
+    api_version.to_s.split(".").first == "3"
   end
 
   def v4?
-    api_version.to_s =~ /4\..*/
+    api_version.to_s.split(".").first == "4"
   end
 
   def create_project(project)
