@@ -1,18 +1,19 @@
+---
 apiVersion: v1
 kind: Template
 metadata:
   name: template-test
   annotations:
-    description: "Description"
-    iconClass: "Icon"
-    tags: "database,nosql"
+    description: Description
+    iconClass: Icon
+    tags: database,nosql
 objects:
 - apiVersion: v1
   kind: Pod
   metadata:
     name: my-pod-${INDEX}
     labels:
-      key-pod-label: "value-pod-label"
+      key-pod-label: value-pod-label
   spec:
     containers:
     - env:
@@ -24,10 +25,10 @@ objects:
       securityContext:
         privileged: true
         seLinuxOptions:
-          level: "s0:c123,c456"
-          user: "username"
-          role: "admin"
-          type: "default"
+          level: s0:c123,c456
+          user: username
+          role: admin
+          type: default
     volumes:
     - name: my-pvc-pod-volume-${INDEX}
       persistentVolumeClaim:
@@ -37,7 +38,7 @@ objects:
   metadata:
     name: my-route-${INDEX}
     labels:
-      key-route-label: "value-route-label"
+      key-route-label: value-route-label
   spec:
     to:
       kind: Service
@@ -77,73 +78,71 @@ objects:
       protocol: TCP
       targetPort: 5000
 - apiVersion: v1
-  kind: "BuildConfig"
+  kind: BuildConfig
   metadata:
     name: my-build-config-${INDEX}
   spec:
-    runPolicy: "Serial"
+    runPolicy: Serial
     triggers:
-      -
-        type: "GitHub"
-        github:
-          secret: "secret101"
-      - type: "Generic"
-        generic:
-          secret: "secret101"
-      -
-        type: "ImageChange"
+    - type: GitHub
+      github:
+        secret: secret101
+    - type: Generic
+      generic:
+        secret: secret101
+    - type: ImageChange
     source:
       git:
-        uri: "https://github.com/openshift/ruby-hello-world"
+        uri: https://github.com/openshift/ruby-hello-world
     strategy:
       sourceStrategy:
         from:
-          kind: "DockerImage"
-          name: "centos/ruby-25-centos7:latest"
+          kind: DockerImage
+          name: centos/ruby-25-centos7:latest
     output:
       to:
-        kind: "ImageStreamTag"
-        name: "origin-ruby-sample:latest"
+        kind: ImageStreamTag
+        name: origin-ruby-sample:latest
     postCommit:
-        script: "bundle exec rake test"
+      script: bundle exec rake test
 - apiVersion: v1
-  kind: "ImageStream"
+  kind: ImageStream
   metadata:
-    creationTimestamp: 2017-07-16T16:14:06Z
+    creationTimestamp: 2017-07-16 16:14:06.000000000 Z
     generation: 1
     name: origin-ruby-sample
     namespace: my-project-3
-    resourceVersion: "8327"
-    selfLink: /oapi/v1/namespaces/my-project-3/imagestreams/origin-ruby-sample
+    resourceVersion: '8327'
+    selfLink: "/oapi/v1/namespaces/my-project-3/imagestreams/origin-ruby-sample"
     uid: caaf466d-6a41-11e7-b2e6-001a4a1626e8
-- apiVersion: "v1"
-  kind: "LimitRange"
+- apiVersion: v1
+  kind: LimitRange
   metadata:
     name: my-limit-range-${INDEX}
   spec:
     limits:
-      - type: "Pod"
-        max:
-          cpu: "2"
-          memory: "2Gi"
-        min:
-          cpu: "200m"
-          memory: "6Mi"
-      - type: "Container"
-        max:
-          cpu: "2"
-          memory: "2Gi"
-        min:
-          cpu: "100m"
-          memory: "4Mi"
-        default:
-          cpu: "300m"
-          memory: "600Mi"
-        defaultRequest:
-          cpu: "200m"
-          memory: "600Mi"
-        maxLimitRequestRatio:
-          cpu: "10"
+    - type: Pod
+      max:
+        cpu: '2'
+        memory: 2Gi
+      min:
+        cpu: 200m
+        memory: 6Mi
+    - type: Container
+      max:
+        cpu: '2'
+        memory: 2Gi
+      min:
+        cpu: 100m
+        memory: 4Mi
+      default:
+        cpu: 300m
+        memory: 600Mi
+      defaultRequest:
+        cpu: 200m
+        memory: 600Mi
+      maxLimitRequestRatio:
+        cpu: '10'
 - apiVersion: v1
   kind: ReplicationController
   metadata:
@@ -168,9 +167,9 @@ objects:
   metadata:
     name: my-template-${INDEX}
     annotations:
-      description: "Description"
-      iconClass: "icon"
-      tags: "database,nosql"
+      description: Description
+      iconClass: icon
+      tags: database,nosql
   objects:
   - apiVersion: v1
     kind: PersistentVolumeClaim
@@ -178,7 +177,7 @@ objects:
       name: my-persistentvolumeclaim-in-my-template-${INDEX}
     spec:
       accessModes:
-        - ReadWriteOnce
+      - ReadWriteOnce
       resources:
         requests:
           storage: 8Gi
@@ -196,7 +195,7 @@ objects:
     capacity:
       storage: 10Mi
     accessModes:
-      - ReadWriteOnce
+    - ReadWriteOnce
     hostPath:
       path: "/tmp/my-persistentvolume-${INDEX}"
 - apiVersion: v1
@@ -205,7 +204,7 @@ objects:
     name: my-persistentvolumeclaim-${INDEX}
   spec:
     accessModes:
-      - ReadWriteOnce
+    - ReadWriteOnce
     resources:
       requests:
         storage: 8Mi
@@ -219,7 +218,7 @@ objects:
     name: my-persistentvolumeclaim-pending-${INDEX}
   spec:
     accessModes:
-      - ReadWriteOnce
+    - ReadWriteOnce
     resources:
       requests:
         storage: 8Mi
@@ -230,11 +229,11 @@ objects:
     name: my-resource-quota-${INDEX}
   spec:
     hard:
-      configmaps: "10"
-      persistentvolumeclaims: "4"
-      replicationcontrollers: "20"
-      secrets: "10"
-      services: "10"
+      configmaps: '10'
+      persistentvolumeclaims: '4'
+      replicationcontrollers: '20'
+      secrets: '10'
+      services: '10'
 - apiVersion: v1
   kind: ResourceQuota
   metadata:
@@ -243,8 +242,8 @@ objects:
     scopes:
     - NotTerminating
     hard:
-      pods: "6"
-      requests.cpu: "10.3"
+      pods: '6'
+      requests.cpu: '10.3'
 - apiVersion: v1
   kind: ResourceQuota
   metadata:
@@ -254,9 +253,9 @@ objects:
     - Terminating
     - NotBestEffort
     hard:
-      pods: "3"
-      requests.cpu: "5.7"
-      requests.memory: "16384Mi"
+      pods: '3'
+      requests.cpu: '5.7'
+      requests.memory: 16384Mi
 parameters:
 - name: INDEX
-  value: "0"
+  value: '0'
