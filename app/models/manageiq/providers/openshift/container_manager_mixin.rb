@@ -13,10 +13,15 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
     end
 
     def openshift_connect(hostname, port, options)
-      # First attempt to connect to the /oapi endpoint and if that fails with
-      # a ResourceNotFoundError attempt to connect to /apis/...
-      openshift_v3_connect(hostname, port, options)
-    rescue Kubeclient::ResourceNotFoundError
+      major_version = options[:api_version]&.split(".")&.first
+
+      begin
+        # First attempt to connect to the /oapi endpoint and if that fails with
+        # a ResourceNotFoundError attempt to connect to /apis/...
+        return openshift_v3_connect(hostname, port, options) if major_version.nil? || major_version == "3"
+      rescue Kubeclient::ResourceNotFoundError
+      end
+
       openshift_v4_connect(hostname, port, options)
     end
 
@@ -50,6 +55,10 @@ module ManageIQ::Providers::Openshift::ContainerManagerMixin
         "template.openshift.io/v1"
       end
     end
+  end
+
+  def connect_options(options = {})
+    super.tap { |opts| opts[:api_version] ||= api_version.presence }
   end
 
   def connect_client(kind, api_version, method_name)
