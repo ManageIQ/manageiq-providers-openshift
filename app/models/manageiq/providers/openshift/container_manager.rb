@@ -2,6 +2,9 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   DEFAULT_PORT = 8443
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
+  require_nested :Container
+  require_nested :ContainerGroup
+  require_nested :ContainerNode
   require_nested :ContainerImage
   require_nested :ContainerTemplate
   require_nested :EventCatcher
