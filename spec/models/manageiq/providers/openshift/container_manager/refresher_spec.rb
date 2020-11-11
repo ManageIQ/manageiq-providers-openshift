@@ -245,6 +245,7 @@ shared_examples "openshift refresher VCR tests" do
   def assert_specific_container
     @container = Container.find_by(:name => "deployer")
     expect(@container).to have_attributes(
+      :type          => "ManageIQ::Providers::Kubernetes::ContainerManager::Container",
       :name          => "deployer",
       :restart_count => 0,
     )
@@ -267,6 +268,7 @@ shared_examples "openshift refresher VCR tests" do
   def assert_specific_container_group
     @containergroup = ContainerGroup.find_by(:name => "metrics-deployer-frcf1")
     expect(@containergroup).to have_attributes(
+      :type           => "ManageIQ::Providers::Kubernetes::ContainerManager::ContainerGroup",
       :name           => "metrics-deployer-frcf1",
       :restart_policy => "Never",
       :dns_policy     => "ClusterFirst",
