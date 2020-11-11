@@ -1,3 +1,2 @@
-module ManageIQ::Providers::Openshift::ContainerManager::EventParser
-  include ManageIQ::Providers::Kubernetes::ContainerManager::EventParserMixin
+class ManageIQ::Providers::Openshift::ContainerManager::EventParser < ManageIQ::Providers::Kubernetes::ContainerManager::EventParser
 end

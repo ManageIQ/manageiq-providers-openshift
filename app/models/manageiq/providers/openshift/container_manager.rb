@@ -1,6 +1,4 @@
-class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::ContainerManager
-  include ManageIQ::Providers::Kubernetes::ContainerManagerMixin
-
+class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Kubernetes::ContainerManager
   DEFAULT_PORT = 8443
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
