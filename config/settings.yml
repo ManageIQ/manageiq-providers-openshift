@@ -4,6 +4,8 @@
     :blacklisted_event_names: []
     :event_handling:
       :event_groups:
+:hawkular_tenant_labels:
+  :_hawkular_admin: Hawkular Admin
 :http_proxy:
   :openshift:
     :host:
