@@ -1,7 +1,6 @@
 module ManageIQ::Providers
-  class Openshift::MonitoringManager < ManageIQ::Providers::MonitoringManager
+  class Openshift::MonitoringManager < ManageIQ::Providers::Kubernetes::MonitoringManager
     require_nested :EventCatcher
-    include ManageIQ::Providers::Kubernetes::MonitoringManagerMixin
 
     belongs_to :parent_manager,
                :foreign_key => :parent_ems_id,
