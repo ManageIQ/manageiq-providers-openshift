@@ -1,4 +1,6 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Collector::ContainerManager
+  require_nested :WatchNotice
+
   def api_version
     @api_version ||= begin
       if openshift_version == "v3"

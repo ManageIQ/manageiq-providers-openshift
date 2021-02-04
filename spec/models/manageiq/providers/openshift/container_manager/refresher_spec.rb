@@ -681,9 +681,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     end
 
     def targeted_refresh(notices)
-      collector = ManageIQ::Providers::Openshift::Inventory::Collector::WatchNotice.new(ems, notices)
-      persister = ManageIQ::Providers::Openshift::Inventory::Persister::WatchNotice.new(ems, nil)
-      parser    = ManageIQ::Providers::Openshift::Inventory::Parser::WatchNotice.new
+      collector = ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager::WatchNotice.new(ems, notices)
+      persister = ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager::WatchNotice.new(ems, nil)
+      parser    = ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager::WatchNotice.new
 
       parser.collector = collector
       parser.persister = persister

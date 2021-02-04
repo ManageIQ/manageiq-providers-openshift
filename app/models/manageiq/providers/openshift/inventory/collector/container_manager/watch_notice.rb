@@ -1,4 +1,4 @@
-class ManageIQ::Providers::Openshift::Inventory::Collector::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Collector::WatchNotice
+class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Collector::ContainerManager::WatchNotice
   attr_reader :build_configs, :builds, :clusterversion, :routes, :templates, :images
 
   def initialize_collections!

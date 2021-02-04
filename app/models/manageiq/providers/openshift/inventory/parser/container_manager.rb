@@ -1,4 +1,6 @@
 class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Parser::ContainerManager
+  require_nested :WatchNotice
+
   include ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
 
   def ems_inv_populate_collections
