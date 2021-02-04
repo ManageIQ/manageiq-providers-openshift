@@ -1,4 +1,4 @@
-class ManageIQ::Providers::Openshift::Inventory::Persister::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Persister::WatchNotice
+class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Persister::ContainerManager::WatchNotice
   def initialize_inventory_collections
     super
 

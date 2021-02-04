@@ -1,4 +1,4 @@
-class ManageIQ::Providers::Openshift::Inventory::Parser::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Parser::WatchNotice
+class ManageIQ::Providers::Openshift::Inventory::Parser::ContainerManager::WatchNotice < ManageIQ::Providers::Kubernetes::Inventory::Parser::ContainerManager::WatchNotice
   include ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
 
   def parse
