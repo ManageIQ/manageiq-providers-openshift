@@ -22,14 +22,13 @@
     :get_container_images: true
     :store_unused_images: true
 :workers:
-  :worker_base:
-    :event_catcher:
-      :event_catcher_openshift:
-        :poll: 1.seconds
-      :event_catcher_prometheus:
-        :poll: 20.seconds
-    :queue_worker_base:
-        :ems_metrics_collector_worker:
-          :ems_metrics_collector_worker_openshift: {}
-        :ems_refresh_worker:
-          :ems_refresh_worker_openshift: {}
+  :ems_metrics_collector_worker_openshift:
+    :inherits_from: ems_metrics_collector_worker
+  :ems_refresh_worker_openshift:
+    :inherits_from: ems_refresh_worker
+  :event_catcher_openshift:
+    :inherits_from: event_catcher
+    :poll: 1.seconds
+  :event_catcher_prometheus:
+    :inherits_from: event_catcher
+    :poll: 20.seconds
