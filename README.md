@@ -1,9 +1,9 @@
 # ManageIQ::Providers::Openshift
 
-[![Build Status](https://travis-ci.com/ManageIQ/manageiq-providers-openshift.svg?branch=master)](https://travis-ci.com/ManageIQ/manageiq-providers-openshift)
+[![Build Status](https://travis-ci.com/ManageIQ/manageiq-providers-openshift.svg?branch=lasker)](https://travis-ci.com/ManageIQ/manageiq-providers-openshift)
 [![Maintainability](https://api.codeclimate.com/v1/badges/6ec4be4bc1d54502b47b/maintainability)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6ec4be4bc1d54502b47b/test_coverage)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/test_coverage)
-[![Security](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/master.svg)](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/master)
+[![Security](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/lasker.svg)](https://hakiri.io/github/ManageIQ/manageiq-providers-openshift/lasker)
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/manageiq-providers-openshift?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
