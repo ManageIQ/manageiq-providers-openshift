@@ -1,3 +1,5 @@
+ManageIQ::Providers::Kubernetes::MonitoringManager.include(ActsAsStiLeafClass)
+
 module ManageIQ::Providers
   class Openshift::MonitoringManager < ManageIQ::Providers::Kubernetes::MonitoringManager
     require_nested :EventCatcher
