@@ -12,4 +12,9 @@ require "manageiq-providers-openshift"
 VCR.configure do |config|
   config.ignore_hosts 'codeclimate.com' if ENV['CI']
   config.cassette_library_dir = File.join(ManageIQ::Providers::Openshift::Engine.root, 'spec/vcr_cassettes')
+
+  secrets = Rails.application.secrets
+  secrets.openshift.each_key do |secret|
+    config.define_cassette_placeholder(secrets.openshift_defaults[secret]) { secrets.openshift[secret] }
+  end
 end
