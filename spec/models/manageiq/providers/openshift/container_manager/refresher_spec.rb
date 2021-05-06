@@ -477,9 +477,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
 
   let(:ems) do
     # env vars for easier VCR recording, see test_objects_record.sh
-    hostname = ENV["OPENSHIFT_MASTER_HOST"] || "host.example.com"
-    token = ENV["OPENSHIFT_MANAGEMENT_ADMIN_TOKEN"] || "theToken"
-    port = ENV["OPENSHIFT_MASTER_PORT"] || "8443"
+    hostname = Rails.application.secrets.openshift[:hostname]
+    token = Rails.application.secrets.openshift[:token]
+    port = Rails.application.secrets.openshift[:port]
 
     FactoryBot.create(
       :ems_openshift_with_zone,
