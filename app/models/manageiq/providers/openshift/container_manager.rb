@@ -26,6 +26,8 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
           :autosave    => true,
           :dependent   => :destroy
 
+  supports :catalog
+
   def self.ems_type
     @ems_type ||= "openshift".freeze
   end
