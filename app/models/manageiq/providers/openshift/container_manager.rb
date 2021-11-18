@@ -138,7 +138,6 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   def hostname_for_service(service_type)
     openshift_route_and_project = {
       "v3" => {
-        "hawkular"          => %w[hawkular-metrics openshift-infra],
         "prometheus"        => %w[prometheus openshift-metrics],
         "prometheus_alerts" => %w[alerts openshift-metrics]
       },

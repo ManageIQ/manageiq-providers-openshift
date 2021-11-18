@@ -11,10 +11,10 @@ describe ContainerTemplate do
                                       :authentication => {:role     => :bearer,
                                                           :auth_key => token,
                                                           :userid   => "_"}},
-                                     {:endpoint       => {:role     => :hawkular,
+                                     {:endpoint       => {:role     => :prometheus,
                                                           :hostname => hostname,
                                                           :port     => "443"},
-                                      :authentication => {:role     => :hawkular,
+                                      :authentication => {:role     => :prometheus,
                                                           :auth_key => token,
                                                           :userid   => "_"}}]
     )
