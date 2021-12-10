@@ -27,6 +27,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
           :dependent   => :destroy
 
   supports :catalog
+  supports :create
 
   def self.ems_type
     @ems_type ||= "openshift".freeze
