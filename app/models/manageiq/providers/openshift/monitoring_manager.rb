@@ -8,8 +8,6 @@ class ManageIQ::Providers::Openshift::MonitoringManager < ManageIQ::Providers::K
              :class_name  => "ManageIQ::Providers::Openshift::ContainerManager",
              :inverse_of  => :monitoring_manager
 
-  supports_not :create
-
   def self.ems_type
     @ems_type ||= "openshift_monitor".freeze
   end
