@@ -15,6 +15,9 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   require_nested :OrchestrationStack
   require_nested :RefreshWorker
   require_nested :Refresher
+  require_nested :ServiceInstance
+  require_nested :ServiceOffering
+  require_nested :ServiceParametersSet
   require_nested :Options
 
   include ManageIQ::Providers::Openshift::ContainerManager::Options
