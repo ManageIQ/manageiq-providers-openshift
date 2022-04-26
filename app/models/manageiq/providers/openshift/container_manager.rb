@@ -11,6 +11,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   require_nested :ContainerTemplate
   require_nested :EventCatcher
   require_nested :EventParser
+  require_nested :ManagedContainerImage
   require_nested :MetricsCollectorWorker
   require_nested :OrchestrationStack
   require_nested :RefreshWorker
