@@ -31,6 +31,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
 
   supports :catalog
   supports :create
+  supports :external_logging
 
   def self.ems_type
     @ems_type ||= "openshift".freeze
