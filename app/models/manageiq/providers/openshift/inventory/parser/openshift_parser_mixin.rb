@@ -88,12 +88,12 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
   def lazy_find_service(hash)
     return nil if hash.nil?
     search = {:container_project => lazy_find_project(:name => hash[:namespace]), :name => hash[:name]}
-    persister.container_services.lazy_find_by(search, :ref => :by_container_project_and_name)
+    persister.container_services.lazy_find(search, :ref => :by_container_project_and_name)
   end
 
   def lazy_find_build(hash)
     return nil if hash.nil?
-    persister.container_builds.lazy_find_by(hash, :ref => :by_namespace_and_name)
+    persister.container_builds.lazy_find(hash, :ref => :by_namespace_and_name)
   end
 
   ## Shared parsing methods
