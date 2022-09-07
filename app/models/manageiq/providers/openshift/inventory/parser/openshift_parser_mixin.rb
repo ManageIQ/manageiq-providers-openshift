@@ -14,7 +14,7 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
       ref = openshift_result.delete(:ref)
 
       # This hides @data_index reading and writing.
-      parse_container_image(id, ref, opts)&.merge!(openshift_result)
+      parse_container_image(id, ref, **opts)&.merge!(openshift_result)
     end
   end
 
