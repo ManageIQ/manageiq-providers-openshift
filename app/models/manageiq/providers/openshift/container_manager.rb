@@ -74,6 +74,13 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
     kubernetes_connect(hostname, port, options)
   end
 
+  def self.verify_default_credentials(hostname, port, options)
+    return false unless super
+
+    ocp = openshift_connect(hostname, port, options)
+    !!ocp&.api_valid?
+  end
+
   def self.api_group_for_kind(kind)
     # TODO: is there a more general way of detecting this?
     case kind
