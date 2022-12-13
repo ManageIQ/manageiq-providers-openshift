@@ -1,7 +1,6 @@
 ManageIQ::Providers::Kubernetes::ContainerManager.include(ActsAsStiLeafClass)
 
 class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Kubernetes::ContainerManager
-  DEFAULT_PORT = 8443
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
   require_nested :Container
@@ -43,10 +42,6 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
 
   def self.event_monitor_class
     ManageIQ::Providers::Openshift::ContainerManager::EventCatcher
-  end
-
-  def self.default_port
-    DEFAULT_PORT
   end
 
   def self.raw_connect(hostname, port, options)
