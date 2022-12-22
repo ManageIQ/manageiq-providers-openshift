@@ -496,20 +496,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
 
   let(:user_tag) { FactoryBot.create(:classification_cost_center_with_tags).entries.first.tag }
 
-  %w[v3 v4].each do |version|
-    object_counts = {
-      "v3" => {
-        'ContainerProject'           => 18,
-        'ContainerImage'             => 67,
-        'ContainerRoute'             => 3,
-        'ContainerTemplate'          => 14,
-        'ContainerTemplateParameter' => 158,
-        'ContainerReplicator'        => 5,
-        'ContainerBuild'             => 3,
-        'ContainerBuildPod'          => 3,
-        'CustomAttribute'            => 1112,
-      },
-      "v4" => {
+  describe "with OpenShift version v4" do
+    let(:object_counts) do
+      {
         'ContainerProject'           => 57,
         'ContainerImage'             => 264,
         'ContainerRoute'             => 11,
@@ -520,26 +509,22 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
         'ContainerBuildPod'          => 3,
         'CustomAttribute'            => 6868,
       }
-    }
+    end
+    let(:openshift_version) { "v4" }
 
-    describe "with OpenShift version #{version}" do
-      let(:object_counts) { object_counts[version] }
-      let(:openshift_version) { version }
-
-      [
-        {:saver_strategy => "default"},
-        {:saver_strategy => "batch", :use_ar_object => true},
-        {:saver_strategy => "batch", :use_ar_object => false}
-      ].each do |saver_options|
-        context "with #{saver_options}" do
-          before(:each) do
-            stub_settings_merge(
-              :ems_refresh => {:openshift => {:inventory_collections => saver_options}}
-            )
-          end
-
-          include_examples "openshift refresher VCR tests"
+    [
+      {:saver_strategy => "default"},
+      {:saver_strategy => "batch", :use_ar_object => true},
+      {:saver_strategy => "batch", :use_ar_object => false}
+    ].each do |saver_options|
+      context "with #{saver_options}" do
+        before(:each) do
+          stub_settings_merge(
+            :ems_refresh => {:openshift => {:inventory_collections => saver_options}}
+          )
         end
+
+        include_examples "openshift refresher VCR tests"
       end
     end
   end
