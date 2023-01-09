@@ -1,47 +1,73 @@
 ---
 :metadata:
-  :name: python-project
-  :namespace: python-project
-  :selfLink: "/oapi/v1/namespaces/python-project/buildconfigs/python-project"
-  :uid: 65691775-bd0c-11e6-8a18-001a4a2314d5
-  :resourceVersion: '67432'
-  :creationTimestamp: '2016-12-08T06:06:02Z'
-  :labels:
-    :app: python-project
-  :annotations:
-    :openshift.io/generated-by: OpenShiftWebConsole
+  :name: my-build-config-0
+  :namespace: my-project-0
+  :uid: b6e1c4e7-2528-4c50-8112-e804790680d9
+  :resourceVersion: '570011'
+  :generation: 2
+  :creationTimestamp: '2023-01-09T19:07:04Z'
+  :managedFields:
+  - :manager: Go-http-client
+    :operation: Update
+    :apiVersion: build.openshift.io/v1
+    :time: '2023-01-09T19:07:04Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:status:
+        :f:lastVersion: {}
+  - :manager: kubectl-create
+    :operation: Update
+    :apiVersion: build.openshift.io/v1
+    :time: '2023-01-09T19:07:04Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:spec:
+        :f:output:
+          :f:to: {}
+        :f:postCommit:
+          :f:script: {}
+        :f:runPolicy: {}
+        :f:source:
+          :f:git:
+            :.: {}
+            :f:uri: {}
+          :f:type: {}
+        :f:strategy:
+          :f:sourceStrategy:
+            :.: {}
+            :f:from: {}
+          :f:type: {}
+        :f:triggers: {}
 :spec:
   :triggers:
-  - :type: Generic
-    :generic:
-      :secret: 6ad25cc41e52421f
   - :type: GitHub
     :github:
-      :secret: 880016f721ba227b
-  - :type: ImageChange
-    :imageChange:
-      :lastTriggeredImageID: centos/python-35-centos7@sha256:4696720a1783ebeebc0d078b5dead8d86688f959e943d486d1340b7c7d083dca
-  - :type: ConfigChange
+      :secret: secret101
+  - :type: Generic
+    :generic:
+      :secret: secret101
   :runPolicy: Serial
   :source:
     :type: Git
     :git:
-      :uri: https://github.com/openshift/django-ex.git
-      :ref: master
+      :uri: https://github.com/openshift/ruby-hello-world
   :strategy:
     :type: Source
     :sourceStrategy:
       :from:
-        :kind: ImageStreamTag
-        :namespace: openshift
-        :name: python:3.5
+        :kind: DockerImage
+        :name: centos/ruby-25-centos7:latest
   :output:
     :to:
       :kind: ImageStreamTag
-      :name: python-project:latest
+      :name: origin-ruby-sample:latest
   :resources: {}
-  :postCommit: {}
+  :postCommit:
+    :script: bundle exec rake test
+  :nodeSelector:
+  :successfulBuildsHistoryLimit: 5
+  :failedBuildsHistoryLimit: 5
 :status:
   :lastVersion: 1
 :kind: BuildConfig
-:apiVersion: v1
+:apiVersion: build.openshift.io/v1

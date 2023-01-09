@@ -1,63 +1,183 @@
 ---
 :metadata:
-  :name: python-project-1
-  :namespace: python-project
-  :selfLink: "/oapi/v1/namespaces/python-project/builds/python-project-1"
-  :uid: 65c3a779-bd0c-11e6-8a18-001a4a2314d5
-  :resourceVersion: '67661'
-  :creationTimestamp: '2016-12-08T06:06:02Z'
+  :name: my-build-config-0-1
+  :namespace: my-project-0
+  :uid: 4ae2d5c7-85a1-472c-909a-213f34c973f9
+  :resourceVersion: '571136'
+  :generation: 2
+  :creationTimestamp: '2023-01-09T19:07:04Z'
   :labels:
-    :app: python-project
-    :buildconfig: python-project
-    :openshift.io/build-config.name: python-project
+    :buildconfig: my-build-config-0
+    :openshift.io/build-config.name: my-build-config-0
     :openshift.io/build.start-policy: Serial
   :annotations:
-    :openshift.io/build-config.name: python-project
+    :openshift.io/build-config.name: my-build-config-0
     :openshift.io/build.number: '1'
-    :openshift.io/build.pod-name: python-project-1-build
+    :openshift.io/build.pod-name: my-build-config-0-1-build
+  :ownerReferences:
+  - :apiVersion: build.openshift.io/v1
+    :kind: BuildConfig
+    :name: my-build-config-0
+    :uid: b6e1c4e7-2528-4c50-8112-e804790680d9
+    :controller: true
+  :managedFields:
+  - :manager: Go-http-client
+    :operation: Update
+    :apiVersion: build.openshift.io/v1
+    :time: '2023-01-09T19:07:04Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:metadata:
+        :f:annotations:
+          :.: {}
+          :f:openshift.io/build-config.name: {}
+          :f:openshift.io/build.number: {}
+        :f:labels:
+          :.: {}
+          :f:buildconfig: {}
+          :f:openshift.io/build-config.name: {}
+          :f:openshift.io/build.start-policy: {}
+        :f:ownerReferences:
+          :.: {}
+          :k:{"uid":"b6e1c4e7-2528-4c50-8112-e804790680d9"}: {}
+      :f:spec:
+        :f:output:
+          :f:to: {}
+        :f:postCommit:
+          :f:script: {}
+        :f:serviceAccount: {}
+        :f:source:
+          :f:git:
+            :.: {}
+            :f:uri: {}
+          :f:type: {}
+        :f:strategy:
+          :f:sourceStrategy:
+            :.: {}
+            :f:from: {}
+          :f:type: {}
+        :f:triggeredBy: {}
+      :f:status:
+        :f:conditions:
+          :.: {}
+          :k:{"type":"New"}:
+            :.: {}
+            :f:lastTransitionTime: {}
+            :f:lastUpdateTime: {}
+            :f:status: {}
+            :f:type: {}
+        :f:config: {}
+  - :manager: openshift-controller-manager
+    :operation: Update
+    :apiVersion: build.openshift.io/v1
+    :time: '2023-01-09T19:09:01Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:metadata:
+        :f:annotations:
+          :f:openshift.io/build.pod-name: {}
+      :f:spec:
+        :f:output:
+          :f:pushSecret: {}
+      :f:status:
+        :f:completionTimestamp: {}
+        :f:duration: {}
+        :f:outputDockerImageReference: {}
+        :f:phase: {}
+        :f:startTimestamp: {}
 :spec:
   :serviceAccount: builder
   :source:
     :type: Git
     :git:
-      :uri: https://github.com/openshift/django-ex.git
-      :ref: master
+      :uri: https://github.com/openshift/ruby-hello-world
   :revision:
     :type: Git
     :git:
-      :commit: b7ce64258655354e2e26caa7ebc28eb58b02a27d
+      :commit: 0c607af092aa3d4d8769612faa395b2d1020c8e2
       :author:
         :name: Ben Parees
         :email: bparees@users.noreply.github.com
       :committer:
         :name: GitHub
         :email: noreply@github.com
-      :message: 'Merge pull request #68 from coreydaley/github_12043_origin_image_test_failure'
+      :message: 'Merge pull request #125 from multi-arch/master'
   :strategy:
     :type: Source
     :sourceStrategy:
       :from:
         :kind: DockerImage
-        :name: centos/python-35-centos7@sha256:4696720a1783ebeebc0d078b5dead8d86688f959e943d486d1340b7c7d083dca
+        :name: centos/ruby-25-centos7:latest
   :output:
     :to:
       :kind: ImageStreamTag
-      :name: python-project:latest
+      :name: origin-ruby-sample:latest
     :pushSecret:
-      :name: builder-dockercfg-bp9hh
+      :name: builder-dockercfg-wjllp
   :resources: {}
-  :postCommit: {}
+  :postCommit:
+    :script: bundle exec rake test
+  :nodeSelector:
   :triggeredBy:
-  - :message: Build configuration change
+  - :message: Manually triggered
 :status:
   :phase: Complete
-  :startTimestamp: '2016-12-08T06:06:09Z'
-  :completionTimestamp: '2016-12-08T06:15:01Z'
-  :duration: 532000000000
-  :outputDockerImageReference: 172.30.190.81:5000/python-project/python-project:latest
+  :startTimestamp: '2023-01-09T19:07:04Z'
+  :completionTimestamp: '2023-01-09T19:09:01Z'
+  :duration: 117000000000
+  :outputDockerImageReference: image-registry.openshift-image-registry.svc:5000/my-project-0/origin-ruby-sample:latest
   :config:
     :kind: BuildConfig
-    :namespace: python-project
-    :name: python-project
+    :namespace: my-project-0
+    :name: my-build-config-0
+  :output:
+    :to:
+      :imageDigest: sha256:c239c5e07c660db62b1011dd790d0d52dd035bf6fb9c71a620153caa56b8b513
+  :stages:
+  - :name: FetchInputs
+    :startTime: '2023-01-09T19:07:07Z'
+    :durationMilliseconds: 480
+    :steps:
+    - :name: FetchGitSource
+      :startTime: '2023-01-09T19:07:07Z'
+      :durationMilliseconds: 480
+  - :name: PullImages
+    :startTime: '2023-01-09T19:07:11Z'
+    :durationMilliseconds: 66980
+    :steps:
+    - :name: PullBaseImage
+      :startTime: '2023-01-09T19:07:11Z'
+      :durationMilliseconds: 66980
+  - :name: Build
+    :startTime: '2023-01-09T19:08:18Z'
+    :durationMilliseconds: 38656
+    :steps:
+    - :name: DockerBuild
+      :startTime: '2023-01-09T19:08:18Z'
+      :durationMilliseconds: 38656
+  - :name: PushImage
+    :startTime: '2023-01-09T19:08:56Z'
+    :durationMilliseconds: 2236
+    :steps:
+    - :name: PushImage
+      :startTime: '2023-01-09T19:08:56Z'
+      :durationMilliseconds: 2236
+  :conditions:
+  - :type: New
+    :status: 'False'
+    :lastUpdateTime: '2023-01-09T19:07:04Z'
+    :lastTransitionTime: '2023-01-09T19:07:04Z'
+  - :type: Pending
+    :status: 'False'
+    :lastUpdateTime: '2023-01-09T19:07:08Z'
+    :lastTransitionTime: '2023-01-09T19:07:08Z'
+  - :type: Running
+    :status: 'False'
+    :lastUpdateTime: '2023-01-09T19:09:01Z'
+    :lastTransitionTime: '2023-01-09T19:09:01Z'
+  - :type: Complete
+    :status: 'True'
+    :lastUpdateTime: '2023-01-09T19:09:01Z'
+    :lastTransitionTime: '2023-01-09T19:09:01Z'
 :kind: Build
-:apiVersion: v1
+:apiVersion: build.openshift.io/v1

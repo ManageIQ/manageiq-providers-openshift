@@ -2,7 +2,6 @@
 :metadata:
   :name: new-template
   :namespace: openshift
-  :selfLink: "/oapi/v1/namespaces/openshift/templates/new-template"
   :uid: 8f2470aa-2b04-4492-bc69-b6d864e3ad2c
   :resourceVersion: '409'
   :creationTimestamp: '2016-12-06T09:46:07Z'

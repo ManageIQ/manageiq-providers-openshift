@@ -2,7 +2,6 @@
 :metadata:
   :name: new-route
   :namespace: default
-  :selfLink: "/oapi/v1/namespaces/default/routes/new-route"
   :uid: b8a45985-7a5f-4d61-9873-d7cee25e57bc
   :resourceVersion: '67368'
   :creationTimestamp: '2016-12-08T06:05:19Z'

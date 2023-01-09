@@ -1,20 +1,42 @@
 ---
 :metadata:
   :name: default
-  :selfLink: "/oapi/v1/projects/default"
-  :uid: ba04ecb4-bb98-11e6-8a18-001a4a2314d5
-  :resourceVersion: '592'
-  :creationTimestamp: '2016-12-06T09:45:31Z'
+  :uid: fab45f64-009f-47a5-8a46-6894fc08f3c6
+  :resourceVersion: '390'
+  :creationTimestamp: '2022-11-20T08:02:38Z'
+  :labels:
+    :kubernetes.io/metadata.name: default
   :annotations:
-    :openshift.io/node-selector: ''
     :openshift.io/sa.scc.mcs: s0:c3,c2
     :openshift.io/sa.scc.supplemental-groups: 1000010000/10000
     :openshift.io/sa.scc.uid-range: 1000010000/10000
+  :managedFields:
+  - :manager: kube-apiserver
+    :operation: Update
+    :apiVersion: v1
+    :time: '2022-11-20T08:02:38Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:metadata:
+        :f:labels:
+          :.: {}
+          :f:kubernetes.io/metadata.name: {}
+  - :manager: cluster-policy-controller
+    :operation: Update
+    :apiVersion: v1
+    :time: '2022-11-20T08:03:03Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:metadata:
+        :f:annotations:
+          :.: {}
+          :f:openshift.io/sa.scc.mcs: {}
+          :f:openshift.io/sa.scc.supplemental-groups: {}
+          :f:openshift.io/sa.scc.uid-range: {}
 :spec:
   :finalizers:
   - kubernetes
-  - openshift.io/origin
 :status:
   :phase: Active
 :kind: Project
-:apiVersion: v1
+:apiVersion: project.openshift.io/v1
