@@ -4,8 +4,8 @@
   :uid: fab45f64-009f-47a5-8a46-6894fc08f3c6
   :resourceVersion: '390'
   :creationTimestamp: '2022-11-20T08:02:38Z'
-  :labels:
-    :kubernetes.io/metadata.name: default
+#  :labels:
+#    :kubernetes.io/metadata.name: default
   :annotations:
     :openshift.io/sa.scc.mcs: s0:c3,c2
     :openshift.io/sa.scc.supplemental-groups: 1000010000/10000

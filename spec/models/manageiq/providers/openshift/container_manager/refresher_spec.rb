@@ -426,10 +426,8 @@ shared_examples "openshift refresher VCR tests" do
       expect(@container_image).to have_attributes(
         :architecture   => nil,
         :author         => nil,
-        #:command        => [],
         :digest         => "sha256:48303b6bb3ff5eaa6f5649c479462304ce45c4c0186ae9da2767ab7920b4b01f",
         :docker_version => nil,
-        #:entrypoint     => [],
         :exposed_ports  => {},
         :image_ref      => "docker://registry.redhat.io/redhat/redhat-marketplace-index@sha256:48303b6bb3ff5eaa6f5649c479462304ce45c4c0186ae9da2767ab7920b4b01f",
         :registered_on  => nil,
@@ -515,12 +513,11 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
     before { full_refresh }
 
     it "doesn't impact unassociated records" do
-      default_namespace = ContainerProject.find_by(:name => "default")
-      namespace = Kubeclient::Resource.new(:metadata => {:name => "default", :uid => default_namespace.ems_ref})
+      after_full_refresh = serialize_inventory
+
+      namespace = Kubeclient::Resource.new(:metadata => {:name => "default", :uid => "fab45f64-009f-47a5-8a46-6894fc08f3c6", :labels => {:"kubernetes.io/metadata.name"=>"default"}, :creationTimestamp => '2022-11-20T08:02:38Z', :resourceVersion => '390'})
       allow(kubeclient).to receive(:get_namespace).and_return(namespace)
       allow(ems).to receive(:connect).and_return(kubeclient)
-
-      after_full_refresh = serialize_inventory
 
       targeted_refresh(
         %w[project route build build_config template image].map do |type|

@@ -102,7 +102,7 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
     namespace = collector.namespaces_by_name[project_item.metadata.name]
     return if namespace.nil?
 
-    container_project = persister.container_projects.find_or_build(namespace.metadata.uid)
+    container_project = parse_namespace(namespace)
 
     display_name = project_item.metadata.annotations['openshift.io/display-name']
     container_project.display_name = display_name if display_name
