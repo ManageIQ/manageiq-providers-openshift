@@ -1,31 +1,123 @@
 ---
 :metadata:
-  :name: java-server
-  :namespace: java-server
-  :selfLink: "/oapi/v1/namespaces/java-server/routes/java-server"
-  :uid: 4bf07cb3-bd0c-11e6-8a18-001a4a2314d5
-  :resourceVersion: '67368'
-  :creationTimestamp: '2016-12-08T06:05:19Z'
+  :name: cdi-uploadproxy
+  :namespace: cdi
+  :uid: 5dabb644-3ea8-4efe-805d-5450991b8b47
+  :resourceVersion: '483749'
+  :creationTimestamp: '2022-12-12T20:41:01Z'
   :labels:
-    :app: java-server
+    :app.kubernetes.io/component: storage
+    :app.kubernetes.io/managed-by: cdi-operator
+    :cdi.kubevirt.io: ''
   :annotations:
-    :openshift.io/generated-by: OpenShiftWebConsole
+    :haproxy.router.openshift.io/timeout: 60m
     :openshift.io/host.generated: 'true'
+  :ownerReferences:
+  - :apiVersion: apps/v1
+    :kind: Deployment
+    :name: cdi-deployment
+    :uid: 5d6f9f73-6ab6-4b88-939e-1fbb71537a60
+    :controller: true
+    :blockOwnerDeletion: true
+  :managedFields:
+  - :manager: cdi-operator
+    :operation: Update
+    :apiVersion: route.openshift.io/v1
+    :time: '2022-12-12T20:41:01Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:metadata:
+        :f:annotations:
+          :.: {}
+          :f:haproxy.router.openshift.io/timeout: {}
+        :f:labels:
+          :.: {}
+          :f:app.kubernetes.io/component: {}
+          :f:app.kubernetes.io/managed-by: {}
+          :f:cdi.kubevirt.io: {}
+        :f:ownerReferences:
+          :.: {}
+          :k:{"uid":"5d6f9f73-6ab6-4b88-939e-1fbb71537a60"}: {}
+      :f:spec:
+        :f:tls:
+          :.: {}
+          :f:destinationCACertificate: {}
+          :f:insecureEdgeTerminationPolicy: {}
+          :f:termination: {}
+        :f:to:
+          :f:kind: {}
+          :f:name: {}
+          :f:weight: {}
+        :f:wildcardPolicy: {}
+  - :manager: openshift-router
+    :operation: Update
+    :apiVersion: route.openshift.io/v1
+    :time: '2022-12-12T20:41:01Z'
+    :fieldsType: FieldsV1
+    :fieldsV1:
+      :f:status:
+        :f:ingress: {}
+    :subresource: status
 :spec:
-  :host: java-server-java-server.router.default.svc.cluster.local
+  :host: cdi-uploadproxy-cdi.apps-crc.testing
   :to:
     :kind: Service
-    :name: java-server
+    :name: cdi-uploadproxy
     :weight: 100
-  :port:
-    :targetPort: 8080-tcp
+  :tls:
+    :termination: reencrypt
+    :destinationCACertificate: |
+      -----BEGIN CERTIFICATE-----
+      MIIDRTCCAi2gAwIBAgIIeb63qKiJKxIwDQYJKoZIhvcNAQELBQAwMDEuMCwGA1UE
+      AwwlY2RpX2NkaS11cGxvYWRwcm94eS1zaWduZXJAMTY3MzI3ODYwNTAeFw0yMzAx
+      MDkxNTM2NDRaFw0yMzAyMjYxNTM2NDVaMDAxLjAsBgNVBAMMJWNkaV9jZGktdXBs
+      b2FkcHJveHktc2lnbmVyQDE2NzMyNzg2MDUwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+      DwAwggEKAoIBAQD58Sk6JzSWcjNP9IzEPvy6kS3NRTc1plrbKfDjEeNK3oOtOWXT
+      WHAdS818Yt8ndSR/SmFWPC8zezp7UYdF1rd1iGntR8B2Ckil9ZRYPkovkgcdu8hb
+      f2/mRtWf6ZMa8YB5CCmVJ9wU25nAKC6e7IHC0CZtzED6Eri0NGauBRTKU3HPhNFf
+      UAp0qaKsh6C1MQ8ajla7q4LI+pWoUW5w5wxUgvkOkyt/LLqB/3evfbcyeMlJ+Fjl
+      hr2YA0qzQgSWAIry8NTnSuxeXUCEhD+ZEsXzv5aGQkcg+VBeBgEzkA1GglXkRlaP
+      JFAploIVvfAXYtleiYWuoqmW0cstWw8cKjoFAgMBAAGjYzBhMA4GA1UdDwEB/wQE
+      AwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBSlQ+vuo1CrpR1PkW+gVbI3
+      tttDsDAfBgNVHSMEGDAWgBSlQ+vuo1CrpR1PkW+gVbI3tttDsDANBgkqhkiG9w0B
+      AQsFAAOCAQEAO4WFbHrHmsAMvvSnFuHoPj/FIwWAcz0hvcW+pBvXkB5g9f3QuTNl
+      cCh5GGNbASW1WqXRy8HdQ95mpxO0s6/1qReEEgwDGhSl1pvuW1w9yef4AqT/Rg9A
+      hiiYG0yO2NTFoS6QUp/2/adDPcgLQkSSNtu+65Qsz1IYmiqvkYGt8uPsu5cqnHIR
+      ybS5sP8HKnq5GcsoHgHV/eq7ZgLtwUyw1ZNDwCrLUOnh/3NIzlETJr+fzXLF5qUr
+      +59fxvDqFv0gu+U6vwfYL9191eZ1oGrIRtInHPmyTdq5Jljoe2TyrRFVLkej08wU
+      Xjd4MpLN3y7X43nelmthx8msVk2SmxLTZg==
+      -----END CERTIFICATE-----
+      -----BEGIN CERTIFICATE-----
+      MIIDRTCCAi2gAwIBAgIICY8lscJCH4QwDQYJKoZIhvcNAQELBQAwMDEuMCwGA1UE
+      AwwlY2RpX2NkaS11cGxvYWRwcm94eS1zaWduZXJAMTY3MDg3NzY0ODAeFw0yMjEy
+      MTIyMDQwNDdaFw0yMzAxMjkyMDQwNDhaMDAxLjAsBgNVBAMMJWNkaV9jZGktdXBs
+      b2FkcHJveHktc2lnbmVyQDE2NzA4Nzc2NDgwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+      DwAwggEKAoIBAQDfdb6aIkM0FeXuA82ZmpYMwQ7hwAROMHKr5kJ4Wgqcsh/PjyD4
+      cgATaLa2/SWvBJeMyhtBT2TGK0242t/114h5B2sX6SapZ6XAWWjoIOMpnl52XCXk
+      RSBQR68m1Wxfo81SE3jGxCGCrZgWF22UyLF6zOetxg7edNX/hp2kOdEdpvmGcYPe
+      WphuoeutNmdIjNE7UNRIZfjF4GX0TAti8vHqX+j/lzIV1AngezSVAAl+i4FGMfe9
+      w7MhJTEGKCcFEV3lV3cMWr5MXS+AeqlrT0AQd/20dCESMdYUQWRNMHPp2c+o6MI7
+      ddzLw7JY5cXkvjcjyD+9axxd/yLR9k3b1e4LAgMBAAGjYzBhMA4GA1UdDwEB/wQE
+      AwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBRLgSF+Vi4FbaSiaVm6GfuM
+      U2HuRzAfBgNVHSMEGDAWgBRLgSF+Vi4FbaSiaVm6GfuMU2HuRzANBgkqhkiG9w0B
+      AQsFAAOCAQEAKB19v8h84O5e0wYy2sTk0dTNvcl3rKYnzdslJDNRN/qLt6B1qKL9
+      LBCwLW9F+U1BvtYZ9AWh6zsymyHX5wz0Xt8+49qGlgj75kfj0fuq32VqpqlZUNQV
+      UaxyeiYucVn+gJgUwzVn2XwG+QxVddKqHnXQ/Msreemh66a3ltPri35XC7eKKz6C
+      Q15cfKHVM0ryIyESlKj+nES134jqCNd6awYJxwNV8cT3+vgZS7KjgdiZ+UPWC15u
+      jUWt7tiY//TWNsHtQXmvJ6OreqT30zXXL9RbaE6kGaZZ5ofaqWTqsWhUoP3IMhYa
+      531NGZGerYE0YlB25Qa31EJdPEFnIOCDCw==
+      -----END CERTIFICATE-----
+    :insecureEdgeTerminationPolicy: Redirect
+  :wildcardPolicy: None
 :status:
   :ingress:
-  - :host: java-server-java-server.router.default.svc.cluster.local
-    :routerName: router
+  - :host: cdi-uploadproxy-cdi.apps-crc.testing
+    :routerName: default
     :conditions:
     - :type: Admitted
       :status: 'True'
-      :lastTransitionTime: '2016-12-08T06:05:19Z'
+      :lastTransitionTime: '2022-12-12T20:41:01Z'
+    :wildcardPolicy: None
+    :routerCanonicalHostname: router-default.apps-crc.testing
 :kind: Route
-:apiVersion: v1
+:apiVersion: route.openshift.io/v1

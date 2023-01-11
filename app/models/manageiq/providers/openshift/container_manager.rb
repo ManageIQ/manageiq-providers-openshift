@@ -50,19 +50,6 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   end
 
   def self.openshift_connect(hostname, port, options)
-    # First attempt to connect to the /oapi endpoint and if that fails with
-    # a ResourceNotFoundError attempt to connect to /apis/...
-    openshift_v3_connect(hostname, port, options)
-  rescue Kubeclient::ResourceNotFoundError
-    openshift_v4_connect(hostname, port, options)
-  end
-
-  def self.openshift_v3_connect(hostname, port, options)
-    options = {:path => '/oapi', :version => "v1"}.merge(options)
-    kubernetes_connect(hostname, port, options)
-  end
-
-  def self.openshift_v4_connect(hostname, port, options)
     api_group = options[:api_group] || "apps.openshift.io/v1"
     api_path, api_version = api_group.split("/")
 
@@ -122,38 +109,12 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
     end
   end
 
-  def openshift_version
-    @openshift_version ||= begin
-      version = begin
-        self.class.openshift_v3_connect(address, port, connect_options)
-        "v3"
-      rescue Kubeclient::ResourceNotFoundError
-        nil
-      end
-
-      version ||= begin
-        self.class.openshift_v4_connect(address, port, connect_options)
-        "v4"
-      rescue Kubeclient::ResourceNotFoundError
-        nil
-      end
-
-      version
-    end
-  end
-
   def hostname_for_service(service_type)
     openshift_route_and_project = {
-      "v3" => {
-        "prometheus"        => %w[prometheus openshift-metrics],
-        "prometheus_alerts" => %w[alerts openshift-metrics]
-      },
-      "v4" => {
-        "prometheus" => %w[prometheus-k8s openshift-monitoring],
-      }
+      "prometheus" => %w[prometheus-k8s openshift-monitoring],
     }
 
-    route_name, project_name = openshift_route_and_project[openshift_version][service_type]
+    route_name, project_name = openshift_route_and_project[service_type]
     return if route_name.nil?
 
     routes = connect(:service => "openshift", :api_group => "route.openshift.io/v1")

@@ -1,289 +1,229 @@
 ---
 :metadata:
-  :name: sha256:074b4400f409b236cdb263619539b30b395f51db5d739afde85e61bcdab331b1
-  :selfLink: "/oapi/v1/images/sha256:074b4400f409b236cdb263619539b30b395f51db5d739afde85e61bcdab331b1"
-  :uid: ea5fdee0-bb98-11e6-8a18-001a4a2314d5
-  :resourceVersion: '495'
-  :creationTimestamp: '2016-12-06T09:46:52Z'
-:dockerImageReference: openshift/mysql-55-centos7@sha256:074b4400f409b236cdb263619539b30b395f51db5d739afde85e61bcdab331b1
+  :name: sha256:001fd0fe7275d40b67e4a4347d78ba6e2765bc5d12b72c1526551f4380c581eb
+  :uid: 31443706-8744-428a-b39a-78677911e6e4
+  :resourceVersion: '571073'
+  :creationTimestamp: '2023-01-09T19:08:56Z'
+  :annotations:
+    :image.openshift.io/dockerLayersOrder: ascending
+    :image.openshift.io/manifestBlobStored: 'true'
+    :openshift.io/image.managed: 'true'
+:dockerImageReference: image-registry.openshift-image-registry.svc:5000/my-project-1/origin-ruby-sample@sha256:001fd0fe7275d40b67e4a4347d78ba6e2765bc5d12b72c1526551f4380c581eb
 :dockerImageMetadata:
   :kind: DockerImage
-  :apiVersion: '1.0'
-  :Id: bf4cb4a95cccc25dd9bc043280247a501bbd22d4aa6922c04019173d73ee7aed
-  :Parent: 2f4f4ddf23219f43593e639f8bacfb18a1a4f13470dd08f8d514ec21f785b187
-  :Created: '2016-12-01T12:54:39Z'
-  :Container: c2a1e9a1560dc11d658066c0eeb64a14ccf36cde6ea62a33c265a6bcb14b1c3f
+  :apiVersion: image.openshift.io/1.0
+  :Id: sha256:3921970824cff18189d30197f6c5e5137cee4bbd6126401b77e0b75ebd625aec
+  :Parent: sha256:e96bd99b8266e738a46994c09fb6a37101fb836496da3a74cf4d1d98ca34777f
+  :Created: '2023-01-09T19:08:43Z'
+  :Container: 51eb483f31ba4807eb1fa6c7bf1ade557da9c1047cb8ae8f62708bbb688595b4
   :ContainerConfig:
-    :Hostname: d6dcf178f680
-    :User: '27'
+    :Hostname: 2ebf20e578e0
+    :User: '1001'
     :ExposedPorts:
-      :3306/tcp: {}
+      :8080/tcp: {}
     :Env:
-    - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    - MYSQL_VERSION=5.5
-    - HOME=/var/lib/mysql
-    - CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql
-    - MYSQL_PREFIX=/opt/rh/mysql55/root/usr
-    - ENABLED_COLLECTIONS=mysql55
-    - BASH_ENV=/usr/share/container-scripts/mysql/scl_enable
-    - ENV=/usr/share/container-scripts/mysql/scl_enable
-    - PROMPT_COMMAND=. /usr/share/container-scripts/mysql/scl_enable
+    - PATH=/opt/rh/rh-ruby25/root/usr/local/bin:/opt/rh/rh-ruby25/root/usr/bin:/opt/rh/rh-nodejs14/root/usr/bin:/opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - SUMMARY=Platform for building and running Ruby 2.5 applications
+    - DESCRIPTION=Ruby 2.5 available as container is a base platform for building
+      and running various Ruby 2.5 applications and frameworks. Ruby is the interpreted
+      scripting language for quick and easy object-oriented programming. It has many
+      features to process text files and to do system management tasks (as in Perl).
+      It is simple, straight-forward, and extensible.
+    - STI_SCRIPTS_URL=image:///usr/libexec/s2i
+    - STI_SCRIPTS_PATH=/usr/libexec/s2i
+    - APP_ROOT=/opt/app-root
+    - HOME=/opt/app-root/src
+    - PLATFORM=el7
+    - BASH_ENV=/opt/app-root/etc/scl_enable
+    - ENV=/opt/app-root/etc/scl_enable
+    - PROMPT_COMMAND=. /opt/app-root/etc/scl_enable
+    - NODEJS_SCL=rh-nodejs14
+    - RUBY_MAJOR_VERSION=2
+    - RUBY_MINOR_VERSION=5
+    - RUBY_VERSION=2.5
+    - RUBY_SCL_NAME_VERSION=25
+    - RUBY_SCL=rh-ruby25
+    - IMAGE_NAME=centos7/ruby-25-centos7
+    - LD_LIBRARY_PATH=/opt/rh/rh-ruby25/root/usr/local/lib64:/opt/rh/rh-ruby25/root/usr/lib64:/opt/rh/rh-nodejs14/root/usr/lib64
+    - X_SCLS=rh-nodejs14 rh-ruby25
+    - 'MANPATH=/opt/rh/rh-ruby25/root/usr/local/share/man:/opt/rh/rh-ruby25/root/usr/share/man:/opt/rh/rh-nodejs14/root/usr/share/man:'
+    - XDG_DATA_DIRS=/opt/rh/rh-ruby25/root/usr/local/share:/opt/rh/rh-ruby25/root/usr/share:/usr/local/share:/usr/share
+    - PKG_CONFIG_PATH=/opt/rh/rh-ruby25/root/usr/local/lib64/pkgconfig:/opt/rh/rh-ruby25/root/usr/lib64/pkgconfig
+    - RACK_ENV=production
+    - OPENSHIFT_BUILD_NAME=my-build-config-1-1
+    - OPENSHIFT_BUILD_NAMESPACE=my-project-1
+    - OPENSHIFT_BUILD_SOURCE=https://github.com/openshift/ruby-hello-world
+    - OPENSHIFT_BUILD_COMMIT=0c607af092aa3d4d8769612faa395b2d1020c8e2
     :Cmd:
     - "/bin/sh"
     - "-c"
-    - "#(nop) "
-    - LABEL io.openshift.builder-version=9e3f11b
-    :Image: sha256:5d52771836ad07845d6343f16a7a032b858473c032e7ea5756422b66154183e3
-    :Volumes:
-      :/var/lib/mysql/data: {}
+    - "/usr/libexec/s2i/run"
+    :Image: sha256:372966e0d66aa4fa018016a025ef6583bb69973b7199ddf30b7432ab0aa1031d
+    :WorkingDir: "/opt/app-root/src"
     :Entrypoint:
     - container-entrypoint
     :Labels:
-      :build-date: '20161102'
-      :io.k8s.description: MySQL is a multi-user, multi-threaded SQL database server
-      :io.k8s.display-name: MySQL 5.5
-      :io.openshift.builder-version: 9e3f11b
-      :io.openshift.expose-services: 3306:mysql
-      :io.openshift.tags: database,mysql,mysql55
-      :license: GPLv2
-      :name: CentOS Base Image
-      :vendor: CentOS
-  :DockerVersion: 1.12.2-rc2
-  :Author: SoftwareCollections.org <sclorg@redhat.com>
+      :com.redhat.component: rh-ruby25-container
+      :description: Ruby 2.5 available as container is a base platform for building
+        and running various Ruby 2.5 applications and frameworks. Ruby is the interpreted
+        scripting language for quick and easy object-oriented programming. It has
+        many features to process text files and to do system management tasks (as
+        in Perl). It is simple, straight-forward, and extensible.
+      :io.buildah.version: 1.24.2
+      :io.k8s.description: Ruby 2.5 available as container is a base platform for
+        building and running various Ruby 2.5 applications and frameworks. Ruby is
+        the interpreted scripting language for quick and easy object-oriented programming.
+        It has many features to process text files and to do system management tasks
+        (as in Perl). It is simple, straight-forward, and extensible.
+      :io.k8s.display-name: Ruby 2.5
+      :io.openshift.build.commit.author: Ben Parees <bparees@users.noreply.github.com>
+      :io.openshift.build.commit.date: Mon Jun 14 20:43:14 2021 -0400
+      :io.openshift.build.commit.id: 0c607af092aa3d4d8769612faa395b2d1020c8e2
+      :io.openshift.build.commit.message: 'Merge pull request #125 from multi-arch/master'
+      :io.openshift.build.commit.ref: master
+      :io.openshift.build.image: centos/ruby-25-centos7:latest
+      :io.openshift.build.source-location: https://github.com/openshift/ruby-hello-world
+      :io.openshift.builder-version: 4d4a6e7
+      :io.openshift.expose-services: 8080:http
+      :io.openshift.s2i.scripts-url: image:///usr/libexec/s2i
+      :io.openshift.tags: builder,ruby,ruby25,rh-ruby25
+      :io.s2i.scripts-url: image:///usr/libexec/s2i
+      :maintainer: SoftwareCollections.org <sclorg@redhat.com>
+      :name: centos7/ruby-25-centos7
+      :org.label-schema.build-date: '20200809'
+      :org.label-schema.license: GPLv2
+      :org.label-schema.name: CentOS Base Image
+      :org.label-schema.schema-version: '1.0'
+      :org.label-schema.vendor: CentOS
+      :org.opencontainers.image.created: '2020-08-09 00:00:00+01:00'
+      :org.opencontainers.image.licenses: GPL-2.0-only
+      :org.opencontainers.image.title: CentOS Base Image
+      :org.opencontainers.image.vendor: CentOS
+      :summary: Platform for building and running Ruby 2.5 applications
+      :usage: s2i build https://github.com/sclorg/s2i-ruby-container.git --context-dir=2.5/test/puma-test-app/
+        centos7/ruby-25-centos7 ruby-sample-app
+      :version: '2.5'
   :Config:
-    :Hostname: d6dcf178f680
-    :User: '27'
+    :Hostname: 2ebf20e578e0
+    :User: '1001'
     :ExposedPorts:
-      :3306/tcp: {}
+      :8080/tcp: {}
     :Env:
-    - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    - MYSQL_VERSION=5.5
-    - HOME=/var/lib/mysql
-    - CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql
-    - MYSQL_PREFIX=/opt/rh/mysql55/root/usr
-    - ENABLED_COLLECTIONS=mysql55
-    - BASH_ENV=/usr/share/container-scripts/mysql/scl_enable
-    - ENV=/usr/share/container-scripts/mysql/scl_enable
-    - PROMPT_COMMAND=. /usr/share/container-scripts/mysql/scl_enable
+    - PATH=/opt/rh/rh-ruby25/root/usr/local/bin:/opt/rh/rh-ruby25/root/usr/bin:/opt/rh/rh-nodejs14/root/usr/bin:/opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - SUMMARY=Platform for building and running Ruby 2.5 applications
+    - DESCRIPTION=Ruby 2.5 available as container is a base platform for building
+      and running various Ruby 2.5 applications and frameworks. Ruby is the interpreted
+      scripting language for quick and easy object-oriented programming. It has many
+      features to process text files and to do system management tasks (as in Perl).
+      It is simple, straight-forward, and extensible.
+    - STI_SCRIPTS_URL=image:///usr/libexec/s2i
+    - STI_SCRIPTS_PATH=/usr/libexec/s2i
+    - APP_ROOT=/opt/app-root
+    - HOME=/opt/app-root/src
+    - PLATFORM=el7
+    - BASH_ENV=/opt/app-root/etc/scl_enable
+    - ENV=/opt/app-root/etc/scl_enable
+    - PROMPT_COMMAND=. /opt/app-root/etc/scl_enable
+    - NODEJS_SCL=rh-nodejs14
+    - RUBY_MAJOR_VERSION=2
+    - RUBY_MINOR_VERSION=5
+    - RUBY_VERSION=2.5
+    - RUBY_SCL_NAME_VERSION=25
+    - RUBY_SCL=rh-ruby25
+    - IMAGE_NAME=centos7/ruby-25-centos7
+    - LD_LIBRARY_PATH=/opt/rh/rh-ruby25/root/usr/local/lib64:/opt/rh/rh-ruby25/root/usr/lib64:/opt/rh/rh-nodejs14/root/usr/lib64
+    - X_SCLS=rh-nodejs14 rh-ruby25
+    - 'MANPATH=/opt/rh/rh-ruby25/root/usr/local/share/man:/opt/rh/rh-ruby25/root/usr/share/man:/opt/rh/rh-nodejs14/root/usr/share/man:'
+    - XDG_DATA_DIRS=/opt/rh/rh-ruby25/root/usr/local/share:/opt/rh/rh-ruby25/root/usr/share:/usr/local/share:/usr/share
+    - PKG_CONFIG_PATH=/opt/rh/rh-ruby25/root/usr/local/lib64/pkgconfig:/opt/rh/rh-ruby25/root/usr/lib64/pkgconfig
+    - RACK_ENV=production
+    - OPENSHIFT_BUILD_NAME=my-build-config-1-1
+    - OPENSHIFT_BUILD_NAMESPACE=my-project-1
+    - OPENSHIFT_BUILD_SOURCE=https://github.com/openshift/ruby-hello-world
+    - OPENSHIFT_BUILD_COMMIT=0c607af092aa3d4d8769612faa395b2d1020c8e2
     :Cmd:
-    - run-mysqld
-    :Image: sha256:5d52771836ad07845d6343f16a7a032b858473c032e7ea5756422b66154183e3
-    :Volumes:
-      :/var/lib/mysql/data: {}
+    - "/bin/sh"
+    - "-c"
+    - "/usr/libexec/s2i/run"
+    :Image: sha256:372966e0d66aa4fa018016a025ef6583bb69973b7199ddf30b7432ab0aa1031d
+    :WorkingDir: "/opt/app-root/src"
     :Entrypoint:
     - container-entrypoint
     :Labels:
-      :build-date: '20161102'
-      :io.k8s.description: MySQL is a multi-user, multi-threaded SQL database server
-      :io.k8s.display-name: MySQL 5.5
-      :io.openshift.builder-version: 9e3f11b
-      :io.openshift.expose-services: 3306:mysql
-      :io.openshift.tags: database,mysql,mysql55
-      :license: GPLv2
-      :name: CentOS Base Image
-      :vendor: CentOS
+      :com.redhat.component: rh-ruby25-container
+      :description: Ruby 2.5 available as container is a base platform for building
+        and running various Ruby 2.5 applications and frameworks. Ruby is the interpreted
+        scripting language for quick and easy object-oriented programming. It has
+        many features to process text files and to do system management tasks (as
+        in Perl). It is simple, straight-forward, and extensible.
+      :io.buildah.version: 1.24.2
+      :io.k8s.description: Ruby 2.5 available as container is a base platform for
+        building and running various Ruby 2.5 applications and frameworks. Ruby is
+        the interpreted scripting language for quick and easy object-oriented programming.
+        It has many features to process text files and to do system management tasks
+        (as in Perl). It is simple, straight-forward, and extensible.
+      :io.k8s.display-name: Ruby 2.5
+      :io.openshift.build.commit.author: Ben Parees <bparees@users.noreply.github.com>
+      :io.openshift.build.commit.date: Mon Jun 14 20:43:14 2021 -0400
+      :io.openshift.build.commit.id: 0c607af092aa3d4d8769612faa395b2d1020c8e2
+      :io.openshift.build.commit.message: 'Merge pull request #125 from multi-arch/master'
+      :io.openshift.build.commit.ref: master
+      :io.openshift.build.image: centos/ruby-25-centos7:latest
+      :io.openshift.build.source-location: https://github.com/openshift/ruby-hello-world
+      :io.openshift.builder-version: 4d4a6e7
+      :io.openshift.expose-services: 8080:http
+      :io.openshift.s2i.scripts-url: image:///usr/libexec/s2i
+      :io.openshift.tags: builder,ruby,ruby25,rh-ruby25
+      :io.s2i.scripts-url: image:///usr/libexec/s2i
+      :maintainer: SoftwareCollections.org <sclorg@redhat.com>
+      :name: centos7/ruby-25-centos7
+      :org.label-schema.build-date: '20200809'
+      :org.label-schema.license: GPLv2
+      :org.label-schema.name: CentOS Base Image
+      :org.label-schema.schema-version: '1.0'
+      :org.label-schema.vendor: CentOS
+      :org.opencontainers.image.created: '2020-08-09 00:00:00+01:00'
+      :org.opencontainers.image.licenses: GPL-2.0-only
+      :org.opencontainers.image.title: CentOS Base Image
+      :org.opencontainers.image.vendor: CentOS
+      :summary: Platform for building and running Ruby 2.5 applications
+      :usage: s2i build https://github.com/sclorg/s2i-ruby-container.git --context-dir=2.5/test/puma-test-app/
+        centos7/ruby-25-centos7 ruby-sample-app
+      :version: '2.5'
   :Architecture: amd64
-  :Size: 114685879
+  :Size: 221177968
 :dockerImageMetadataVersion: '1.0'
-:dockerImageManifest: |-
-  {
-     "schemaVersion": 1,
-     "name": "openshift/mysql-55-centos7",
-     "tag": "latest",
-     "architecture": "amd64",
-     "fsLayers": [
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:4f6858d2210d78965369bea3b3b1bd8f7fd813a3f2d94143d47aa6dba8d52a1c"
-        },
-        {
-           "blobSum": "sha256:f30f141063472f5a64b0eab8074c3cc474b29e874d55cc14c828e84ddac59531"
-        },
-        {
-           "blobSum": "sha256:8fccda7fd381e3804a0ee43fcc3e13a6b2120292e4de7feb6cd790963c79f7eb"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:79e4bf1f98b759ce9e6910efd268c1cdab5b67fa56b21f9a7d972fab6bab8080"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        },
-        {
-           "blobSum": "sha256:08d48e6f1cff259389732d35307bb877215fa28867cdaff50c1dbd6e0b993c1f"
-        },
-        {
-           "blobSum": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
-        }
-     ],
-     "history": [
-        {
-           "v1Compatibility": "{\"architecture\":\"amd64\",\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"config\":{\"Hostname\":\"d6dcf178f680\",\"Domainname\":\"\",\"User\":\"27\",\"AttachStdin\":false,\"AttachStdout\":false,\"AttachStderr\":false,\"ExposedPorts\":{\"3306/tcp\":{}},\"Tty\":false,\"OpenStdin\":false,\"StdinOnce\":false,\"Env\":[\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\"MYSQL_VERSION=5.5\",\"HOME=/var/lib/mysql\",\"CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql\",\"MYSQL_PREFIX=/opt/rh/mysql55/root/usr\",\"ENABLED_COLLECTIONS=mysql55\",\"BASH_ENV=/usr/share/container-scripts/mysql/scl_enable\",\"ENV=/usr/share/container-scripts/mysql/scl_enable\",\"PROMPT_COMMAND=. /usr/share/container-scripts/mysql/scl_enable\"],\"Cmd\":[\"run-mysqld\"],\"ArgsEscaped\":true,\"Image\":\"sha256:5d52771836ad07845d6343f16a7a032b858473c032e7ea5756422b66154183e3\",\"Volumes\":{\"/var/lib/mysql/data\":{}},\"WorkingDir\":\"\",\"Entrypoint\":[\"container-entrypoint\"],\"OnBuild\":[],\"Labels\":{\"build-date\":\"20161102\",\"io.k8s.description\":\"MySQL is a multi-user, multi-threaded SQL database server\",\"io.k8s.display-name\":\"MySQL 5.5\",\"io.openshift.builder-version\":\"9e3f11b\",\"io.openshift.expose-services\":\"3306:mysql\",\"io.openshift.tags\":\"database,mysql,mysql55\",\"license\":\"GPLv2\",\"name\":\"CentOS Base Image\",\"vendor\":\"CentOS\"}},\"container\":\"c2a1e9a1560dc11d658066c0eeb64a14ccf36cde6ea62a33c265a6bcb14b1c3f\",\"container_config\":{\"Hostname\":\"d6dcf178f680\",\"Domainname\":\"\",\"User\":\"27\",\"AttachStdin\":false,\"AttachStdout\":false,\"AttachStderr\":false,\"ExposedPorts\":{\"3306/tcp\":{}},\"Tty\":false,\"OpenStdin\":false,\"StdinOnce\":false,\"Env\":[\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\"MYSQL_VERSION=5.5\",\"HOME=/var/lib/mysql\",\"CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql\",\"MYSQL_PREFIX=/opt/rh/mysql55/root/usr\",\"ENABLED_COLLECTIONS=mysql55\",\"BASH_ENV=/usr/share/container-scripts/mysql/scl_enable\",\"ENV=/usr/share/container-scripts/mysql/scl_enable\",\"PROMPT_COMMAND=. /usr/share/container-scripts/mysql/scl_enable\"],\"Cmd\":[\"/bin/sh\",\"-c\",\"#(nop) \",\"LABEL io.openshift.builder-version=9e3f11b\"],\"ArgsEscaped\":true,\"Image\":\"sha256:5d52771836ad07845d6343f16a7a032b858473c032e7ea5756422b66154183e3\",\"Volumes\":{\"/var/lib/mysql/data\":{}},\"WorkingDir\":\"\",\"Entrypoint\":[\"container-entrypoint\"],\"OnBuild\":[],\"Labels\":{\"build-date\":\"20161102\",\"io.k8s.description\":\"MySQL is a multi-user, multi-threaded SQL database server\",\"io.k8s.display-name\":\"MySQL 5.5\",\"io.openshift.builder-version\":\"9e3f11b\",\"io.openshift.expose-services\":\"3306:mysql\",\"io.openshift.tags\":\"database,mysql,mysql55\",\"license\":\"GPLv2\",\"name\":\"CentOS Base Image\",\"vendor\":\"CentOS\"}},\"created\":\"2016-12-01T12:54:39.731019571Z\",\"docker_version\":\"1.12.2-rc2\",\"id\":\"bf4cb4a95cccc25dd9bc043280247a501bbd22d4aa6922c04019173d73ee7aed\",\"os\":\"linux\",\"parent\":\"2f4f4ddf23219f43593e639f8bacfb18a1a4f13470dd08f8d514ec21f785b187\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"2f4f4ddf23219f43593e639f8bacfb18a1a4f13470dd08f8d514ec21f785b187\",\"parent\":\"5d125885248e317853f7cda5f88398380f8e0f314ca9f5d5fc117f564c646ce7\",\"created\":\"2016-12-01T12:54:37.887105121Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  CMD [\\\"run-mysqld\\\"]\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"5d125885248e317853f7cda5f88398380f8e0f314ca9f5d5fc117f564c646ce7\",\"parent\":\"487dfb1fb6da5fcf9ead150be8efedea1d45f83be478d9be26f2d0b38c986cdf\",\"created\":\"2016-12-01T12:54:36.031120475Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  ENTRYPOINT [\\\"container-entrypoint\\\"]\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"487dfb1fb6da5fcf9ead150be8efedea1d45f83be478d9be26f2d0b38c986cdf\",\"parent\":\"8ba982c9ba2e4ec622d5ad3957e04d0fdd077dcf1b7c0ceb7f45d696c5409245\",\"created\":\"2016-12-01T12:54:34.147566674Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  USER [27]\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"8ba982c9ba2e4ec622d5ad3957e04d0fdd077dcf1b7c0ceb7f45d696c5409245\",\"parent\":\"3181088e13662c39f7d48a3dc7b6cabda1f0e6fcaa05458dfabb81db4cb3536b\",\"created\":\"2016-12-01T12:54:32.256066336Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  VOLUME [/var/lib/mysql/data]\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"3181088e13662c39f7d48a3dc7b6cabda1f0e6fcaa05458dfabb81db4cb3536b\",\"parent\":\"f61336969b31e7363644fc4c12ae2f693ce2c79e6b7ea038f0d825a9020bc3a5\",\"created\":\"2016-12-01T12:54:30.625505781Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c /usr/libexec/container-setup\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\"}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"f61336969b31e7363644fc4c12ae2f693ce2c79e6b7ea038f0d825a9020bc3a5\",\"parent\":\"733ec83d9430f739ae42aaf9362f32e3297596b9ae9a62b219b83ca4f38404d8\",\"created\":\"2016-12-01T12:54:28.268919979Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c rm -rf /etc/my.cnf.d/*\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\"}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"733ec83d9430f739ae42aaf9362f32e3297596b9ae9a62b219b83ca4f38404d8\",\"parent\":\"5cca1beb1b062227af20b163113cb5457b1f8948aff8d386e1f7d1992445315c\",\"created\":\"2016-12-01T12:54:25.946905756Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop) ADD dir:e90ec6c25b1658087f2a02e1c5a8befce5eef3917de00b9324cf67eb345c32c2 in / \"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\"}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"5cca1beb1b062227af20b163113cb5457b1f8948aff8d386e1f7d1992445315c\",\"parent\":\"dd51eb51fdcba83434342eb1a1fa533af9869420dd800b7bb20c0bf1f4af3637\",\"created\":\"2016-12-01T12:54:23.96800956Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  ENV BASH_ENV=/usr/share/container-scripts/mysql/scl_enable ENV=/usr/share/container-scripts/mysql/scl_enable PROMPT_COMMAND=. /usr/share/container-scripts/mysql/scl_enable\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"dd51eb51fdcba83434342eb1a1fa533af9869420dd800b7bb20c0bf1f4af3637\",\"parent\":\"42db0af078b212b0383424685dbb83f4468ec7b5cb656ad7937ea231eb63a2dd\",\"created\":\"2016-12-01T12:54:22.092023098Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql MYSQL_PREFIX=/opt/rh/mysql55/root/usr ENABLED_COLLECTIONS=mysql55\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"42db0af078b212b0383424685dbb83f4468ec7b5cb656ad7937ea231eb63a2dd\",\"parent\":\"2459ec73c55fe6507e0e44101d0eabde5f2109c088ce28f904e2f4f8cbb9d00f\",\"created\":\"2016-12-01T12:54:20.35478601Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c yum install -y centos-release-scl \\u0026\\u0026     INSTALL_PKGS=\\\"tar rsync gettext hostname bind-utils mysql55\\\" \\u0026\\u0026     yum -y --setopt=tsflags=nodocs install $INSTALL_PKGS \\u0026\\u0026     rpm -V $INSTALL_PKGS \\u0026\\u0026     yum clean all \\u0026\\u0026     mkdir -p /var/lib/mysql/data \\u0026\\u0026 chown -R mysql.0 /var/lib/mysql \\u0026\\u0026     test \\\"$(id mysql)\\\" = \\\"uid=27(mysql) gid=27(mysql) groups=27(mysql)\\\"\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\"}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"2459ec73c55fe6507e0e44101d0eabde5f2109c088ce28f904e2f4f8cbb9d00f\",\"parent\":\"a937ba67e1793c099a11f8a22f5816a99a629c2a025fb6ba545c1a26a7e94887\",\"created\":\"2016-12-01T12:53:38.5370183Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  EXPOSE 3306/tcp\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"a937ba67e1793c099a11f8a22f5816a99a629c2a025fb6ba545c1a26a7e94887\",\"parent\":\"4b607c9c2ae5d76c49959b80dd76834ef3ddc5ca8ef5bea7bbdb92f11f73c6b3\",\"created\":\"2016-12-01T12:53:36.978291998Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  LABEL io.k8s.description=MySQL is a multi-user, multi-threaded SQL database server io.k8s.display-name=MySQL 5.5 io.openshift.expose-services=3306:mysql io.openshift.tags=database,mysql,mysql55\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"4b607c9c2ae5d76c49959b80dd76834ef3ddc5ca8ef5bea7bbdb92f11f73c6b3\",\"parent\":\"475539d9d2a6e615f705aea5cd840e216bbbbf0aea2c3325bdf168d451379aca\",\"created\":\"2016-12-01T12:53:35.378152345Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  ENV MYSQL_VERSION=5.5 HOME=/var/lib/mysql\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"475539d9d2a6e615f705aea5cd840e216bbbbf0aea2c3325bdf168d451379aca\",\"parent\":\"9e3678da0cc94a13bb80cc2452922e0731deaedb3b550f4bf084b34eba57db4a\",\"created\":\"2016-12-01T12:36:42.460524671Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  MAINTAINER SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\"]},\"author\":\"SoftwareCollections.org \\u003csclorg@redhat.com\\u003e\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"9e3678da0cc94a13bb80cc2452922e0731deaedb3b550f4bf084b34eba57db4a\",\"parent\":\"05fe84bf6d3f3a3d83d6b5e0856b88c5c3224dfdcd6152f355f20fa52556b182\",\"created\":\"2016-11-02T19:52:09.463959047Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  CMD [\\\"/bin/bash\\\"]\"]},\"author\":\"https://github.com/CentOS/sig-cloud-instance-images\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"05fe84bf6d3f3a3d83d6b5e0856b88c5c3224dfdcd6152f355f20fa52556b182\",\"parent\":\"af0819ed1fac82bebeb17f641b00f74daf40da37a8574feedec9c54fa178293a\",\"created\":\"2016-11-02T19:52:08.624010471Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  LABEL name=CentOS Base Image vendor=CentOS license=GPLv2 build-date=20161102\"]},\"author\":\"https://github.com/CentOS/sig-cloud-instance-images\",\"throwaway\":true}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"af0819ed1fac82bebeb17f641b00f74daf40da37a8574feedec9c54fa178293a\",\"parent\":\"3690474eb5b4b26fdfbd89c6e159e8cc376ca76ef48032a30fa6aafd56337880\",\"created\":\"2016-11-02T19:52:05.364657474Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop) ADD file:54df3580ac9fb66389b09230a74115a49ace2d193603bce0b5786dcb2957eb52 in / \"]},\"author\":\"https://github.com/CentOS/sig-cloud-instance-images\"}"
-        },
-        {
-           "v1Compatibility": "{\"id\":\"3690474eb5b4b26fdfbd89c6e159e8cc376ca76ef48032a30fa6aafd56337880\",\"created\":\"2016-08-30T18:18:45.109943798Z\",\"container_config\":{\"Cmd\":[\"/bin/sh -c #(nop)  MAINTAINER https://github.com/CentOS/sig-cloud-instance-images\"]},\"author\":\"https://github.com/CentOS/sig-cloud-instance-images\",\"throwaway\":true}"
-        }
-     ],
-     "signatures": [
-        {
-           "header": {
-              "jwk": {
-                 "crv": "P-256",
-                 "kid": "2IWA:D2EK:CWOV:R35P:AYD2:GQZP:VETP:GAMA:UTNV:I3LZ:FEVY:TZ4X",
-                 "kty": "EC",
-                 "x": "cm9h0Y89gptPg4Vj9C45taXw4hNOOvauDk9QWHK5Q2k",
-                 "y": "w-7Ol_Xk20aAsv9KC8oJOS_Fxhmh5VPMUFtTKUwLrwI"
-              },
-              "alg": "ES256"
-           },
-           "signature": "h8vUHg_46RPrA15pTK3aQmQ-W3x03TgmX_YplrNEqMxIElh24zt0FDGQX5YqrceSRVR5eXPfdi1UPlcj_ndSPw",
-           "protected": "eyJmb3JtYXRMZW5ndGgiOjEzOTYwLCJmb3JtYXRUYWlsIjoiQ24wIiwidGltZSI6IjIwMTYtMTItMDZUMDk6NDY6NTFaIn0"
-        }
-     ]
-  }
 :dockerImageLayers:
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:08d48e6f1cff259389732d35307bb877215fa28867cdaff50c1dbd6e0b993c1f
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:79e4bf1f98b759ce9e6910efd268c1cdab5b67fa56b21f9a7d972fab6bab8080
-  :size: 44195047
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:8fccda7fd381e3804a0ee43fcc3e13a6b2120292e4de7feb6cd790963c79f7eb
-  :size: 8405
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:f30f141063472f5a64b0eab8074c3cc474b29e874d55cc14c828e84ddac59531
-  :size: 165
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:4f6858d2210d78965369bea3b3b1bd8f7fd813a3f2d94143d47aa6dba8d52a1c
-  :size: 531
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-- :name: sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4
-  :size: 0
-  :mediaType: application/vnd.docker.container.image.rootfs.diff+x-gtar
-:dockerImageManifestMediaType: application/vnd.docker.distribution.manifest.v1+json
+- :name: sha256:b2cc5146c9c7855cb298ca8b77ecb153d37e3e5c69916ef423613a46a70c0503
+  :size: 75867345
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:782ee99b4ec9765f620d915f0c181158555d7aff9f30450c66ffe1f06e2ea0dc
+  :size: 10266780
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:28c6947581d347cde1a822140909e7de9a92599dff7c853f3fa7647c36171ec6
+  :size: 4987
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:f622eee2e866503198b641c3c2e3f0044203b8763d9567b507e0989fed66d13e
+  :size: 200446
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:cd000500d020ea5221bd8989c3c6514db9b84d4b1ad98d34a52ea586c350e783
+  :size: 108120363
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:a097249d254cbb13cf123fc39da694e89558e7481ec3f34c53b3bc893c29a790
+  :size: 14745212
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:03a255aa77c313601f5ed071ac310aff3cb310fbdc8ed70998424c506d934dd8
+  :size: 1738
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:8ef7696deca1ba01816184076df81221420a7690459e13a5b5d3aa6f0c1a1602
+  :size: 5449
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:62289f789d18933715811e27f6af256ee5dd13c7797966d9eb7bd4be968902fe
+  :size: 161334
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+- :name: sha256:5bc3a321764e4b0eff6ee9cd6d3d84cbc3174067d164fc261a1bdc5d3b4d9eee
+  :size: 11781672
+  :mediaType: application/vnd.docker.image.rootfs.diff.tar.gzip
+:dockerImageManifestMediaType: application/vnd.docker.distribution.manifest.v2+json
 :kind: Image
-:apiVersion: v1
+:apiVersion: image.openshift.io/v1

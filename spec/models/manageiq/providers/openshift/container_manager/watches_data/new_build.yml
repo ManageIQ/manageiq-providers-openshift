@@ -2,7 +2,6 @@
 :metadata:
   :name: go-project-1
   :namespace: default
-  :selfLink: "/oapi/v1/namespaces/default/builds/go-project-1"
   :uid: 8a599447-ce2e-4990-8495-3f3fbfa754cc
   :resourceVersion: '67661'
   :creationTimestamp: '2016-12-08T06:06:02Z'

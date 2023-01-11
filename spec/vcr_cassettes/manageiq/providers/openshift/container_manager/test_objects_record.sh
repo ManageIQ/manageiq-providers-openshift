@@ -34,7 +34,7 @@ if [ -z "$OPENSHIFT_MASTER_HOST" ]; then
 fi
 
 if [ -z "$OPENSHIFT_MANAGEMENT_ADMIN_TOKEN" ]; then
-  OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
+  OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc create token -n management-infra management-admin)"
   export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN
 fi
 

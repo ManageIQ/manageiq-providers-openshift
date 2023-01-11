@@ -2,7 +2,6 @@
 :metadata:
   :name: go-project
   :namespace: default
-  :selfLink: "/oapi/v1/namespaces/default/buildconfigs/python-project"
   :uid: 65691775-bd0c-11e6-8a18-001a4a2314d5
   :resourceVersion: '67432'
   :creationTimestamp: '2016-12-08T06:06:02Z'
