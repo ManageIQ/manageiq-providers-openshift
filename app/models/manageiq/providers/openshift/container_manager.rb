@@ -50,7 +50,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   end
 
   def self.openshift_connect(hostname, port, options)
-    api_group = options[:api_group] || "apps.openshift.io/v1"
+    api_group = options[:api_group] || "config.openshift.io/v1"
     api_path, api_version = api_group.split("/")
 
     options = {:path => "/apis/#{api_path}", :version => api_version}.merge(options)
@@ -62,6 +62,10 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
 
     ocp = openshift_connect(hostname, port, options)
     !!ocp&.api_valid?
+  rescue Kubeclient::ResourceNotFoundError
+    # If the /apis/config.openshift.io/v1 endpoint isn't available then we have
+    # connected to an unsupported version of openshift
+    raise MiqException::Error, _("Unsupported OpenShift version")
   end
 
   def self.api_group_for_kind(kind)
