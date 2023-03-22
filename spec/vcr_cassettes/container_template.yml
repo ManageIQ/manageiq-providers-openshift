@@ -182,49 +182,6 @@ http_interactions:
   recorded_at: Tue, 10 Jan 2023 15:02:41 GMT
 - request:
     method: get
-    uri: https://host.example.com:8443/apis/apps.openshift.io/v1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - "*/*"
-      User-Agent:
-      - rest-client/2.1.0 (linux-gnu x86_64) ruby/3.0.4p208
-      Authorization:
-      - Bearer theToken
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Audit-Id:
-      - 6f26dc0f-8946-4664-b7f4-a2e89eb250d8
-      - 6f26dc0f-8946-4664-b7f4-a2e89eb250d8
-      Cache-Control:
-      - no-cache, private
-      - no-store
-      Content-Length:
-      - '999'
-      Content-Type:
-      - application/json
-      Date:
-      - Tue, 10 Jan 2023 15:02:41 GMT
-      X-Kubernetes-Pf-Flowschema-Uid:
-      - 1b99b53f-667e-43b6-af56-957dcd30e4a7
-      X-Kubernetes-Pf-Prioritylevel-Uid:
-      - 956bc4ac-462e-42d5-a2da-66c720f4480b
-    body:
-      encoding: UTF-8
-      string: '{"kind":"APIResourceList","apiVersion":"v1","groupVersion":"apps.openshift.io/v1","resources":[{"name":"deploymentconfigs","singularName":"","namespaced":true,"kind":"DeploymentConfig","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["dc"],"categories":["all"],"storageVersionHash":"6xyoXGsxfiA="},{"name":"deploymentconfigs/instantiate","singularName":"","namespaced":true,"kind":"DeploymentRequest","verbs":["create"]},{"name":"deploymentconfigs/log","singularName":"","namespaced":true,"kind":"DeploymentLog","verbs":["get"]},{"name":"deploymentconfigs/rollback","singularName":"","namespaced":true,"kind":"DeploymentConfigRollback","verbs":["create"]},{"name":"deploymentconfigs/scale","singularName":"","namespaced":true,"group":"extensions","version":"v1beta1","kind":"Scale","verbs":["get","patch","update"]},{"name":"deploymentconfigs/status","singularName":"","namespaced":true,"kind":"DeploymentConfig","verbs":["get","patch","update"]}]}
-
-        '
-    http_version:
-  recorded_at: Tue, 10 Jan 2023 15:02:41 GMT
-- request:
-    method: get
     uri: https://host.example.com:8443/api/v1
     body:
       encoding: US-ASCII
