@@ -2,12 +2,14 @@ describe ManageIQ::Providers::Openshift::ContainerManager do
   describe ".verify_default_credentials" do
     context "with a v3 cluster" do
       it "raises an unsupported exception" do
+        require "kubeclient"
+
         allow(Kubeclient::Client)
           .to receive(:new)
           .with(URI.parse("https://openshiftv3:8443/oapi"), "v1", anything)
           .and_raise(Kubeclient::ResourceNotFoundError.new(404, "404 Not Found", nil))
 
-        expect { described_class.verify_default_credentials("openshiftv3", 8443, {:path => "/oapi"}) }.to raise_error(MiqException::Error, "Unsupported Openshift version")
+        expect { described_class.verify_default_credentials("openshiftv3", 8443, {:path => "/oapi"}) }.to raise_error(MiqException::Error, "Unsupported OpenShift version")
       end
     end
   end

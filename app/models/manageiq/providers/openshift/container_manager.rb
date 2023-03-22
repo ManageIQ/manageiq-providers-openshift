@@ -106,7 +106,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
       # If we're given an OpenShift object lookup its v4 API Group
       api_group = self.class.api_group_for_kind(kind)
       if api_group
-        openshift_client_key  = File.join(path, "/apps/#{api_group}")
+        openshift_client_key = File.join(path, "/apps/#{api_group}")
         @clients[openshift_client_key] ||= connect(:api_group => api_group, :version => api_version)
       end
 
