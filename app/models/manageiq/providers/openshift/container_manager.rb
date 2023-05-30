@@ -50,7 +50,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
   end
 
   def self.openshift_connect(hostname, port, options)
-    api_group = options[:api_group] || "apps.openshift.io/v1"
+    api_group = options[:api_group] || "config.openshift.io/v1"
     api_path, api_version = api_group.split("/")
 
     options = {:path => "/apis/#{api_path}", :version => api_version}.merge(options)
@@ -62,6 +62,10 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
 
     ocp = openshift_connect(hostname, port, options)
     !!ocp&.api_valid?
+  rescue Kubeclient::ResourceNotFoundError
+    # If the /apis/config.openshift.io/v1 endpoint isn't available then we have
+    # connected to an unsupported version of openshift
+    raise MiqException::Error, _("Unsupported OpenShift version")
   end
 
   def self.api_group_for_kind(kind)
@@ -96,15 +100,16 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
     if version
       @clients[api_version] ||= connect(:service => 'kubernetes', :version => version, :path => '/apis/' + api)
     else
+      kubernetes_client_key = File.join("/api", api_version)
+      @clients[kubernetes_client_key] ||= connect(:service => 'kubernetes', :version => api_version)
+
       # If we're given an OpenShift object lookup its v4 API Group
       api_group = self.class.api_group_for_kind(kind)
-      path      = api_group ? "/apps/#{api_group}" : "/oapi"
+      if api_group
+        openshift_client_key = File.join(path, "/apps/#{api_group}")
+        @clients[openshift_client_key] ||= connect(:api_group => api_group, :version => api_version)
+      end
 
-      openshift_client_key  = File.join(path, api_version)
-      kubernetes_client_key = File.join("/api", api_version)
-
-      @clients[openshift_client_key] ||= connect(:api_group => api_group, :version => api_version)
-      @clients[kubernetes_client_key] ||= connect(:service => 'kubernetes', :version => api_version)
       @clients[openshift_client_key].respond_to?(method_name) ? @clients[openshift_client_key] : @clients[kubernetes_client_key]
     end
   end
