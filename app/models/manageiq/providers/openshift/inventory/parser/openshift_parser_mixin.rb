@@ -221,7 +221,7 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
       :ref => "#{ContainerImage::DOCKER_PULLABLE_PREFIX}#{id}",
     }
 
-    new_result[:type] = 'ManageIQ::Providers::Openshift::ContainerManager::ContainerImage'
+    new_result[:type] = 'ManageIQ::Providers::Openshift::ContainerManager::ManagedContainerImage'
 
     if openshift_image[:dockerImageManifest].present?
       begin

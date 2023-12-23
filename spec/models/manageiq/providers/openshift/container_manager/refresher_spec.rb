@@ -231,7 +231,7 @@ shared_examples "openshift refresher VCR tests" do
     expect(ContainerTemplate.count).to eq(127)
     expect(ContainerImage.count).to eq(all_images_count)
     expect(ContainerImage.joins(:containers).distinct.count).to eq(pod_images_count)
-    expect(ManageIQ::Providers::Openshift::ContainerManager::ContainerImage.count).to eq(images_managed_by_openshift_count)
+    expect(ManageIQ::Providers::Openshift::ContainerManager::ManagedContainerImage.count).to eq(images_managed_by_openshift_count)
   end
 
   def assert_specific_container

@@ -1,33 +1,25 @@
 describe ManageIQ::Providers::Openshift::ContainerManager::ContainerImage do
   context "#security_quality_annotation" do
-    let(:openshift_image_type) { "ManageIQ::Providers::Openshift::ContainerManager::ContainerImage" }
-    let(:container_image) do
-      FactoryBot.create(:openshift_container_image,
-                         :type => openshift_image_type)
-    end
-    let(:blob) do
-      FactoryBot.create(:binary_blob,
-                         :binary => "blah",
-                         :name   => "test_blob")
-    end
+    let(:container_image)      { FactoryBot.create(:openshift_managed_container_image) }
+    let(:blob)                 { FactoryBot.create(:binary_blob, :binary => "blah", :name => "test_blob") }
     let(:scan_result) do
       FactoryBot.create(:openscap_result_skip_callback,
-                         :binary_blob        => blob,
-                         :resource_id        => container_image.id,
-                         :resource_type      => openshift_image_type,
-                         :container_image_id => container_image.id)
+                        :binary_blob        => blob,
+                        :resource_id        => container_image.id,
+                        :resource_type      => container_image.type,
+                        :container_image_id => container_image.id)
     end
     let(:successful_rule) do
       FactoryBot.create(:openscap_rule_result,
-                         :openscap_result_id => scan_result.id,
-                         :severity           => "High",
-                         :result             => "success")
+                        :openscap_result_id => scan_result.id,
+                        :severity           => "High",
+                        :result             => "success")
     end
     let(:failed_rule) do
       FactoryBot.create(:openscap_rule_result,
-                         :openscap_result_id => scan_result.id,
-                         :severity           => "Medium",
-                         :result             => "fail")
+                        :openscap_result_id => scan_result.id,
+                        :severity           => "Medium",
+                        :result             => "fail")
     end
 
     before :each do
