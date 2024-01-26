@@ -1,6 +1,4 @@
 class ManageIQ::Providers::Openshift::Inventory::Persister::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Persister::ContainerManager
-  require_nested :WatchNotice
-
   def initialize_inventory_collections
     super
 

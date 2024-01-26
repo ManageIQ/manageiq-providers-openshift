@@ -1,6 +1,4 @@
 class ManageIQ::Providers::Openshift::Inventory::Collector::ContainerManager < ManageIQ::Providers::Kubernetes::Inventory::Collector::ContainerManager
-  require_nested :WatchNotice
-
   def api_version
     @api_version ||= cluster_version.status.desired.version
   end
