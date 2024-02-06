@@ -3,22 +3,6 @@ ManageIQ::Providers::Kubernetes::ContainerManager.include(ActsAsStiLeafClass)
 class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Kubernetes::ContainerManager
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
-  require_nested :Container
-  require_nested :ContainerGroup
-  require_nested :ContainerNode
-  require_nested :ContainerImage
-  require_nested :ContainerTemplate
-  require_nested :EventCatcher
-  require_nested :EventParser
-  require_nested :MetricsCollectorWorker
-  require_nested :OrchestrationStack
-  require_nested :RefreshWorker
-  require_nested :Refresher
-  require_nested :ServiceInstance
-  require_nested :ServiceOffering
-  require_nested :ServiceParametersSet
-  require_nested :Options
-
   include ManageIQ::Providers::Openshift::ContainerManager::Options
 
   # Override HasMonitoringManagerMixin

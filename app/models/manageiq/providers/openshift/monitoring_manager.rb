@@ -1,8 +1,6 @@
 ManageIQ::Providers::Kubernetes::MonitoringManager.include(ActsAsStiLeafClass)
 
 class ManageIQ::Providers::Openshift::MonitoringManager < ManageIQ::Providers::Kubernetes::MonitoringManager
-  require_nested :EventCatcher
-
   belongs_to :parent_manager,
              :foreign_key => :parent_ems_id,
              :class_name  => "ManageIQ::Providers::Openshift::ContainerManager",
