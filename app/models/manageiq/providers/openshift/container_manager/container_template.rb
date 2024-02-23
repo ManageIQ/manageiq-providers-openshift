@@ -12,7 +12,7 @@ class ManageIQ::Providers::Openshift::ContainerManager::ContainerTemplate < Mana
   end
 
   supports :instantiate do
-    unsupported_reason_add(:instantiate, instantiate_unsupported_reason) unless instantiate_supported?
+    instantiate_unsupported_reason unless instantiate_supported?
   end
 
   def instantiate(params, project = nil, labels = nil)
