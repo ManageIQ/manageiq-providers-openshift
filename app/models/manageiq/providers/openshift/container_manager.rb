@@ -5,13 +5,6 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
 
   include ManageIQ::Providers::Openshift::ContainerManager::Options
 
-  # Override HasMonitoringManagerMixin
-  has_one :monitoring_manager,
-          :foreign_key => :parent_ems_id,
-          :class_name  => "ManageIQ::Providers::Openshift::MonitoringManager",
-          :autosave    => true,
-          :dependent   => :destroy
-
   supports :catalog
   supports :create
   supports :external_logging
