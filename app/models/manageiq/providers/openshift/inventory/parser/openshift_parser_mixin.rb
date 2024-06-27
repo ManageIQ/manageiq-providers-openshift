@@ -34,7 +34,9 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
 
       container_route = persister.container_routes.build(h)
 
+      annotations = parse_annotations(data)
       custom_attributes(container_route, custom_attrs)
+      custom_attributes(container_route, :annotations => annotations)
       taggings(container_route, tags)
     end
   end
@@ -73,6 +75,8 @@ module ManageIQ::Providers::Openshift::Inventory::Parser::OpenshiftParserMixin
 
       container_template = persister.container_templates.build(h)
 
+      annotations = parse_annotations(data)
+      custom_attributes(container_template, :annotations => annotations)
       template_parameters(container_template, parameters)
       custom_attributes(container_template, custom_attrs)
     end
