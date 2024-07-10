@@ -139,7 +139,7 @@ shared_examples "openshift refresher VCR tests" do
           'ContainerReplicator'        => 2,
           'ContainerBuild'             => 2,
           'ContainerBuildPod'          => 2,
-          'CustomAttribute'            => 17,
+          'CustomAttribute'            => 25,
           'ContainerTemplateParameter' => 3,
         }
         expected_counts = deleted.collect { |k, d| [k, object_counts[k] - d] }.to_h
@@ -487,7 +487,7 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
         'ContainerReplicator'        => 3,
         'ContainerBuild'             => 3,
         'ContainerBuildPod'          => 3,
-        'CustomAttribute'            => 7704,
+        'CustomAttribute'            => 10_188,
       }
     end
 
