@@ -3,6 +3,13 @@ ManageIQ::Providers::Kubernetes::ContainerManager.include(ActsAsStiLeafClass)
 class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Kubernetes::ContainerManager
   DEFAULT_EXTERNAL_LOGGING_ROUTE_NAME = "logging-kibana-ops".freeze
 
+  has_one :infra_manager,
+          :foreign_key => :parent_ems_id,
+          :class_name  => "ManageIQ::Providers::Openshift::InfraManager",
+          :autosave    => true,
+          :inverse_of  => :parent_manager,
+          :dependent   => :destroy
+
   include ManageIQ::Providers::Openshift::ContainerManager::Options
 
   supports :catalog
@@ -19,6 +26,20 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
 
   def self.event_monitor_class
     ManageIQ::Providers::Openshift::ContainerManager::EventCatcher
+  end
+
+  def self.virtualization_options
+    [
+      {
+        :label => _('Disabled'),
+        :value => 'none',
+      },
+      {
+        :label => _('OpenShift Virtualization'),
+        :value => 'kubevirt',
+        :pivot => 'endpoints.openshift.hostname',
+      },
+    ]
   end
 
   def self.raw_connect(hostname, port, options)
