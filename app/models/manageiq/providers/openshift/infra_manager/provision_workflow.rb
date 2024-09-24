@@ -3,7 +3,7 @@ class ManageIQ::Providers::Openshift::InfraManager::ProvisionWorkflow < ManageIQ
     ManageIQ::Providers::Openshift::InfraManager
   end
 
-  def dialog_name_from_automate(message = 'get_dialog_name')
-    super(message, {'platform' => 'openshift'})
+  def dialog_name_from_automate(message = 'get_dialog_name', extra_attrs = {'platform' => 'openshift'})
+    super(message, extra_attrs)
   end
 end
