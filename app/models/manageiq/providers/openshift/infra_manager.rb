@@ -36,10 +36,6 @@ class ManageIQ::Providers::Openshift::InfraManager < ManageIQ::Providers::Kubevi
     "0.1.0".freeze
   end
 
-  def default_authentication_type
-    :openshift
-  end
-
   def self.display_name(number = 1)
     n_('Infrastructure Provider (OpenShift Virtualization)', 'Infrastructure Providers (OpenShift Virtualization)', number)
   end
