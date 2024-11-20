@@ -12,6 +12,10 @@ class ManageIQ::Providers::Openshift::InfraManager < ManageIQ::Providers::Kubevi
   supports :catalog
   supports :provisioning
 
+  class << self
+    delegate :refresh_ems, :to => ManageIQ::Providers::Openshift::ContainerManager
+  end
+
   def self.ems_type
     @ems_type ||= "openshift_infra".freeze
   end

@@ -21,6 +21,8 @@
       :saver_strategy: batch
     :get_container_images: true
     :store_unused_images: true
+  :openshift_infra:
+    :refresh_interval: 0
 :workers:
   :worker_base:
     :event_catcher:
