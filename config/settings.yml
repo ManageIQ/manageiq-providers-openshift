@@ -33,6 +33,7 @@
     :queue_worker_base:
         :ems_metrics_collector_worker:
           :ems_metrics_collector_worker_openshift: {}
+          :ems_metrics_collector_worker_openshift_infra: {}
         :ems_refresh_worker:
           :ems_refresh_worker_openshift: {}
           :ems_refresh_worker_openshift_infra: {}
