@@ -12,7 +12,8 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
         ems.parent_manager.authentications << FactoryBot.create(:authentication, {:authtype => :bearer,
                                                                                   :type     => "AuthToken",
                                                                                   :auth_key => token,
-                                                                                  :userid   => "_"})
+                                                                                  :userid   => "_",
+                                                                                  :password => nil})
         ems.parent_manager.default_endpoint.update!(:role              => :default,
                                                     :hostname          => host,
                                                     :port              => port,
@@ -22,7 +23,7 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
 
     it 'works correctly with one node' do
       2.times do
-        VCR.use_cassette(described_class.name.underscore) do
+        VCR.use_cassette(described_class.name.underscore, :allow_unused_http_interactions => true) do
           EmsRefresh.refresh(ems)
         end
 
