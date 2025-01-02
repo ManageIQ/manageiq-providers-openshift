@@ -37,7 +37,7 @@ class ManageIQ::Providers::Openshift::ContainerManager < ManageIQ::Providers::Ku
       {
         :label => _('OpenShift Virtualization'),
         :value => 'kubevirt',
-        :pivot => 'endpoints.openshift.hostname',
+        :pivot => 'endpoints.kubevirt.hostname',
       },
     ]
   end
