@@ -12,7 +12,8 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
         ems.parent_manager.authentications << FactoryBot.create(:authentication, {:authtype => :bearer,
                                                                                   :type     => "AuthToken",
                                                                                   :auth_key => token,
-                                                                                  :userid   => "_"})
+                                                                                  :userid   => "_",
+                                                                                  :password => nil})
         ems.parent_manager.default_endpoint.update!(:role              => :default,
                                                     :hostname          => host,
                                                     :port              => port,
@@ -36,18 +37,18 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
 
     def assert_counts
       expect(ems.vms.count).to eq(1)
-      expect(ems.hosts.count).to eq(6)
+      expect(ems.hosts.count).to eq(1)
       expect(ems.clusters.count).to eq(1)
       expect(ems.storages.count).to eq(1)
     end
 
     def assert_specific_vm
-      vm = ems.vms.find_by(:name => "fedora-gold-porcupine-50")
+      vm = ems.vms.find_by(:name => "centos-stream9-lavender-manatee-97")
       expect(vm).to have_attributes(
-        :ems_ref          => "50c54ad2-c2a6-44ae-89f5-14d2f313882c",
-        :name             => "fedora-gold-porcupine-50",
+        :ems_ref          => "fb22c624-ae4c-4e1e-8fd9-7e7a7aadde76",
+        :name             => "centos-stream9-lavender-manatee-97",
         :type             => "ManageIQ::Providers::Openshift::InfraManager::Vm",
-        :uid_ems          => "50c54ad2-c2a6-44ae-89f5-14d2f313882c",
+        :uid_ems          => "fb22c624-ae4c-4e1e-8fd9-7e7a7aadde76",
         :vendor           => "openshift_infra",
         :power_state      => "on",
         :connection_state => "connected"
@@ -55,12 +56,12 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
     end
 
     def assert_specific_host
-      host = ems.hosts.find_by(:ems_ref => "248af02e-7da9-49a4-b026-1dd1a341b0de")
+      host = ems.hosts.find_by(:ems_ref => "436c15c9-86cf-4fd6-9290-d219d2a59221")
       expect(host).to have_attributes(
         :connection_state => "connected",
-        :ems_ref          => "248af02e-7da9-49a4-b026-1dd1a341b0de",
+        :ems_ref          => "436c15c9-86cf-4fd6-9290-d219d2a59221",
         :type             => "ManageIQ::Providers::Openshift::InfraManager::Host",
-        :uid_ems          => "248af02e-7da9-49a4-b026-1dd1a341b0de",
+        :uid_ems          => "436c15c9-86cf-4fd6-9290-d219d2a59221",
         :vmm_product      => "OpenShift Virtualization",
         :vmm_vendor       => "openshift_infra",
         :vmm_version      => "0.1.0",
