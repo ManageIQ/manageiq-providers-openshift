@@ -3,12 +3,7 @@ class ManageIQ::Providers::Openshift::Inventory < ManageIQ::Providers::Kubernete
     if !ems.kind_of?(EmsInfra)
       super
     else
-      parser_type = if target_is_vm?(target)
-                      "PartialTargetRefresh"
-                    else
-                      "FullRefresh"
-                    end
-      "ManageIQ::Providers::Openshift::Inventory::Parser::InfraManager::#{parser_type}".safe_constantize
+      ManageIQ::Providers::Openshift::Inventory::Parser::InfraManager::FullRefresh
     end
   end
 
@@ -16,14 +11,7 @@ class ManageIQ::Providers::Openshift::Inventory < ManageIQ::Providers::Kubernete
     if !ems.kind_of?(EmsInfra)
       super
     else
-      collector_class = collector_class_for(ems, target)
-
-      collector = if target_is_vm?(target)
-                    collector_class.new(ems, target)
-                  else
-                    collector_class.new(ems, ems)
-                  end
-
+      collector = collector_class_for(ems, target).new(ems, target)
       persister = persister_class_for(ems, target).new(ems, target)
       new(
         persister,
@@ -31,9 +19,5 @@ class ManageIQ::Providers::Openshift::Inventory < ManageIQ::Providers::Kubernete
         parser_classes_for(ems, target).map(&:new)
       )
     end
-  end
-
-  def self.target_is_vm?(target)
-    target.kind_of?(ManageIQ::Providers::Openshift::InfraManager::Vm)
   end
 end
