@@ -6,6 +6,8 @@ class ManageIQ::Providers::Openshift::InfraManager < ManageIQ::Providers::Kubevi
              :inverse_of  => :infra_manager,
              :class_name  => "ManageIQ::Providers::Openshift::ContainerManager"
 
+  has_many :flavors, :dependent => :destroy, :foreign_key => :ems_id, :inverse_of => :ext_management_system
+
   #
   # This is the list of features that this provider supports:
   #
