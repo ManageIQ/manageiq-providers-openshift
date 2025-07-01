@@ -1,9 +1,9 @@
 describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
   context '#refresh' do
     let(:ems) do
-      host = Rails.application.secrets.openshift[:hostname]
-      token = Rails.application.secrets.openshift[:token]
-      port = Rails.application.secrets.openshift[:port]
+      host = VcrSecrets.openshift.hostname
+      token = VcrSecrets.openshift.token
+      port = VcrSecrets.openshift.port
       zone = EvmSpecHelper.local_miq_server.zone
 
       FactoryBot.create(:ems_openshift_infra,
