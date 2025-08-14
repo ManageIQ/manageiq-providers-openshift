@@ -321,6 +321,11 @@ shared_examples "openshift refresher VCR tests" do
   def assert_specific_container_project
     @container_pr = ContainerProject.find_by(:name => "my-project-0")
 
+    expect(@container_pr).to have_attributes(
+      :ext_management_system => ems,
+      :type                  => "ManageIQ::Providers::Openshift::ContainerManager::ContainerProject"
+    )
+
     expect(@container_pr.container_groups.count).to eq(2)
     expect(@container_pr.containers.count).to eq(2)
     expect(@container_pr.container_replicators.count).to eq(1)
@@ -328,7 +333,6 @@ shared_examples "openshift refresher VCR tests" do
     expect(@container_pr.container_services.count).to eq(3)
     expect(@container_pr.container_builds.count).to eq(1)
     expect(ContainerBuildPod.where(:namespace => @container_pr.name).count).to eq(1)
-    expect(@container_pr.ext_management_system).to eq(ems)
   end
 
   def assert_specific_container_route
@@ -457,9 +461,9 @@ describe ManageIQ::Providers::Openshift::ContainerManager::Refresher do
 
   let(:ems) do
     # env vars for easier VCR recording, see test_objects_record.sh
-    hostname = Rails.application.secrets.openshift[:hostname]
-    token = Rails.application.secrets.openshift[:token]
-    port = Rails.application.secrets.openshift[:port]
+    hostname = VcrSecrets.openshift.hostname
+    token = VcrSecrets.openshift.token
+    port = VcrSecrets.openshift.port
 
     FactoryBot.create(
       :ems_openshift_with_zone,

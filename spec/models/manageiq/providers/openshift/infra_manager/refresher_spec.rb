@@ -1,9 +1,9 @@
 describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
   context '#refresh' do
     let(:ems) do
-      host = Rails.application.secrets.openshift[:hostname]
-      token = Rails.application.secrets.openshift[:token]
-      port = Rails.application.secrets.openshift[:port]
+      host = VcrSecrets.openshift.hostname
+      token = VcrSecrets.openshift.token
+      port = VcrSecrets.openshift.port
       zone = EvmSpecHelper.local_miq_server.zone
 
       FactoryBot.create(:ems_openshift_infra,
@@ -28,6 +28,7 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
         end
 
         assert_counts
+        assert_specific_flavor
         assert_specific_vm
         assert_specific_host
         assert_specific_cluster
@@ -36,36 +37,61 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
     end
 
     def assert_counts
-      expect(ems.vms.count).to eq(1)
+      expect(ems.vms.count).to eq(2)
       expect(ems.hosts.count).to eq(1)
+      expect(ems.flavors.count).to eq(44)
       expect(ems.clusters.count).to eq(1)
       expect(ems.storages.count).to eq(1)
     end
 
+    def assert_specific_flavor
+      flavor = ems.flavors.find_by(:name => "u1.small")
+      expect(flavor).to have_attributes(
+        :name            => "u1.small",
+        :ems_ref         => "ee6e323e-2c82-4007-a249-adcc2cd43bde",
+        :type            => "ManageIQ::Providers::Openshift::InfraManager::Flavor",
+        :cpu_total_cores => 1,
+        :memory          => 2_048
+      )
+      expect(flavor.vms).to include(ems.vms.find_by(:name => "centos-stream9-aqua-gull-95"))
+    end
+
     def assert_specific_vm
-      vm = ems.vms.find_by(:name => "centos-stream9-lavender-manatee-97")
+      vm = ems.vms.find_by(:name => "centos-stream9-aqua-gull-95")
       expect(vm).to have_attributes(
-        :ems_ref          => "fb22c624-ae4c-4e1e-8fd9-7e7a7aadde76",
-        :name             => "centos-stream9-lavender-manatee-97",
+        :ems_ref          => "5f6937bd-e574-42cb-bbd1-3d70ecd3e8e9",
+        :name             => "centos-stream9-aqua-gull-95",
         :type             => "ManageIQ::Providers::Openshift::InfraManager::Vm",
-        :uid_ems          => "fb22c624-ae4c-4e1e-8fd9-7e7a7aadde76",
+        :uid_ems          => "5f6937bd-e574-42cb-bbd1-3d70ecd3e8e9",
         :vendor           => "openshift_infra",
         :power_state      => "on",
-        :connection_state => "connected"
+        :connection_state => "connected",
+        :flavor           => ems.flavors.find_by(:name => "u1.small")
+      )
+
+      expect(vm.hardware).to have_attributes(
+        :cpu_cores_per_socket => 1,
+        :cpu_sockets          => 1,
+        :cpu_total_cores      => 1,
+        :memory_mb            => 2_048
       )
     end
 
     def assert_specific_host
-      host = ems.hosts.find_by(:ems_ref => "436c15c9-86cf-4fd6-9290-d219d2a59221")
+      host = ems.hosts.find_by(:ems_ref => "c69d83f1-2133-49ec-8573-f2d28f887116")
       expect(host).to have_attributes(
         :connection_state => "connected",
-        :ems_ref          => "436c15c9-86cf-4fd6-9290-d219d2a59221",
+        :ems_ref          => "c69d83f1-2133-49ec-8573-f2d28f887116",
         :type             => "ManageIQ::Providers::Openshift::InfraManager::Host",
-        :uid_ems          => "436c15c9-86cf-4fd6-9290-d219d2a59221",
+        :uid_ems          => "c69d83f1-2133-49ec-8573-f2d28f887116",
         :vmm_product      => "OpenShift Virtualization",
         :vmm_vendor       => "openshift_infra",
         :vmm_version      => "0.1.0",
         :ems_cluster      => ems.ems_clusters.find_by(:ems_ref => "0")
+      )
+      expect(host.hardware).to have_attributes(
+        :cpu_total_cores => 12,
+        :memory_mb       => 19_997
       )
     end
 
