@@ -1,6 +1,6 @@
 # ManageIQ::Providers::Openshift
 
-[![CI](https://github.com/ManageIQ/manageiq-providers-openshift/actions/workflows/ci.yaml/badge.svg)](https://github.com/ManageIQ/manageiq-providers-openshift/actions/workflows/ci.yaml)
+[![CI](https://github.com/ManageIQ/manageiq-providers-openshift/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/ManageIQ/manageiq-providers-openshift/actions/workflows/ci.yaml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/6ec4be4bc1d54502b47b/maintainability)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6ec4be4bc1d54502b47b/test_coverage)](https://codeclimate.com/github/ManageIQ/manageiq-providers-openshift/test_coverage)
 
