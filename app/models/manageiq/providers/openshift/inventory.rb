@@ -1,9 +1,17 @@
 class ManageIQ::Providers::Openshift::Inventory < ManageIQ::Providers::Kubernetes::Inventory
+  def self.collector_class_for(ems, target)
+    if !ems.kind_of?(EmsInfra)
+      super
+    else
+      self::Collector::InfraManager::FullRefresh
+    end
+  end
+
   def self.parser_class_for(ems, target)
     if !ems.kind_of?(EmsInfra)
       super
     else
-      ManageIQ::Providers::Openshift::Inventory::Parser::InfraManager::FullRefresh
+      self::Parser::InfraManager::FullRefresh
     end
   end
 

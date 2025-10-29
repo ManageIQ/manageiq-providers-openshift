@@ -7,8 +7,8 @@ class ManageIQ::Providers::Openshift::InfraManager::RefreshWorker::Runner < Mana
     ManageIQ::Providers::Openshift
   end
 
-  def collector_class
-    ManageIQ::Providers::Openshift::Inventory::Collector::InfraManager
+  def partial_refresh_collector_class
+    ManageIQ::Providers::Openshift::Inventory::Collector::InfraManager::PartialRefresh
   end
 
   def partial_refresh_parser_class
