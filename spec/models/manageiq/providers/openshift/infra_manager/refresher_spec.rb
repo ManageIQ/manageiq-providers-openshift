@@ -75,6 +75,39 @@ describe ManageIQ::Providers::Openshift::InfraManager::Refresher do
         :cpu_total_cores      => 1,
         :memory_mb            => 2_048
       )
+
+      expect(vm.hardware.disks.count).to eq(2)
+
+      rootdisk = vm.hardware.disks.find_by(:device_name => "rootdisk")
+      expect(rootdisk).to have_attributes(
+        :device_name     => "rootdisk",
+        :device_type     => "disk",
+        :present         => true,
+        :mode            => "persistent",
+        :controller_type => "virtio",
+        :filename        => "centos-stream9-aqua-gull-95-volume",
+        :location        => "centos-stream9-aqua-gull-95-volume",
+        :size            => 127 * 1024 * 1024 * 1024,
+        :disk_type       => "thick",
+        :thin            => false,
+        :ems_ref         => "rootdisk"
+      )
+
+      cloudinitdisk = vm.hardware.disks.find_by(:device_name => "cloudinitdisk")
+      expect(cloudinitdisk).to have_attributes(
+        :device_name     => "cloudinitdisk",
+        :device_type     => "disk",
+        :present         => true,
+        :mode            => "persistent",
+        :controller_type => "virtio",
+        :size_on_disk    => 1_048_576,
+        :ems_ref         => "cloudinitdisk"
+      )
+      network = vm.hardware.networks.find_by(:ipaddress => "10.217.0.58")
+      expect(network).to have_attributes(
+        :ipaddress => "10.217.0.58",
+        :hostname  => "crc"
+      )
     end
 
     def assert_specific_host

@@ -91,6 +91,92 @@ http_interactions:
   recorded_at: Mon, 09 Jun 2025 15:41:00 GMT
 - request:
     method: get
+    uri: https://host.example.com:8443/api/v1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      User-Agent:
+      - rest-client/2.1.0 (linux-gnu x86_64) ruby/3.3.8p144
+      Authorization:
+      - Bearer theToken
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Audit-Id:
+      - ec782728-0ecf-48a3-97a1-dc2886e38125
+      Cache-Control:
+      - no-cache, private
+      Content-Type:
+      - application/json
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Kubernetes-Pf-Flowschema-Uid:
+      - 916aba50-d4cc-4f43-8c6a-3161f9f2cf70
+      X-Kubernetes-Pf-Prioritylevel-Uid:
+      - abde746e-2605-4e40-949a-a58670bc4d81
+      Date:
+      - Mon, 09 Jun 2025 15:41:00 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"kind":"APIResourceList","groupVersion":"v1","resources":[{"name":"bindings","singularName":"binding","namespaced":true,"kind":"Binding","verbs":["create"]},{"name":"componentstatuses","singularName":"componentstatus","namespaced":false,"kind":"ComponentStatus","verbs":["get","list"],"shortNames":["cs"]},{"name":"configmaps","singularName":"configmap","namespaced":true,"kind":"ConfigMap","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["cm"],"storageVersionHash":"qFsyl6wFWjQ="},{"name":"endpoints","singularName":"endpoints","namespaced":true,"kind":"Endpoints","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["ep"],"storageVersionHash":"fWeeMqaN/OA="},{"name":"events","singularName":"event","namespaced":true,"kind":"Event","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["ev"],"storageVersionHash":"r2yiGXH7wu8="},{"name":"limitranges","singularName":"limitrange","namespaced":true,"kind":"LimitRange","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["limits"],"storageVersionHash":"EBKMFVe6cwo="},{"name":"namespaces","singularName":"namespace","namespaced":false,"kind":"Namespace","verbs":["create","delete","get","list","patch","update","watch"],"shortNames":["ns"],"storageVersionHash":"Q3oi5N2YM8M="},{"name":"namespaces/finalize","singularName":"","namespaced":false,"kind":"Namespace","verbs":["update"]},{"name":"namespaces/status","singularName":"","namespaced":false,"kind":"Namespace","verbs":["get","patch","update"]},{"name":"nodes","singularName":"node","namespaced":false,"kind":"Node","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["no"],"storageVersionHash":"XwShjMxG9Fs="},{"name":"persistentvolumeclaims","singularName":"persistentvolumeclaim","namespaced":true,"kind":"PersistentVolumeClaim","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["pvc"],"storageVersionHash":"A/YFANb0GQY="},{"name":"pods","singularName":"pod","namespaced":true,"kind":"Pod","verbs":["create","delete","deletecollection","get","list","patch","update","watch"],"shortNames":["po"],"categories":["all"],"storageVersionHash":"xPOwRZ+Yj6M="}]}
+
+        '
+  recorded_at: Mon, 09 Jun 2025 15:41:00 GMT
+
+- request:
+    method: get
+    uri: https://host.example.com:8443/api/v1/persistentvolumeclaims
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      User-Agent:
+      - rest-client/2.1.0 (linux-gnu x86_64) ruby/3.3.8p144
+      Authorization:
+      - Bearer theToken
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Audit-Id:
+      - 1a2b3c4d-0000-0000-0000-000000000001
+      Cache-Control:
+      - no-cache, private
+      Content-Type:
+      - application/json
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Kubernetes-Pf-Flowschema-Uid:
+      - 916aba50-d4cc-4f43-8c6a-3161f9f2cf70
+      X-Kubernetes-Pf-Prioritylevel-Uid:
+      - abde746e-2605-4e40-949a-a58670bc4d81
+      Date:
+      - Mon, 09 Jun 2025 15:41:00 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"apiVersion":"v1","items":[{"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"name":"centos-stream9-aqua-gull-95-volume","namespace":"default","uid":"a1b2c3d4-0001-0001-0001-000000000001"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"127Gi"}},"storageClassName":"crc-csi-hostpath-provisioner","volumeMode":"Filesystem"},"status":{"accessModes":["ReadWriteOnce"],"capacity":{"storage":"127Gi"},"phase":"Bound"}},{"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"name":"centos-stream9-orange-butterfly-22","namespace":"default","uid":"a1b2c3d4-0002-0002-0002-000000000002"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"30Gi"}},"storageClassName":"crc-csi-hostpath-provisioner","volumeMode":"Filesystem"},"status":{"accessModes":["ReadWriteOnce"],"capacity":{"storage":"30Gi"},"phase":"Bound"}}],"kind":"PersistentVolumeClaimList","metadata":{"continue":"","resourceVersion":"3132708"}}
+
+        '
+  recorded_at: Mon, 09 Jun 2025 15:41:00 GMT
+
+- request:
+    method: get
     uri: https://host.example.com:8443/apis/instancetype.kubevirt.io/v1beta1
     body:
       encoding: US-ASCII
