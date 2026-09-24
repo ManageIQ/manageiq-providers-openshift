@@ -51,6 +51,7 @@
     :event_catcher:
       :event_catcher_openshift:
         :poll: 1.seconds
+        :rails_worker: false
       :event_catcher_openshift_infra:
         :poll: 1.seconds
       :event_catcher_prometheus:
