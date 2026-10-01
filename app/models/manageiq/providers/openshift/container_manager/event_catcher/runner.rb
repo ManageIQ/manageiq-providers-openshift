@@ -4,6 +4,6 @@ class ManageIQ::Providers::Openshift::ContainerManager::EventCatcher::Runner < M
   private
 
   def worker_cmdline
-    ManageIQ::Providers::Kubernetes::Engine.root.join("workers/event_catcher/worker").to_s
+    ManageIQ::Providers::Kubernetes::Engine.root.join("workers/manageiq/providers/kubernetes/container_manager/event_catcher/worker").to_s
   end
 end
