@@ -4,7 +4,7 @@ RSpec.describe ManageIQ::Providers::Openshift::ContainerManager::EventCatcher::R
 
     it 'points at the Kubernetes engine worker binary' do
       expect(runner.send(:worker_cmdline)).to eq(
-        ManageIQ::Providers::Kubernetes::Engine.root.join("workers/event_catcher/worker").to_s
+        ManageIQ::Providers::Kubernetes::Engine.root.join("workers/manageiq/providers/kubernetes/container_manager/event_catcher/worker").to_s
       )
     end
 
