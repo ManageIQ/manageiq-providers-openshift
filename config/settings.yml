@@ -24,7 +24,7 @@
     - REPLICASET_SCALINGREPLICASET
     - REPLICATOR_SCALINGREPLICASET
     - STATEFULSET_SCALINGREPLICASET
-    
+
     :event_handling:
       :event_groups:
 :hawkular_tenant_labels:
@@ -54,6 +54,7 @@
         :rails_worker: false
       :event_catcher_openshift_infra:
         :poll: 1.seconds
+        :rails_worker: false
       :event_catcher_prometheus:
         :poll: 20.seconds
     :queue_worker_base:
